@@ -1,12 +1,12 @@
 'use strict';
-
 angular.module('uiGenApp', [
   'uiGenApp.constants',
-  'ngCookies',
-  'ngResource',
-  'ngSanitize',
+  'qui.core',
+  'ngAnimate',
   'ui.router',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'mwl.calendar',
+  'chart.js',
 ])
   .config(function($urlRouterProvider, $locationProvider) {
     $urlRouterProvider
@@ -14,3 +14,4 @@ angular.module('uiGenApp', [
 
     $locationProvider.html5Mode(true);
   });
+

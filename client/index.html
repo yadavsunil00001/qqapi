@@ -13,6 +13,8 @@
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(client) app/vendor.css -->
       <!-- bower:css -->
+      <link rel="stylesheet" href="bower_components/angular-bootstrap-calendar/dist/css/angular-bootstrap-calendar.css" />
+      <link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.css" />
       <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css({.tmp,client}) app/app.css -->
@@ -48,20 +50,45 @@
     <![endif]-->
     <!-- build:js({client,node_modules}) app/vendor.js -->
       <!-- bower:js -->
+      <script src="bower_components/jquery/dist/jquery.js"></script>
       <script src="bower_components/angular/angular.js"></script>
       <script src="bower_components/angular-http-auth/src/http-auth-interceptor.js"></script>
+      <script src="bower_components/angular-animate/angular-animate.js"></script>
+      <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+      <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+      <script src="bower_components/moment/moment.js"></script>
+      <script src="bower_components/angular-bootstrap-calendar/dist/js/angular-bootstrap-calendar-tpls.js"></script>
+      <script src="bower_components/Chart.js/Chart.js"></script>
+      <script src="bower_components/angular-chart.js/dist/angular-chart.js"></script>
       <!-- endbower -->
     <!-- endbuild -->
     <!-- build:js(.tmp) app/app.js -->
       <script src="app/app.js"></script>
       <!-- injector:js -->
       <script src="components/util/util.module.js"></script>
-      <script src="components/footer/footer.directive.js"></script>
+      <script src="app/qui/services/qui.search/degrees.js"></script>
       <script src="app/main/main.controller.js"></script>
       <script src="app/main/main.js"></script>
+      <script src="app/qui/qui.components/before.bottom.js"></script>
+      <script src="app/qui/qui.components/scroll.to.bottom.js"></script>
+      <script src="app/qui/qui.core.js"></script>
+      <script src="app/qui/services/qui.constant/currency.js"></script>
+      <script src="app/qui/services/qui.core/auth.interceptor.js"></script>
+      <script src="app/qui/services/qui.core/auth.js"></script>
+      <script src="app/qui/services/qui.core/moment.js"></script>
+      <script src="app/qui/services/qui.core/page.js"></script>
+      <script src="app/qui/services/qui.core/session.js"></script>
+      <script src="app/qui/services/qui.core/user.js"></script>
+      <script src="app/factories/applicantsFactory/applicantsFactory.service.js"></script>
+      <script src="app/qui/services/qui.search/employers.js"></script>
+      <script src="app/qui/services/qui.search/funcs.js"></script>
+      <script src="app/qui/services/qui.search/industries.js"></script>
+      <script src="app/qui/services/qui.search/institutes.js"></script>
+      <script src="app/qui/services/qui.search/regions.js"></script>
+      <script src="app/qui/services/qui.search/skills.js"></script>
       <script src="app/routes/applicants/applicants.controller.js"></script>
       <script src="app/routes/applicants/applicants.js"></script>
-      <script src="app/factories/applicantsFactory/applicantsFactory.service.js"></script>
+      <script src="components/footer/footer.directive.js"></script>
       <script src="components/modal/modal.service.js"></script>
       <script src="components/navbar/navbar.controller.js"></script>
       <script src="components/navbar/navbar.directive.js"></script>
