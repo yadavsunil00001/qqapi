@@ -1,0 +1,22 @@
+{
+  "name": "ui-gen",
+  "version": "0.0.0",
+  "devDependencies": {
+    "angular": "~1.4.8",
+    "angular-animate": "~1.4.8",
+    "angular-ui-router": "~0.2.15",
+    "animate.css": "animate-css#~3.4.0",
+    "bootstrap-sass": "~3.3.6",
+    "angular-bootstrap": "~0.14.3",
+    "angular-bootstrap-calendar": "~0.17.6",
+    "moment": "~2.10.6",
+    "ui-select": "angular-ui-select#~0.13.2",
+    "angular-sanitize": "~1.4.8",
+    "angular-chart.js": "~0.8.8"
+  },
+  "dependencies": {
+    "font-awesome": "fontawesome#~4.5.0",
+    "source-sans-pro": "git://github.com/adobe-fonts/source-sans-pro.git#release",
+    "angular-http-auth": "~1.2.3"
+  }
+}
