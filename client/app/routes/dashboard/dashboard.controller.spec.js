@@ -1,13 +1,13 @@
 'use strict';
 
-describe('Controller: MainController', function() {
+describe('Controller: DashboardController', function() {
 
   // load the controller's module
   beforeEach(module('uiGenApp'));
   beforeEach(module('stateMock'));
 
   var scope;
-  var MainController;
+  var DashboardController;
   var state;
   var $httpBackend;
 
@@ -19,13 +19,13 @@ describe('Controller: MainController', function() {
 
     scope = $rootScope.$new();
     state = $state;
-    MainController = $controller('MainController', {
+    DashboardController = $controller('DashboardController', {
       $scope: scope
     });
   }));
 
   it('should attach a list of things to the controller', function() {
     $httpBackend.flush();
-    MainController.awesomeThings.length.should.equal(4);
+    DashboardController.awesomeThings.length.should.equal(4);
   });
 });

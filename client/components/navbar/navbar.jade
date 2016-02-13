@@ -1,14 +1,64 @@
-div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarController')
-  div.container
-    div.navbar-header
-      button.navbar-toggle(type='button', ng-click='nav.isCollapsed = !nav.isCollapsed')
-        span.sr-only Toggle navigation
-        span.icon-bar
-        span.icon-bar
-        span.icon-bar
-      a.navbar-brand(href='/') ui-gen
+//- navbar header
+.navbar-header(class='{{App.app.settings.navbarHeaderColor}}')
+  button.pull-right.visible-xs.dk(ng-click='App.app.settings.mobileHeader = !App.app.settings.mobileHeader')
+    i.fa.fa-cog
+  button.pull-right.visible-xs(ng-click='App.app.settings.offScreen = !App.app.settings.offScreen')
+    i.fa.fa-align-justify
+  //- brand
+  a.navbar-brand.text-lt(ui-sref='app.dashboard')
+    img.w-sm(src='assets/images/quezx-logo.svg', alt='{{App.app.name}}')
+    span.hide.hidden-folded.m-l-xs {{App.app.name}}
+//- navbar collapse
+.collapse.pos-rlt.navbar-collapse.box-shadow(
+class='{{App.app.settings.navbarCollapseColor}}'
+ng-class="{\
+    'show': App.app.settings.mobileHeader,\
+  }"
+)
+  //- buttons
+  .nav.navbar-nav.hidden-xs.hide
+    a.btn.no-shadow.navbar-btn(href='', ng-click='App.app.settings.asideFolded = !App.app.settings.asideFolded')
+      i.fa.fa-fw(class="{{App.app.settings.asideFolded ? 'fa-indent' : 'fa-dedent'}}")
+    a.btn.no-shadow.navbar-btn(href='', ui-toggle-class='show', target='#aside-user')
+      i.icon-user.fa-fw
 
-    div#navbar-main.navbar-collapse.collapse(collapse='nav.isCollapsed')
-      ul.nav.navbar-nav
-        li(ng-repeat='item in nav.menu', ui-sref-active='active')
-          a(ui-sref='{{item.state}}') {{item.title}}
+  .col-sm-7.no-padder: form.w-full.navbar-form.navbar-form-lg.navbar-left(role='search')
+    .form-group.w-full: .input-group.w-full
+      input.form-control.input-sm.bg-light.no-border.rounded.padder(type='text' ng-model='App.Applicants.searchText' uib-typeahead='applicant.name for applicant in App.Applicants.get($viewValue)' typeahead-on-select='App.Applicants.select($item)' placeholder='Search candidate by name, email or phone...')
+      span.input-group-btn
+        button.btn.btn-sm.bg-light.rounded(type='submit')
+          i.fa.fa-search
+  ul.nav.navbar-nav.navbar-right
+    li.hide: a: i.fa.fa-lg.fa-comments
+
+    li.dropdown(uib-dropdown='')
+      a.dropdown-toggle.clear(href='', uib-dropdown-toggle='')
+        span.hidden-sm.hidden-md {{App.userinfo.name}}
+        b.caret.m-r-xs.m-l-xs
+        i.fa.fa-lg.fa-user
+
+      //- dropdown
+      ul.dropdown-menu.animated.fadeInRight.w
+        li.hide
+          a(ui-sref='app.help')
+            span.label.bg-info.pull-right new
+            | Help
+        li.hide.divider
+        //li(ng-controller='LogoutController as logout')
+        li
+          a(ng-click='logout.init()') Logout
+
+//div.navbar.navbar-default.navbar-static-top(ng-controller='NavbarController')
+//  div.container
+//    div.navbar-header
+//      button.navbar-toggle(type='button', ng-click='nav.isCollapsed = !nav.isCollapsed')
+//        span.sr-only Toggle navigation
+//        span.icon-bar
+//        span.icon-bar
+//        span.icon-bar
+//      a.navbar-brand(href='/') ui-gen
+//
+//    div#navbar-main.navbar-collapse.collapse(collapse='nav.isCollapsed')
+//      ul.nav.navbar-nav
+//        li(ng-repeat='item in nav.menu', ui-sref-active='active')
+//          a(ui-sref='{{item.state}}') {{item.title}}

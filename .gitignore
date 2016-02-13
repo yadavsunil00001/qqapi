@@ -11,3 +11,4 @@ coverage
 x-client
 client/bower_components_
 server_
+client/app/ng-modules

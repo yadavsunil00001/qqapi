@@ -31,9 +31,36 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <navbar></navbar>
-    <div ui-view=""></div>
-    <footer></footer>
+    <div id="app" ng-class="{
+    'app-header-fixed':true,
+    'app-aside-fixed':true,
+    'app-aside-folded':App.app.settings.asideFolded,
+    'app-aside-dock':App.app.settings.asideDock,
+    'container':App.app.settings.container      }" class="app">
+      <!--<header>-->
+        <navbar class="app-header navbar"></navbar> <!--<div ng-include="'html/blocks/header.html'" class="app-header navbar"></div>-->
+      <!--</header>-->
+      <aside ng-class="{    'off-screen': App.app.settings.offScreen,  }" class="app-aside hidden-xs {{App.app.settings.asideColor}}"></aside>
+      <content>
+        <div class="app-content">
+          <div ui-butterbar=""></div>
+          <a href="" ui-toggle-class="off-screen" data-target=".app-aside" class="off-screen-toggle hide"></a>
+          <div class="app-content-body">
+            <div class="hbox">
+              <div ng-if="App.showNavJobs()" class="col w">
+                <div ng-include="'components/navigation-jobs/navigation-jobs.html'"></div>
+              </div>
+              <div ui-view class="col"></div>
+            </div>
+          </div>
+      </div>
+      </content>
+    </div>
+    <!--<div ng-include="'html/blocks/aside.html'" ng-class="{    'off-screen': App.app.settings.offScreen,  }" class="app-aside hidden-xs {{App.app.settings.asideColor}}"></div>-->
+
+    <!--<navbar></navbar>-->
+    <!--<div ui-view=""></div>-->
+    <!--<footer></footer>-->
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
     <script>
@@ -68,33 +95,48 @@
       <script src="app/app.js"></script>
       <!-- injector:js -->
       <script src="components/util/util.module.js"></script>
-      <script src="app/qui/services/qui.search/degrees.js"></script>
+      <script src="app/ng-modules/qui.hire/services/applicants/applicants.js"></script>
       <script src="app/factories/applicantsFactory/applicantsFactory.service.js"></script>
-      <script src="app/main/main.controller.js"></script>
-      <script src="app/main/main.js"></script>
-      <script src="app/qui/qui.components/before.bottom.js"></script>
-      <script src="app/qui/qui.components/scroll.to.bottom.js"></script>
-      <script src="app/qui/qui.core.js"></script>
-      <script src="app/qui/services/qui.constant/currency.js"></script>
-      <script src="app/qui/services/qui.core/auth.interceptor.js"></script>
-      <script src="app/qui/services/qui.core/auth.js"></script>
-      <script src="app/qui/services/qui.core/moment.js"></script>
-      <script src="app/qui/services/qui.core/page.js"></script>
-      <script src="app/qui/services/qui.core/session.js"></script>
-      <script src="app/qui/services/qui.core/user.js"></script>
+      <script src="app/ng-modules/qui.components/before.bottom.js"></script>
+      <script src="app/ng-modules/qui.components/scroll.to.bottom.js"></script>
+      <script src="app/ng-modules/qui.core.search/app.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/degrees.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/employers.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/funcs.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/industries.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/institutes.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/regions.js"></script>
+      <script src="app/ng-modules/qui.core.search/services/skills.js"></script>
+      <script src="app/ng-modules/qui.core/app.js"></script>
+      <script src="app/ng-modules/qui.core/constants/auth-events.js"></script>
+      <script src="app/ng-modules/qui.core/constants/currency.js"></script>
+      <script src="app/ng-modules/qui.core/services/auth.interceptor.js"></script>
+      <script src="app/ng-modules/qui.core/services/auth.js"></script>
+      <script src="app/ng-modules/qui.core/services/moment.js"></script>
+      <script src="app/ng-modules/qui.core/services/page.js"></script>
+      <script src="app/ng-modules/qui.core/services/session.js"></script>
+      <script src="app/ng-modules/qui.core/services/user.js"></script>
       <script src="app/applicants.controller.js"></script>
-      <script src="app/qui/services/qui.search/employers.js"></script>
-      <script src="app/qui/services/qui.search/funcs.js"></script>
-      <script src="app/qui/services/qui.search/industries.js"></script>
-      <script src="app/qui/services/qui.search/institutes.js"></script>
-      <script src="app/qui/services/qui.search/regions.js"></script>
-      <script src="app/qui/services/qui.search/skills.js"></script>
+      <script src="app/ng-modules/qui.hire/services/application-comments/applicant-comments.js"></script>
+      <script src="app/ng-modules/qui.hire/services/change-state.js"></script>
+      <script src="app/ng-modules/qui.hire/services/followers.js"></script>
+      <script src="app/ng-modules/qui.hire/services/job-comments.js"></script>
+      <script src="app/ng-modules/qui.hire/services/jobs.js"></script>
+      <script src="app/ng-modules/qui.hire/services/summary.js"></script>
       <script src="app/routes/applicants/applicants.controller.js"></script>
       <script src="app/routes/applicants/applicants.js"></script>
+      <script src="app/routes/dashboard/dashboard.controller.js"></script>
+      <script src="app/routes/dashboard/dashboard.js"></script>
+      <script src="components/aside/aside.controller.js"></script>
+      <script src="components/aside/aside.directive.js"></script>
       <script src="components/footer/footer.directive.js"></script>
       <script src="components/modal/modal.service.js"></script>
       <script src="components/navbar/navbar.controller.js"></script>
       <script src="components/navbar/navbar.directive.js"></script>
+      <script src="components/navigation-jobs/navigation-jobs.controller.js"></script>
+      <script src="components/navigation-jobs/navigation-jobs.directive.js"></script>
+      <script src="components/navigation/navigation.controller.js"></script>
+      <script src="components/navigation/navigation.directive.js"></script>
       <script src="app/app.constant.js"></script>
       <script src="components/util/util.service.js"></script>
       <!-- endinjector -->
