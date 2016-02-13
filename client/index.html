@@ -1,18 +1,20 @@
 <!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" ng-app="uiGenApp" ng-controller="AppController as App"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" ng-app="uiGenApp" ng-controller="AppController as App"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" ng-app="uiGenApp" ng-controller="AppController as App"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" ng-app="uiGenApp" ng-controller="AppController as App"> <!--<![endif]-->
   <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <base href="/">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
+    <title ng-bind="App.Page.title()"> </title>
+    <meta name="description" content="dashboard, recruiter, client">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(client) app/vendor.css -->
       <!-- bower:css -->
+      <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
+      <link rel="stylesheet" href="bower_components/source-sans-pro/source-sans-pro.css" />
       <link rel="stylesheet" href="bower_components/angular-bootstrap-calendar/dist/css/angular-bootstrap-calendar.css" />
       <link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.css" />
       <!-- endbower -->
@@ -67,6 +69,7 @@
       <!-- injector:js -->
       <script src="components/util/util.module.js"></script>
       <script src="app/qui/services/qui.search/degrees.js"></script>
+      <script src="app/factories/applicantsFactory/applicantsFactory.service.js"></script>
       <script src="app/main/main.controller.js"></script>
       <script src="app/main/main.js"></script>
       <script src="app/qui/qui.components/before.bottom.js"></script>
@@ -79,7 +82,7 @@
       <script src="app/qui/services/qui.core/page.js"></script>
       <script src="app/qui/services/qui.core/session.js"></script>
       <script src="app/qui/services/qui.core/user.js"></script>
-      <script src="app/factories/applicantsFactory/applicantsFactory.service.js"></script>
+      <script src="app/applicants.controller.js"></script>
       <script src="app/qui/services/qui.search/employers.js"></script>
       <script src="app/qui/services/qui.search/funcs.js"></script>
       <script src="app/qui/services/qui.search/industries.js"></script>

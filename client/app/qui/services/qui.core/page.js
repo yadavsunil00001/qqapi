@@ -4,7 +4,7 @@ angular.module('qui.core')
       let title = 'Welcome';
       return {
         title: function getTitle() {
-          return title;
+          return title + " | QuezX.com";
         },
 
         setTitle: function setTitle(newTitle) {
