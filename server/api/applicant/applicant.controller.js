@@ -10,13 +10,9 @@
 'use strict';
 
 import _ from 'lodash';
-import {Applicant} from '../../sqldb';
-import {Solr} from '../../sqldb';
-
-//const _ = require('lodash');
-//const db = require('app').db;
-const buckets = require('./../../config/buckets');
-const stakeholders = require('./../../config/stakeholders');
+import {Applicant, Solr} from '../../sqldb';
+import buckets from './../../config/buckets';
+import stakeholders from './../../config/stakeholders';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -64,19 +60,12 @@ function handleError(res, statusCode) {
   };
 }
 
-// Gets a list of Applicants
-/*export function index(req, res) {
-  Applicant.findAll()
-    .then(respondWithResult(res))
-    .catch(handleError(res));
-}*/
-
 // Gets a list of UserJobApplicants
 export function index(req, res) {
   const offset = req.query.offset || 0;
   const limit = (req.query.limit > 20) ? 20 : req.query.limit || 10;
   const fl = req.query.fl || [
-      'id', 'name', 'exp_designation', 'edu_degree', 'exp_salary',
+      'id', 'name', 'exp_designation', 'edu_degree', 'exp_salary','client_name',
       'exp_employer', 'total_exp', 'exp_location', 'state_id',
       'state_name', 'applicant_score', 'created_on',
     ].join(',');
@@ -94,7 +83,7 @@ export function index(req, res) {
 
   const solrQuery = Solr.createQuery()
     .q('(owner_id:' + req.user.id +') AND type_s:applicant ')
-//{!child of="type_s:job"}
+    // {!child of="type_s:job"}
     .sort({_root_: 'DESC', type_s: 'DESC'})
     .fl(fl)
     .matchFilter('state_id', `(${states.join(' OR ')})`)

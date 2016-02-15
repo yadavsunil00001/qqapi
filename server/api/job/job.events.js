@@ -1,15 +1,15 @@
 /**
- * Thing model events
+ * Job model events
  */
 
 'use strict';
 
 import {EventEmitter} from 'events';
-var Thing = require('../../sqldb').Thing;
-var ThingEvents = new EventEmitter();
+var Job = require('../../sqldb').Job;
+var JobEvents = new EventEmitter();
 
 // Set max event listeners (0 == unlimited)
-ThingEvents.setMaxListeners(0);
+JobEvents.setMaxListeners(0);
 
 // Model events
 var events = {
@@ -21,15 +21,15 @@ var events = {
 // Register the event emitter to the model events
 for (var e in events) {
   var event = events[e];
-  Thing.hook(e, emitEvent(event));
+  Job.hook(e, emitEvent(event));
 }
 
 function emitEvent(event) {
   return function(doc, options, done) {
-    ThingEvents.emit(event + ':' + doc._id, doc);
-    ThingEvents.emit(event, doc);
+    JobEvents.emit(event + ':' + doc._id, doc);
+    JobEvents.emit(event, doc);
     done(null);
   }
 }
 
-export default ThingEvents;
+export default JobEvents;

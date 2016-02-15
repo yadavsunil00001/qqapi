@@ -1,7 +1,7 @@
 'use strict';
 
 export default function(sequelize, DataTypes) {
-  return sequelize.define('Applicant', {
+  const Applicant =  sequelize.define('Applicant', {
     id: {
       type: DataTypes.INTEGER(11),
       autoIncrement: true,
@@ -279,4 +279,6 @@ export default function(sequelize, DataTypes) {
       },
     },
   });
+
+  return Applicant;
 }

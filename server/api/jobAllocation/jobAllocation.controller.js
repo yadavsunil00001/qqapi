@@ -1,16 +1,16 @@
 /**
  * Using Rails-like standard naming convention for endpoints.
- * GET     /api/things              ->  index
- * POST    /api/things              ->  create
- * GET     /api/things/:id          ->  show
- * PUT     /api/things/:id          ->  update
- * DELETE  /api/things/:id          ->  destroy
+ * GET     /api/jobAllocations              ->  index
+ * POST    /api/jobAllocations              ->  create
+ * GET     /api/jobAllocations/:id          ->  show
+ * PUT     /api/jobAllocations/:id          ->  update
+ * DELETE  /api/jobAllocations/:id          ->  destroy
  */
 
 'use strict';
 
 import _ from 'lodash';
-import {Thing} from '../../sqldb';
+import {JobAllocation} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -58,16 +58,16 @@ function handleError(res, statusCode) {
   };
 }
 
-// Gets a list of Things
+// Gets a list of JobAllocations
 export function index(req, res) {
-  Thing.findAll()
+  JobAllocation.findAll()
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
 
-// Gets a single Thing from the DB
+// Gets a single JobAllocation from the DB
 export function show(req, res) {
-  Thing.find({
+  JobAllocation.find({
     where: {
       _id: req.params.id
     }
@@ -77,19 +77,19 @@ export function show(req, res) {
     .catch(handleError(res));
 }
 
-// Creates a new Thing in the DB
+// Creates a new JobAllocation in the DB
 export function create(req, res) {
-  Thing.create(req.body)
+  JobAllocation.create(req.body)
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
 
-// Updates an existing Thing in the DB
+// Updates an existing JobAllocation in the DB
 export function update(req, res) {
   if (req.body._id) {
     delete req.body._id;
   }
-  Thing.find({
+  JobAllocation.find({
     where: {
       _id: req.params.id
     }
@@ -100,9 +100,9 @@ export function update(req, res) {
     .catch(handleError(res));
 }
 
-// Deletes a Thing from the DB
+// Deletes a JobAllocation from the DB
 export function destroy(req, res) {
-  Thing.find({
+  JobAllocation.find({
     where: {
       _id: req.params.id
     }

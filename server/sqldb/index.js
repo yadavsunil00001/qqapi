@@ -27,12 +27,12 @@ var db = {
 };
 
 
-
 // Quarc - Insert models below
-//db.Partner = db.sequelizeQuarc.import('../api/partner/partner.model');
+db.Applicant = db.sequelizeQuarc.import('../api/applicant/applicant.model');
+db.Job = db.sequelizeQuarc.import('../api/job/job.model');
+db.JobAllocation = db.sequelizeQuarc.import('../api/jobAllocation/jobAllocation.model');
 
 // Quantum - Insert models below
 db.User = db.sequelizeQuantum.import('../api/user/user.model');
-db.Applicant = db.sequelizeQuarc.import('../api/applicant/applicant.model');
 
 export default db;
