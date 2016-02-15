@@ -36,7 +36,7 @@ angular.module('uiGenApp')
     vm.Applicants = {
       select: function gotoApplicant($item) {
         vm.Applicants.searchText = '';
-        $state.go('app.applicant.view', { applicantId: $item.id });
+        $state.go('applicant.view', { applicantId: $item.id });
       },
 
       get: function searchApplicants(searchText) {
@@ -71,7 +71,7 @@ angular.module('uiGenApp')
     vm.userinfo = User.userinfo;
     vm.states = User.states;
     vm.showNavJobs = function showNavJobs() {
-      return $state.is('app.applicants') || $state.is('app.jobs.manage');
+      return $state.is('applicants') || $state.is('jobs.manage');
     };
 
     vm.downloadApplicant = function downloadApplicant(ids) {

@@ -12,7 +12,7 @@
             i.fa.fa-user-secret.fa-lg
             span.h4.text-black  Interviews
             .fa-4x.h1 {{Dashboard.summary.interview}}
-        .hbox.wrapper-xs.bg-black.text-center: a(ui-sref='app.applicants({bucket: "Pending Feedback"})') Awaiting Feedback
+        .hbox.wrapper-xs.bg-black.text-center: a(ui-sref='applicants({bucket: "Pending Feedback"})') Awaiting Feedback
     .col-xs-12.no-padder
       .m-xs.wrapper-xs.bg-white
         .h4.text-black  &nbsp; Actions Required
@@ -24,7 +24,7 @@
           .col.thumb-xs: .h6.font-bold.pull-right CVs
         div
           .hbox.wrapper-sm.b-b(ng-repeat='pipe in Dashboard.pipeline | orderBy:"-count"')
-            .col: a(ui-sref='app.jobs.manage({jobId: pipe.id, bucket:"Pending Feedback"})') {{pipe.role}}
+            .col: a(ui-sref='jobs.manage({jobId: pipe.id, bucket:"Pending Feedback"})') {{pipe.role}}
             .col.thumb-xs
               span.pull-right {{pipe.count}}
 .col-sm-8.no-padder
@@ -60,7 +60,7 @@
           .col: .h6.font-bold Type
           .col: .h6.font-bold Time
         .hbox.wrapper-sm.b-b(ng-repeat='applicant in Dashboard.interviews')
-          .col: a(ui-sref='app.applicant.view({applicantId: applicant.id})') {{applicant.name}}
+          .col: a(ui-sref='applicant.view({applicantId: applicant.id})') {{applicant.name}}
           .col
             i.fa(class='text-{{App.interviewUI[applicant.interview_type].color}}-dker fa-{{App.interviewUI[applicant.interview_type].icon}}')
             |  {{App.states[applicant.interview_type].name}}
