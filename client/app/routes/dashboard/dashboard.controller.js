@@ -1,13 +1,19 @@
 'use strict';
 
 angular.module('uiGenApp')
-  .controller('DashboardController', function(Page, Summary, Applicants, moment) {
+  .controller('DashboardController', function(QuarcService, Restangular, moment) {
+    const Page = QuarcService.Page;
+    const Summary = QuarcService.Summary;
+    const Applicants = QuarcService.Applicants
+
     const vm = this;
     Page.setTitle('Dashboard');
     vm.getSummary = function getSummary() {
-      Summary.get({ state_id: '1,5,8,9,17' })
-        .then(function gotSummary(response) {
-          vm.summary = {
+      Restangular
+      .one('summary/dashboard')
+      .get({ state_id: '1,5,8,9,17' })
+      .then(function gotSummary(response) {
+        vm.summary = {
             cv: response[1] || 0,
             interview: response[9] || 0,
             await_interview: [
@@ -27,7 +33,9 @@ angular.module('uiGenApp')
     vm.getSummary();
 
     vm.getPipeline = function getPipeline() {
-      Summary.getPipeline()
+      Restangular
+        .one('summary/pipeline')
+        .get()
         .then(function gotPipeline(response) {
           vm.pipeline = response;
         });
@@ -36,16 +44,19 @@ angular.module('uiGenApp')
     vm.getPipeline();
 
     vm.getInterviews = function getInterviews() {
-      Applicants.get({
-        fl: 'id,name,interview_type,interview_time,_root_',
-        sort: 'interview_time ASC',
-        interview_time: [
-          moment().startOf('day').toISOString(),
-          moment().endOf('week').toISOString(),
-        ].join(','),
-      }).then(function gotInterviews(response) {
-        vm.interviews = response;
-      });
+      Restangular
+        .one('applicants')
+        .get({
+          fl: 'id,name,interview_type,interview_time,_root_',
+          sort: 'interview_time ASC',
+          interview_time: [
+            moment().startOf('day').toISOString(),
+            moment().endOf('week').toISOString(),
+          ].join(','),
+        })
+        .then(function gotInterviews(response) {
+          vm.interviews = response;
+        });
     };
 
     vm.getInterviews();

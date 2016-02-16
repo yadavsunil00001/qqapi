@@ -9,7 +9,7 @@ angular.module('uiGenApp', [
   'mwl.calendar',
   'chart.js',
 ])
-  .constant('APP_CONFIG',{QUARC_API_URL:'http://localhost:9000/api'})
+  .constant('APP_CONFIG',{QUARC_API_URL:location.origin+'/api'})
   .config(function($urlRouterProvider, $locationProvider,RestangularProvider,APP_CONFIG) {
     RestangularProvider.setBaseUrl(APP_CONFIG.QUARC_API_URL);
     $urlRouterProvider

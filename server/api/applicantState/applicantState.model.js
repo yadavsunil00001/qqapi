@@ -1,0 +1,168 @@
+'use strict';
+
+export default function(sequelize, DataTypes) {
+  const ApplicantState = sequelize.define('ApplicantState', {
+    id: {
+      type: DataTypes.INTEGER(14),
+      autoIncrement: true,
+      primaryKey: true,
+      allowNull: false,
+      unique: true,
+    },
+    applicant_id: {
+      type: DataTypes.INTEGER(14),
+      validate: {
+        isInt: {
+          msg: 'applicant_id field should be an integer',
+        },
+        len: {
+          args: [0, 14],
+          msg: 'Maximum length for applicant_id field is 14',
+        },
+      },
+      allowNull: false,
+    },
+    scheduled_on: DataTypes.DATE,
+    suggested_join_date: DataTypes.DATE,
+    offered_ctc: {
+      type: DataTypes.DECIMAL(15, 2),
+      validate: {
+        isDecimal: {
+          msg: 'offered_ctc field should be a decimal',
+        },
+        len: {
+          args: [0, 13],
+          msg: 'Maximum length for user_id field is 13',
+        },
+      },
+    },
+    offered_ctc_raw: {
+      type: DataTypes.DECIMAL(40, 2),
+      validate: {
+        isDecimal: {
+          msg: 'offered_ctc_raw field should be a decimal',
+        },
+        len: {
+          args: [0, 38],
+          msg: 'Maximum length for user_id field is 38',
+        },
+      },
+    },
+    final_ctc: {
+      type: DataTypes.DECIMAL(15, 2),
+      validate: {
+        isDecimal: {
+          msg: 'final_ctc field should be a decimal',
+        },
+        len: {
+          args: [0, 13],
+          msg: 'Maximum length for user_id field is 13',
+        },
+      },
+    },
+    final_ctc_raw: {
+      type: DataTypes.DECIMAL(40, 2),
+      validate: {
+        isDecimal: {
+          msg: 'final_ctc_raw field should be a decimal',
+        },
+        len: {
+          args: [0, 38],
+          msg: 'Maximum length for user_id field is 38',
+        },
+      },
+    },
+    comments: {
+      type: DataTypes.STRING(100),
+      validate: {
+        len: {
+          args: [0, 100],
+          msg: 'Maximum length for comments field is 100',
+        },
+      },
+    },
+    currency: {
+      type: DataTypes.STRING(3),
+      validate: {
+        len: {
+          args: [0, 3],
+          msg: 'Maximum length for currency field is 3',
+        },
+      },
+    },
+    job_score_id: {
+      type: DataTypes.INTEGER(11),
+      validate: {
+        len: {
+          args: [0, 3],
+          msg: 'Maximum length for job_score_id is 11',
+        },
+      },
+    },
+    status: {
+      type: DataTypes.INTEGER(1),
+      validate: {
+        isInt: {
+          msg: 'status field should be an integer',
+        },
+        len: {
+          args: [0, 1],
+          msg: 'Maximum length for status field is 1',
+        },
+      },
+    },
+    updated_on: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    created_on: {
+      type: DataTypes.VIRTUAL(DataTypes.DATE, ['updated_on']),
+      get: function getCreateOn() {
+        return this.updated_on;
+      },
+    },
+    comment: {
+      type: DataTypes.VIRTUAL(DataTypes.STRING(100), ['comments']),
+      get: function getComment() {
+        return this.comments;
+      },
+    },
+  }, {
+    tableName: 'applicant_states',
+    timestamps: false,
+    underscored: true,
+    defaultScope: {
+      where: { status: 1 },
+    },
+
+    classMethods: {
+      associate: function associate(models) {
+        ApplicantState.hasMany(models.Applicant);
+
+        ApplicantState.belongsTo(models.State, {
+          foreignKey: 'state_id',
+        });
+
+        ApplicantState.belongsTo(models.User, {
+          foreignKey: 'user_id',
+        });
+      },
+    },
+  });
+
+  ApplicantState.beforeValidate(function beforeValidate(as) {
+    const ocr = as.offered_ctc_raw;
+    const fcr = as.final_ctc_raw;
+    const fc = as.final_ctc;
+    const oc = as.offered_ctc;
+    const result = as;
+    result.final_ctc = !isNaN(fc) ? Number(Number(fc).toFixed(2)) : null;
+    result.final_ctc_raw = !isNaN(fcr) ? Number(Number(fcr).toFixed(2)) : null;
+    result.offered_ctc_raw = !isNaN(ocr) ? Number(Number(ocr).toFixed(2)) : null;
+    result.offered_ctc = !isNaN(oc) ? Number(Number(oc).toFixed(2)) : null;
+    return sequelize.Promise.resolve(result);
+  });
+
+  return ApplicantState;
+}

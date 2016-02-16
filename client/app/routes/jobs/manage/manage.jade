@@ -5,12 +5,12 @@
         input(type='checkbox' ng-click='Applicant.setChecked(Applicant.checkAll)' ng-model='Applicant.checkAll')
         i.m-r-none(ng-if='Applicant.applicants.length > 0')
       li(ng-repeat='bucket in Applicant.buckets' ui-sref-active="active")
-        a(ui-sref='app.jobs.manage({bucket: bucket})') {{bucket}}
+        a(ui-sref='jobs.manage({bucket: bucket})') {{bucket}}
   .wrapper-xs.bg-light.b-b(style='position: fixed; right: 0;background: #fff; z-index: 3;')
     ul.nav.nav-pills.nav-sm
       li
         button.btn.btn-primary.btn-sm(ng-if='Applicant.getApplicants({checked: true}, "id").length>0' ng-click='App.downloadApplicant(Applicant.getApplicants({checked: true}, "id"))') Download CV(s)
-      li: a.h5.b-a.b-info.b-2x.text-info.font-bold(ui-sref='app.job.view({jobId: 570})') View JD
+      li: a.h5.b-a.b-info.b-2x.text-info.font-bold(ui-sref='job.view({jobId: 570})') View JD
   .wrapper-md
     .m-b-xs.hbox.m-t-xl(ng-if='Applicant.applicants.length === 0')
       .col: h1.text-center.text-muted(ng-if='!Applicant.ui.loading') No Applicants
@@ -23,7 +23,7 @@
               label.i-checks.m-b-none
                 input(type='checkbox' ng-model='applicant.checked')
                 i
-              a(ui-sref='app.applicant.view({applicantId: applicant.id})')
+              a(ui-sref='applicant.view({applicantId: applicant.id})')
                 strong.text-primary-lt  {{applicant.name}}
 
               .btn-group.pull-right.m-t-n-xs(uib-dropdown='' uib-keyboard-nav='' dropdown-append-to-body)

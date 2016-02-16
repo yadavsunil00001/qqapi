@@ -2,8 +2,8 @@ div(ng-controller='JobViewController as Job')
   .wrapper-xs.bg-light.b-b
     .m-l-md.font-thin.h3
       | Positions /
-      a(ui-sref='app.jobs.manage({jobId: Job.data.id})')  {{Job.data.role}} /
-      a(ui-sref='app.job.view({jobId: Job.data.id})')  View JD
+      a(ui-sref='jobs.manage({jobId: Job.data.id})')  {{Job.data.role}} /
+      a(ui-sref='job.view({jobId: Job.data.id})')  View JD
   .col-md-9.clearfix
     //- Job top cover container
     .col-sm-12.dker.no-padder

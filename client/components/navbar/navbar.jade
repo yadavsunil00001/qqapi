@@ -5,7 +5,7 @@
   button.pull-right.visible-xs(ng-click='App.app.settings.offScreen = !App.app.settings.offScreen')
     i.fa.fa-align-justify
   //- brand
-  a.navbar-brand.text-lt(ui-sref='app.dashboard')
+  a.navbar-brand.text-lt(ui-sref='dashboard')
     img.w-sm(src='assets/images/quezx-logo.svg', alt='{{App.app.name}}')
     span.hide.hidden-folded.m-l-xs {{App.app.name}}
 //- navbar collapse
@@ -40,7 +40,7 @@ ng-class="{\
       //- dropdown
       ul.dropdown-menu.animated.fadeInRight.w
         li.hide
-          a(ui-sref='app.help')
+          a(ui-sref='help')
             span.label.bg-info.pull-right new
             | Help
         li.hide.divider

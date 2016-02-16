@@ -155,14 +155,22 @@ export function search(req, res) {
 
 // Gets a single Job from the DB
 export function show(req, res) {
-  Job.find({
-    where: {
-      _id: req.params.id
-    }
-  })
-    .then(handleEntityNotFound(res))
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+  const fl = req.query.fl || [
+      'updated_on','role','owner_id','consultant_score','direct_line_up','job_nature','eng_mgr_name',
+      'eng_mgr_name_sf','max_sal','max_exp','recruiter_username','id','job_code','client_name',
+      'client_name_sf','email','min_sal','min_exp','c','ient_score','type_s',
+      'screening_score','total_applicants','job_status','created_on',
+      'job_location','vacancy','skills'
+    ].join(',');
+
+  const solrQuery = Solr.createQuery()
+    .q(`id:${req.params.jobId} AND type_s:job`)
+    .fl(fl);
+  Solr.get('select', solrQuery, function solrCallback(err, result) {
+    if (err) return res.status(500).json(err);
+    let responsJson =  (result.response.docs instanceof Array) ? result.response.docs[0] : result.response.docs
+    res.json(responsJson);
+  });
 }
 
 // Creates a new Job in the DB

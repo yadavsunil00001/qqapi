@@ -31,6 +31,9 @@ var db = {
 db.Applicant = db.sequelizeQuarc.import('../api/applicant/applicant.model');
 db.Job = db.sequelizeQuarc.import('../api/job/job.model');
 db.JobAllocation = db.sequelizeQuarc.import('../api/jobAllocation/jobAllocation.model');
+db.Comment = db.sequelizeQuarc.import('../api/comment/comment.model');
+db.JobComment = db.sequelizeQuarc.import('../api/jobComment/jobComment.model');
+db.ApplicantState = db.sequelizeQuarc.import('../api/applicantState/applicantState.model');
 
 // Quantum - Insert models below
 db.User = db.sequelizeQuantum.import('../api/user/user.model');

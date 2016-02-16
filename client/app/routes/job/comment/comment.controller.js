@@ -1,5 +1,5 @@
 angular.module('qui.hire')
-  .controller('JobCommentsController', function JobCommentsCtrl(QuarcService, $stateParams) {
+  .controller('JobCommentsController', function JobCommentsCtrl(QuarcService, Restangular, $stateParams) {
     const JobComments = QuarcService.JobComments;
     const User = QuarcService.User;
 
@@ -9,6 +9,7 @@ angular.module('qui.hire')
         Restangular
           .one('jobs', $stateParams.jobId)
           .all('comments')
+          .getList()
           .then(function gotJobComment(result) {
             vm.data = result;
 

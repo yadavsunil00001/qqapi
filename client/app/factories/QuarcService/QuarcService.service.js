@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('uiGenApp')
-  .service('QuarcService', function (Page, Session, Jobs,Regions,Degrees,Institutes,Industries,Employers,Skills,Funcs,JobComments) {
+  .service('QuarcService', function (Page, Session, Jobs,Regions,Degrees,Institutes,Industries,Employers,Skills,Funcs,JobComments, Summary) {
     // AngularJS will instantiate a singleton by calling "new" on this function
 
     return {
@@ -16,6 +16,7 @@ angular.module('uiGenApp')
       Skills:Skills,
       Funcs:Funcs,
       JobComments: JobComments,
+      Summary: Summary
 
     };
   });

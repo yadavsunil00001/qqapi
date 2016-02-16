@@ -16,12 +16,12 @@ angular.module('uiGenApp')
       .state('jobs.list', {
         url: '/',
         templateUrl: 'app/routes/jobs/list/list.html',
+        controller: 'JobsCtrl',
+        controllerAs: 'Jobs',
       })
       .state('jobs.manage', {
         url: '/manage/{bucket}/{jobId}',
         templateUrl: 'app/routes/jobs/manage/manage.html',
-        //controller: 'LoginController',
-        //controllerAs: 'vm',
         authenticate: true
       });
   });

@@ -1,6 +1,6 @@
 angular.module('qui.hire')
   .controller('JobViewController',
-    function JobViewCtrl(QuarcService, $stateParams, $sce) {
+    function JobViewCtrl(QuarcService, Restangular, $stateParams, $sce) {
       const Jobs = QuarcService.Jobs;
       const Page = QuarcService.Page;
 
