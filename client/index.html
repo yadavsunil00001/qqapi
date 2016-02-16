@@ -14,6 +14,7 @@
     <!-- build:css(client) app/vendor.css -->
       <!-- bower:css -->
       <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
+      <link rel="stylesheet" href="bower_components/source-sans-pro/source-sans-pro.css" />
       <link rel="stylesheet" href="bower_components/angular-bootstrap-calendar/dist/css/angular-bootstrap-calendar.css" />
       <link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.css" />
       <!-- endbower -->
@@ -96,43 +97,28 @@
       <script src="app/app.js"></script>
       <!-- injector:js -->
       <script src="components/util/util.module.js"></script>
-      <script src="app/routes/applicant/applicant.controller.js"></script>
+      <script src="app/routes/dashboard/dashboard.controller.js"></script>
+      <script src="app/core/qui.components/before.bottom.js"></script>
+      <script src="app/core/qui.components/scroll.to.bottom.js"></script>
+      <script src="app/core/qui.core/app.js"></script>
+      <script src="app/core/qui.core/constants/auth-events.js"></script>
+      <script src="app/core/qui.core/constants/currency.js"></script>
+      <script src="app/core/qui.core/services/auth.interceptor.js"></script>
+      <script src="app/core/qui.core/services/auth.js"></script>
+      <script src="app/core/qui.core/services/moment.js"></script>
+      <script src="app/core/qui.core/services/page.js"></script>
+      <script src="app/core/qui.core/services/session.js"></script>
+      <script src="app/core/qui.core/services/user.js"></script>
       <script src="app/factories/QuarcService/QuarcService.service.js"></script>
       <script src="app/factories/applicantsFactory/applicantsFactory.service.js"></script>
-      <script src="app/ng-modules/qui.components/before.bottom.js"></script>
-      <script src="app/ng-modules/qui.components/scroll.to.bottom.js"></script>
-      <script src="app/ng-modules/qui.core.search/app.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/degrees.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/employers.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/funcs.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/industries.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/institutes.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/regions.js"></script>
-      <script src="app/ng-modules/qui.core.search/services/skills.js"></script>
-      <script src="app/ng-modules/qui.core/app.js"></script>
-      <script src="app/ng-modules/qui.core/constants/auth-events.js"></script>
-      <script src="app/ng-modules/qui.core/constants/currency.js"></script>
-      <script src="app/ng-modules/qui.core/services/auth.interceptor.js"></script>
-      <script src="app/ng-modules/qui.core/services/auth.js"></script>
-      <script src="app/ng-modules/qui.core/services/moment.js"></script>
-      <script src="app/ng-modules/qui.core/services/page.js"></script>
-      <script src="app/ng-modules/qui.core/services/session.js"></script>
-      <script src="app/ng-modules/qui.core/services/user.js"></script>
-      <script src="app/ng-modules/qui.hire/services/applicants/applicants.js"></script>
-      <script src="app/ng-modules/qui.hire/services/application-comments/applicant-comments.js"></script>
-      <script src="app/ng-modules/qui.hire/services/change-state.js"></script>
-      <script src="app/ng-modules/qui.hire/services/followers.js"></script>
-      <script src="app/ng-modules/qui.hire/services/job-comments.js"></script>
-      <script src="app/ng-modules/qui.hire/services/jobs.js"></script>
-      <script src="app/ng-modules/qui.hire/services/summary.js"></script>
-      <script src="app/applicants.controller.js"></script>
+      <script src="app/routes/applicant/applicant.controller.js"></script>
       <script src="app/routes/applicant/applicant.js"></script>
       <script src="app/routes/applicant/view/view.controller.js"></script>
       <script src="app/routes/applicants/applicants.controller.js"></script>
       <script src="app/routes/applicants/applicants.js"></script>
       <script src="app/routes/calendar/calendar.controller.js"></script>
       <script src="app/routes/calendar/calendar.js"></script>
-      <script src="app/routes/dashboard/dashboard.controller.js"></script>
+      <script src="app/applicants.controller.js"></script>
       <script src="app/routes/dashboard/dashboard.js"></script>
       <script src="app/routes/job/comment/comment.controller.js"></script>
       <script src="app/routes/job/job.controller.js"></script>

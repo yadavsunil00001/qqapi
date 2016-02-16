@@ -1,4 +1,4 @@
-angular.module('qui.hire')
+angular.module('uiGenApp')
   .controller('ApplicantViewController', function ApplicantViewCtrl(QuarcService, Restangular, $stateParams, APP_CONFIG, $sce) {
       Page = QuarcService.Page;
       Session = QuarcService.Session;

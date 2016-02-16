@@ -6,28 +6,28 @@ module.exports = {
 
   // Sequelize connection opions
   quarc: {
-    username: "gloryque",
-    password: "intranet@quezx",
-    database: "gloryque_quarc",
-    host: "192.168.1.200",
+    username: process.env.QUARC_MYSQL_USER,
+    password: process.env.QUARC_MYSQL_PASS,
+    database: process.env.QUARC_MYSQL_DB,
+    host: process.env.QUARC_MYSQL_HOST,
     dialect: 'mysql',
-    logging: true,
+    logging: false,
     timezone: '+05:30',
   },
   quantum: {
-    username: "gloryque",
-    password: "intranet@quezx",
-    database: "gloryque_quantum",
-    host: "192.168.1.200",
+    username: process.env.QUANTUM_MYSQL_USER,
+    password: process.env.QUANTUM_MYSQL_PASS,
+    database: process.env.QUANTUM_MYSQL_DB,
+    host: process.env.QUANTUM_MYSQL_HOST,
     dialect: 'mysql',
     logging: true,
     timezone: '+05:30',
   },
   solr: {
-    host: "192.168.1.203",
-    port: "8080",
-    core: "jobs",
-    path: "/solr",
+    host: process.env.SOLR_HOST,
+    port: process.env.SOLR_PORT,
+    core: process.env.SOLR_CORE,
+    path: process.env.SOLR_PATH,
   },
 
   // Seed database on startup

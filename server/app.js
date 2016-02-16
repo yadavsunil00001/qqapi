@@ -24,14 +24,6 @@ function startServer() {
     console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
   });
 }
-sqldb.sequelizeQuantum.sync().then(function(){
-  console.log("Quantum Sync Successful");
-})
-sqldb.sequelizeQuarc.sync()
-  .then(startServer)
-  .catch(function(err) {
-    console.log('Server failed to start due to error: %s', err);
-  });
-
+startServer()
 // Expose app
 exports = module.exports = app;

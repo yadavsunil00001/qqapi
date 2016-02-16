@@ -2,7 +2,6 @@
 
 angular.module('uiGenApp')
   .controller('CalendarCtrl', function (QuarcService, Restangular, $scope, moment, $state) {
-    const Applicants = QuarcService.Applicants;
     const Page = QuarcService.Page;
 
     const vm = this;

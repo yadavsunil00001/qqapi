@@ -1,7 +1,11 @@
 'use strict';
 
 angular.module('uiGenApp')
-  .controller('AppController', function ($window, $uibModal, Session, User, Applicants, Page, $state, $rootScope) {
+  .controller('AppController', function (QuarcService, $window, $uibModal, $state, $rootScope) {
+    const Page = QuarcService.Page;
+    const Session = QuarcService.Session;
+    const User = QuarcService.Session;
+
     const vm = this;
 
     // config

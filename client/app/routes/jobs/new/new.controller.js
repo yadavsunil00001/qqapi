@@ -1,4 +1,4 @@
-angular.module('qui.hire')
+angular.module('uiGenApp')
   .controller('NewJobController', function NewJobCtrl(QuarcService, Restangular, $state, moment) {
     const Regions = QuarcService.Regions;
     const Degrees = QuarcService.Degrees;

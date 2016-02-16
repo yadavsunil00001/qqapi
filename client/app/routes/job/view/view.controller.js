@@ -1,4 +1,4 @@
-angular.module('qui.hire')
+angular.module('uiGenApp')
   .controller('JobViewController',
     function JobViewCtrl(QuarcService, Restangular, $stateParams, $sce) {
       const Jobs = QuarcService.Jobs;

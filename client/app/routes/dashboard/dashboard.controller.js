@@ -3,8 +3,6 @@
 angular.module('uiGenApp')
   .controller('DashboardController', function(QuarcService, Restangular, moment) {
     const Page = QuarcService.Page;
-    const Summary = QuarcService.Summary;
-    const Applicants = QuarcService.Applicants
 
     const vm = this;
     Page.setTitle('Dashboard');

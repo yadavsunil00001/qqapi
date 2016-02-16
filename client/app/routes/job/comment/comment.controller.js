@@ -1,4 +1,4 @@
-angular.module('qui.hire')
+angular.module('uiGenApp')
   .controller('JobCommentsController', function JobCommentsCtrl(QuarcService, Restangular, $stateParams) {
     const JobComments = QuarcService.JobComments;
     const User = QuarcService.User;
