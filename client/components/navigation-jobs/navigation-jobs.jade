@@ -3,7 +3,7 @@ div( style='position: relative;')
   .w(style='position: fixed; z-index: 2;')
     .wrapper-xs
       .input-group
-        a.input-group-addon.bg-primary(uib-tooltip='Upload New JD' tooltip-placement='right' ui-sref='app.jobs.new')
+        a.input-group-addon.bg-primary(uib-tooltip='Upload New JD' tooltip-placement='right' ui-sref='jobs.new')
           i.text-white.fa.fa-upload
         input.form-control.wrapper-xs(type='text' placeholder='Search Position' ng-model='navigationJobs.searchText.role')
   .w.m-t-xl.nav-job
@@ -14,22 +14,22 @@ div( style='position: relative;')
         |  High Priority
       ul.m-t-xs.nav
         li(ng-repeat='job in navigationJobs.jobs | filter: navigationJobs.searchText | filter: {job_status: "High Priority"}' ng-init='$first ? (navigationJobs.job_high = true): null' ui-sref-active='active')
-          a.text-ellipsis.m-l-md(ui-sref='app.jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
+          a.text-ellipsis.m-l-md(ui-sref='jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
       .m-l-xs.h5.text-info-lt.font-bold(ng-if='navigationJobs.job_open')
         i.fa.fa-square
         |  Open
       ul.m-t-xs.nav
         li(ng-repeat='job in navigationJobs.jobs | filter: navigationJobs.searchText | filter: {job_status: "Open"}' ng-init='$first ? (navigationJobs.job_open = true): null' ui-sref-active='active')
-          a.text-ellipsis.m-l-md(ui-sref='app.jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
+          a.text-ellipsis.m-l-md(ui-sref='jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
       .m-l-xs.h5.text-warning-dker.font-bold(ng-if='navigationJobs.job_hold')
         i.fa.fa-square
         |  Hold
       ul.m-t-xs.nav
         li(ng-repeat='job in navigationJobs.jobs | filter: navigationJobs.searchText | filter: {job_status: "Hold"}' ng-init='$first ? (navigationJobs.job_hold = true): null' ui-sref-active='active')
-          a.text-ellipsis.m-l-md(ui-sref='app.jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
+          a.text-ellipsis.m-l-md(ui-sref='jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
       .m-l-xs.h5.text-danger.font-bold(ng-if='navigationJobs.job_closed')
         i.fa.fa-square
         |  Closed
       ul.m-t-xs.nav
         li(ng-repeat='job in navigationJobs.jobs | filter: navigationJobs.searchText | filter: {job_status: "Closed"}' ng-init='$first ? (navigationJobs.job_closed = true): null' ui-sref-active='active')
-          a.text-ellipsis.m-l-md(ui-sref='app.jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}
+          a.text-ellipsis.m-l-md(ui-sref='jobs.manage({jobId: job.id})' uib-tooltip="{{job.role}}" tooltip-placement='right' tooltip-append-to-body='true') {{job.role}}

@@ -19,8 +19,11 @@ $fa-font-path: "../bower_components/font-awesome/fonts";
 // Component styles are injected through grunt
 // injector
 @import 'ng-theme/main.scss';
+@import 'routes/applicant/applicant.scss';
 @import 'routes/applicants/applicants.scss';
 @import 'routes/dashboard/dashboard.scss';
+@import 'routes/job/job.scss';
+@import 'routes/jobs/jobs.scss';
 @import '../components/footer/footer.scss';
 @import '../components/modal/modal.scss';
 @import '../components/navigation-jobs/navigation-jobs.scss';

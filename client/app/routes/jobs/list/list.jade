@@ -1,0 +1,28 @@
+.wrapper-xs.bg-light.b-b
+  a.btn.btn-sm.btn-primary.btn-addon.pull-right.m-t-n-xs(uib-tooltip='Create new job Position' ui-sref='app.jobs.new')
+    i.fa.fa-plus
+    | Add
+  .m-l-md.font-thin.h3 Positions
+.col-lg-10.col-lg-offset-1.wrapper-md
+  table.table.m-b-none(ng-controller='JobsCtrl as Job' ng-init="color={'High Priority':'success','Open': 'info', 'Hold': 'warning', 'Closed': 'danger'}" before-bottom='Job.loadJobs()')
+    thead
+      tr
+        th Positions
+        th(style='width:20%;') Status
+        th(style='width:20%;') CVs in Pipeline
+    tbody
+      tr.bg-white(ng-repeat='job in Job.jobs')
+        td.wrapper-md: a(ui-sref='app.jobs.manage({jobId: job.id, bucket: "Pending Feedback" })') {{job.role}}
+        td.wrapper-md(class="text-{{color[job.job_status]}}-dker") {{job.job_status}}
+        td.wrapper-md {{job.total_applicants}}
+    tfoot
+      tr
+        td
+          button.pull-right.btn.active.m-t-xs(ng-if="Job.ui.loading")
+            i.fa.fa-circle-o-notch.fa-spin
+            strong &nbsp;Loading
+          button.pull-right.btn.btn-primary.m-t-xs(ng-if="Job.ui.lazyLoad" ng-click="Job.loadJobs()")
+            i.fa.fa-plus-circle
+            strong &nbsp;Load More
+        td
+        td
