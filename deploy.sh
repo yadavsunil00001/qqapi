@@ -35,7 +35,7 @@ git commit -m "new"
 
 
 echo "Started deploying"
-git push dokku master
+git push dokku master --force
 
 echo "Deployed Successfully!"
 exit 0
