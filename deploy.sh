@@ -24,7 +24,7 @@ echo "Commiting..."
 git commit -m "new"
 
 echo "added remote"
-git remote add dokku dokku@cloude.quezx.com:partner
+git remote add dokku dokku@cloud.quezx.com:partner
 
 echo "Started deploying"
 git push dokku master
