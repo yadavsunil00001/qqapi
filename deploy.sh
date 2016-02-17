@@ -7,7 +7,7 @@ echo "Installing bower components"
 bower install
 
 echo "Starting build"
-grunt build
+grunt build -f
 
 
 echo "Changing Directory to ./dist"
@@ -20,14 +20,19 @@ git config --global user.name "Manjesh V"
 echo "Git Init"
 git init
 
+echo "Adding remote"
+git remote add dokku dokku@cloud.quezx.com:partner
+
+echo "Pulling from dokku"
+git pull origin master
+
 echo "Adding files to git"
 git add *
 
 echo "Commiting..."
 git commit -m "new"
 
-echo "added remote"
-git remote add dokku dokku@cloud.quezx.com:partner
+
 
 echo "Started deploying"
 git push dokku master
