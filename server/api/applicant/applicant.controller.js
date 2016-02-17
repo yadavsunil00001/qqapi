@@ -71,7 +71,7 @@ export function index(req, res) {
     ].join(',');
 
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
-  const bucket = buckets[stakeholders['5']];
+  const bucket = buckets[stakeholders[req.user.group_id]];
   const states = [];
   rawStates.forEach(function normalize(state) {
     if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));

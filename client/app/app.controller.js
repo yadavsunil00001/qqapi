@@ -4,7 +4,7 @@ angular.module('uiGenApp')
   .controller('AppController', function (QuarcService, $window, $uibModal, $state, $rootScope) {
     const Page = QuarcService.Page;
     const Session = QuarcService.Session;
-    const User = QuarcService.Session;
+    const User = QuarcService.User;
 
     const vm = this;
 

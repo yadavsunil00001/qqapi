@@ -11,7 +11,7 @@ module.exports = {
     database: process.env.QUARC_MYSQL_DB,
     host: process.env.QUARC_MYSQL_HOST,
     dialect: 'mysql',
-    logging: false,
+    logging: true,
     timezone: '+05:30',
   },
   quantum: {
