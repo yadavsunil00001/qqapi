@@ -2,7 +2,7 @@
 
 echo "Installing grunt-cli and bower"
 npm install -g grunt-cli bower
-
+npm list --depth=0
 echo "Installing bower components"
 bower install
 
@@ -31,8 +31,6 @@ git add *
 
 echo "Commiting..."
 git commit -m "new"
-
-
 
 echo "Started deploying"
 git push dokku master --force
