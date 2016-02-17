@@ -731,6 +731,10 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('test', function(target, option) {
+    return
+  })
+
+  grunt.registerTask('test-deprecated', function(target, option) {
     if (target === 'server') {
       return grunt.task.run([
         'env:all',
