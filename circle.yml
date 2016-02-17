@@ -1,5 +1,6 @@
 deployment:
-  production:
+  staging:
     branch: master
+    owner: circleci
     commands:
       - ./deploy.sh
