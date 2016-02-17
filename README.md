@@ -1,5 +1,5 @@
 # ui-gen
-
+[![Circle CI](https://circleci.com/gh/manjeshpv/quarc.ui.partner.svg?style=svg)](https://circleci.com/gh/manjeshpv/quarc.ui.partner)
 This project was generated with the [Angular Full-Stack Generator](https://github.com/DaftMonk/generator-angular-fullstack) version 3.3.0.
 
 ## Getting Started
@@ -9,9 +9,8 @@ This project was generated with the [Angular Full-Stack Generator](https://githu
 - [Git](https://git-scm.com/)
 - [Node.js and npm](nodejs.org) Node ^4.2.3, npm ^2.14.7
 - [Bower](bower.io) (`npm install --global bower`)
-- [Ruby](https://www.ruby-lang.org) and then `gem install sass`
 - [Grunt](http://gruntjs.com/) (`npm install --global grunt-cli`)
-- [SQLite](https://www.sqlite.org/quickstart.html)
+- [MySQL](http://cse.unl.edu/~sscott/ShowFiles/SQL/CheatSheet/SQLCheatSheet.html)
 
 ### Developing
 
