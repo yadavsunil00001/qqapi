@@ -4,7 +4,7 @@ echo "Installing grunt-cli and bower"
 npm install -g grunt-cli bower
 
 echo "Starting build"
-grunt
+grunt build
 
 
 echo "Changing Directory to ./dist"
