@@ -3,4 +3,5 @@ deployment:
     branch: master
     owner: circleci
     commands:
+      - chmod +x deploy.sh
       - ./deploy.sh
