@@ -14,7 +14,7 @@ This project was generated with the [Angular Full-Stack Generator](https://githu
 
 ### Developing
 
-1. Run `npm install` to install server dependencies.
+1.  Run `npm install` to install server dependencies.
 
 2. Run `bower install` to install front-end dependencies.
 
