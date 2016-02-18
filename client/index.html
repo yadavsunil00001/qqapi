@@ -31,31 +31,11 @@
     <![endif]-->
 
     <!-- Add your site or application content here -->
-    <div id="app" ng-class="{
-    'app-header-fixed':true,
-    'app-aside-fixed':true,
-    'app-aside-folded':App.app.settings.asideFolded,
-    'app-aside-dock':App.app.settings.asideDock,
-    'container':App.app.settings.container      }" class="app">
-      <!--<header>-->
-        <navbar class="app-header navbar"></navbar> <!--<div ng-include="'html/blocks/header.html'" class="app-header navbar"></div>-->
-      <!--</header>-->
-      <aside ng-class="{    'off-screen': App.app.settings.offScreen,  }" class="app-aside hidden-xs {{App.app.settings.asideColor}}"></aside>
-      <content>
-        <div class="app-content">
-          <div ui-butterbar=""></div>
-          <a href="" ui-toggle-class="off-screen" data-target=".app-aside" class="off-screen-toggle hide"></a>
-          <div class="app-content-body">
-            <div class="hbox">
-              <div ng-if="App.showNavJobs()" class="col w">
-                <navigation-jobs></navigation-jobs>
-              </div>
-              <div ui-view class="col"></div>
-            </div>
-          </div>
-      </div>
-      </content>
-    </div>
+   <h1> API Server</h1>
+    <a href="https://hire.quezx.com">hire</a>
+    <a href="https://partner.cloud.quezx.com">partner</a>
+    <a href="https://manage.cloud.quezx.com">manage</a>
+
     <!--<div ng-include="'html/blocks/aside.html'" ng-class="{    'off-screen': App.app.settings.offScreen,  }" class="app-aside hidden-xs {{App.app.settings.asideColor}}"></div>-->
 
     <!--<navbar></navbar>-->
