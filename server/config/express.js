@@ -13,12 +13,14 @@ import methodOverride from 'method-override';
 import cookieParser from 'cookie-parser';
 import errorHandler from 'errorhandler';
 import path from 'path';
+import cors from 'cors';
 import config from './environment';
 import sqldb from '../sqldb';
 
 export default function(app) {
   var env = app.get('env');
 
+  app.use(cors());
   app.use(compression());
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
