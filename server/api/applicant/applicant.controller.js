@@ -10,9 +10,12 @@
 'use strict';
 
 import _ from 'lodash';
-import {Applicant, Solr} from '../../sqldb';
+import {Applicant, ApplicantState, QueuedTask, Solr} from '../../sqldb';
 import buckets from './../../config/buckets';
 import stakeholders from './../../config/stakeholders';
+import phpSerialize from './../../components/php-serialize';
+import config from './../../config/environment';
+
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -56,6 +59,7 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
+    console.log("ERROR: ",err);
     res.status(statusCode).send(err);
   };
 }
@@ -67,7 +71,7 @@ export function index(req, res) {
   const fl = req.query.fl || [
       'id', 'name', 'exp_designation', 'edu_degree', 'exp_salary','client_name',
       'exp_employer', 'total_exp', 'exp_location', 'state_id',
-      'state_name', 'applicant_score', 'created_on',
+      'state_name', 'applicant_score', 'created_on'
     ].join(',');
 
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
@@ -95,15 +99,15 @@ export function index(req, res) {
       {
         field: 'interview_time',
         start: req.query.interview_time.split(',')[0] || '*',
-        end: req.query.interview_time.split(',')[1] || '*',
-      },
+        end: req.query.interview_time.split(',')[1] || '*'
+      }
     ]);
   }
   Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return res.status(500).json(err);
     res.json(result.response.docs);
   });
-};
+}
 
 
 
@@ -154,134 +158,38 @@ export function destroy(req, res) {
     .catch(handleError(res));
 }
 
+// Change State For Applicant
+export function changeState(req, res){
+  console.log("1",req.body);
+  //return res.json("[test]");
+  // @todo Need to check eligibility of entity sending this post request
+  // @todo Need to add applicant state id in applicant table
+  ApplicantState
+    .build(req.body)
+    .set('user_id', req.user.id)
+    .set('applicant_id', req.params.id)
+    .save()
+    .then((model) => {
 
-//export function index(req,res) {
-//  var clientId = req.user.client_id;
-//  var query = req.query;
-//  var start = query.start;
-//  var rows = query.rows;
-//  var fl = query.fl;
-//  var states = (query.state_id) ? query.state_id.split(',') : ['ALL'];
-//
-//  return new Promise(function (resolve, reject) {
-//    if (!start) {
-//      start = 0;
-//    }
-//
-//    if (!rows) {
-//      rows = 10;
-//    } else if (rows > 20) {
-//      rows = 20;
-//    }
-//
-//    if (!fl) {
-//      fl = [
-//        'id',
-//        'name',
-//        'exp_designation',
-//        'edu_degree',
-//        'exp_salary',
-//        'exp_employer',
-//        'total_exp',
-//        'exp_location',
-//        'state_id',
-//        'state_name',
-//        'applicant_score',
-//        'created_on',
-//        '_root_',
-//      ];
-//    } else {
-//      fl = fl.split(',');
-//    }
-//
-//    var stateId = [];
-//    var stateParam = '';
-//    if (states.length > 0) {
-//      states.forEach(function (state) {
-//        var groupId = req.user.group_id;
-//        var userType = stakeholders[groupId];
-//        var res = buckets[userType];
-//        if (isNaN(state)) {
-//          stateId = (res[state]) ? stateId.concat(res[state]) : stateId;
-//        } else if (Number.isInteger(Number(state))) {
-//          stateId = stateId.concat(Number(state));
-//        }
-//      });
-//
-//      stateParam = ' state_id:(' + stateId.join(' OR ') + ')';
-//    }
-//
-//    var solrQuery = solr.createQuery().q('({!child of="type_s:job"}owner_id:' + clientId +
-//      ') AND type_s:applicant AND ' + stateParam).fl(fl).sort({_root_: 'DESC', type_s: 'DESC'}).start(start).rows(rows);
-//    if (query.interview_time) {
-//      solrQuery.rangeFilter([
-//        {
-//          field: 'interview_time',
-//          start: query.interview_time.split(',')[0] || '*',
-//          end: query.interview_time.split(',')[1] || '*',
-//        },
-//      ]);
-//    }
-//
-//    Solr.get('select', solrQuery, function (err, obj) {
-//      if (err) {
-//        console.log(err);
-//        return reject({
-//          status: 500,
-//          message: err,
-//        });
-//      } else {
-//        var applicants = obj.response.docs;
-//        var jobIds = [];
-//
-//        for (var i = 0; i <= applicants.length - 1; i++) {
-//          jobIds.push(applicants[i]._root_);
-//        }
-//
-//        resolve({jobIds: jobIds, applicants: applicants});
-//      }
-//    });
-//  }).then(function (dbres) {
-//    if (dbres === null) {
-//      return Promise.reject(HTTPstatus.internalServerError);
-//    }
-//
-//    return new Promise(function (resolve, reject) {
-//      var jobIds = dbres.jobIds;
-//      var applicants = dbres.applicants;
-//
-//      // handle for no job results
-//      if (jobIds.length === 0) {
-//        return resolve({
-//          data: [],
-//          status: HTTPstatus.ok.status,
-//          message: HTTPstatus.ok.message,
-//        });
-//      }
-//
-//      var fl = ['role', 'id'];
-//      var solrInnerQuery = solr.createQuery().q('type_s:job AND _root_:(' + jobIds.join(' OR ') + ')').fl(fl);
-//
-//      solr.get('select', solrInnerQuery, function (err, obj) {
-//        if (err) {
-//          return reject(HTTPstatus.internalServerError);
-//        }
-//
-//        var jobs = obj.response.docs;
-//        for (var i = 0; i <= applicants.length - 1; i++) {
-//          for (var j = 0; j <= jobs.length - 1; j++) {
-//            if (jobs[j].id === applicants[i]._root_) {
-//              applicants[i]._root_ = jobs[j];
-//            }
-//          }
-//        }
-//
-//        return resolve({
-//          data: applicants,
-//          status: HTTPstatus.ok.status,
-//          message: HTTPstatus.ok.message,
-//        });
-//      });
-//    });
-//  });
-//},
+      const data = phpSerialize.serialize({
+        command: `${config.quarcPath}app/Console/cake`,
+        params: [
+          'state_change_action',
+          '-s', model.state_id,
+          '-a', model.applicant_id,
+          '-u', model.user_id,
+        ],
+      });
+      console.log(model);
+      const task = {
+        jobType: 'Execute',
+        group: 'high',
+        data,
+      };
+
+      QueuedTask.create(task);
+      res.status(201).end();
+    })
+    .catch(handleError(res));
+}
+

@@ -22,6 +22,14 @@ export default function(sequelize, DataTypes) {
       },
       allowNull: false,
     },
+    state_id: {
+      type: DataTypes.INTEGER(14),
+      allowNull: false,
+    },
+    user_id: {
+      type: DataTypes.INTEGER(14),
+      allowNull: false,
+    },
     scheduled_on: DataTypes.DATE,
     suggested_join_date: DataTypes.DATE,
     offered_ctc: {

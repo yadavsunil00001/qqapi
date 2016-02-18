@@ -71,7 +71,7 @@ export default function(app) {
   app.use('/api/jobs', require('./api/job'));
   app.use('/api/applicants', require('./api/applicant'));
   app.use('/api/partners', require('./api/partner'));
-  app.use('/api/users', require('./api/user'));
+  //app.use('/api/users', require('./api/user'));
 
 
 
