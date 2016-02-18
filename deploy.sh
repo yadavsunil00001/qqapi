@@ -21,7 +21,7 @@ echo "Git Init"
 git init
 
 echo "Adding remote"
-git remote add dokku dokku@cloud.quezx.com:partner
+git remote add dokku dokku@cloud.quezx.com:api
 
 echo "Pulling from dokku"
 git pull origin master
