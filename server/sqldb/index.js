@@ -67,6 +67,7 @@ db.Referral = db.sequelizeQuarc.import('../api/referral/referral.model');
 db.Resume = db.sequelizeQuarc.import('../api/resume/resume.model');
 db.State = db.sequelizeQuarc.import('../api/state/state.model');
 db.UsageLog = db.sequelizeQuarc.import('../api/usageLog/usageLog.model');
+db.Welcome = db.sequelizeQuarc.import('../api/welcome/welcome.model');
 
 
 db.AccessToken = db.sequelizeQuantum.import('../api/accessToken/accessToken.model');
