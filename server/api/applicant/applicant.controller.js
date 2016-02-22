@@ -59,7 +59,6 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
-    console.log("ERROR: ",err);
     res.status(statusCode).send(err);
   };
 }
@@ -160,7 +159,6 @@ export function destroy(req, res) {
 
 // Change State For Applicant
 export function changeState(req, res){
-  console.log("1",req.body);
   //return res.json("[test]");
   // @todo Need to check eligibility of entity sending this post request
   // @todo Need to add applicant state id in applicant table
@@ -180,7 +178,6 @@ export function changeState(req, res){
           '-u', model.user_id,
         ],
       });
-      console.log(model);
       const task = {
         jobType: 'Execute',
         group: 'high',

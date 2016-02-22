@@ -54,14 +54,12 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
   return function(err) {
-    console.log(err)
     res.status(statusCode).send(err);
   };
 }
 
 // Gets a list of States
 export function index(req, res) {
-  console.log("s")
   State
     .findAll({
       attributes: ['id', 'name', 'parent_id', 'config'],
@@ -93,11 +91,9 @@ export function index(req, res) {
         state.config = JSON.parse(state.config); // Need to handle Parsing Error
         result[state.id] = _.pick(state, ['id', 'name', 'config', 'Childs', 'Actions']);
       });
-      console.log("s2")
       res.json(result);
     })
     .catch(handleError(res));
-  console.log("s3")
 }
 
 // Gets a single State from the DB

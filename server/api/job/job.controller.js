@@ -212,9 +212,6 @@ export function destroy(req, res) {
 // TODO - CREATE A MODAL FOR CONSULTANT RESPONSES
 // To Insert a consultant response for a Particular Job
 export function consultantResponse(req, res) {
-  console.log(req.body);
-  console.log(req.body.responseId);
-
   // 1 -> Accepted
   // 2 -> Hold
   // 3 -> Rejected
@@ -222,7 +219,6 @@ export function consultantResponse(req, res) {
   db.sequelizeQuarc.query('INSERT INTO `gloryque_quarc`.`consultant_responses` (`job_id`, `user_id`, `response_id`)' +
     ' VALUES ('+req.params.jobId+', '+req.user.id+','+req.body.responseId+');')
   .then(function(rows){
-    console.log("1",rows);
     let genereatedResponseId = rows[0]['insertId'];
 
     return db.sequelizeQuarc.query('UPDATE `gloryque_quarc`.`job_allocations` SET ' +

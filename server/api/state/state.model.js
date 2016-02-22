@@ -91,7 +91,6 @@ export default function(sequelize, DataTypes) {
 
     classMethods: {
       associate: function associate(models) {
-        console.log("x",State)
         State.belongsTo(models.State, {
           as: 'Parent',
           foreignKey: 'parent_id',

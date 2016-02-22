@@ -371,25 +371,27 @@ module.exports = function (grunt) {
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
-        files: [{
-          expand: true,
-          dot: true,
-          cwd: '<%= yeoman.client %>',
-          dest: '<%= yeoman.dist %>/<%= yeoman.client %>',
-          src: [
-            '*.{ico,png,txt}',
-            '.htaccess',
-            'bower_components/**/*',
-            'assets/images/{,*/}*.{webp}',
-            'assets/fonts/**/*',
-            'index.html'
-          ]
-        }, {
-          expand: true,
-          cwd: '.tmp/images',
-          dest: '<%= yeoman.dist %>/<%= yeoman.client %>/assets/images',
-          src: ['generated/*']
-        }, {
+        files: [
+        // {
+        //  expand: true,
+        //  dot: true,
+        //  cwd: '<%= yeoman.client %>',
+        //  dest: '<%= yeoman.dist %>/<%= yeoman.client %>',
+        //  src: [
+        //    '*.{ico,png,txt}',
+        //    '.htaccess',
+        //    'bower_components/**/*',
+        //    'assets/images/{,*/}*.{webp}',
+        //    'assets/fonts/**/*',
+        //    'index.html'
+        //  ]
+        //}, {
+        //  expand: true,
+        //  cwd: '.tmp/images',
+        //  dest: '<%= yeoman.dist %>/<%= yeoman.client %>/assets/images',
+        //  src: ['generated/*']
+        //},
+        {
           expand: true,
           dest: '<%= yeoman.dist %>',
           src: [
@@ -437,8 +439,8 @@ module.exports = function (grunt) {
       ],
       server: [
         'newer:babel:client',
-        'jade',
-        'sass',
+        //'jade',
+        //'sass',
       ],
       test: [
         'newer:babel:client',
@@ -456,9 +458,9 @@ module.exports = function (grunt) {
       },
       dist: [
         'newer:babel:client',
-        'jade',
-        'sass',
-        'imagemin'
+        //'jade',
+        //'sass',
+        //'imagemin'
       ]
     },
 
@@ -713,11 +715,11 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'env:all',
-      'concurrent:pre',
+      //'concurrent:pre',
       'concurrent:server',
-      'injector',
-      'wiredep:client',
-      'postcss',
+      //'injector',
+      //'wiredep:client',
+      //'postcss',
       'express:dev',
       'wait',
       'open',
@@ -828,22 +830,22 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build', [
     'clean:dist',
-    'concurrent:pre',
+    //'concurrent:pre',
     'concurrent:dist',
-    'injector',
-    'wiredep:client',
-    'useminPrepare',
-    'postcss',
-    'ngtemplates',
-    'concat',
-    'ngAnnotate',
+    //'injector',
+    //'wiredep:client',
+    //'useminPrepare',
+    //'postcss',
+    //'ngtemplates',
+    //'concat',
+    //'ngAnnotate',
     'copy:dist',
     'babel:server',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    'filerev',
-    'usemin'
+    //'cdnify',
+    //'cssmin',
+    //'uglify',
+    //'filerev',
+    //'usemin'
   ]);
 
   grunt.registerTask('default', [
