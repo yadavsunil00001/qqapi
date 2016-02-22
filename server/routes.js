@@ -9,6 +9,8 @@ import path from 'path';
 
 export default function(app) {
   // Insert routes below
+  app.use('/authorise', require('./api/authorise'));
+  app.use('/oauth', require('./api/oauth'));
   app.use('/api/welcomes', require('./api/welcome'));
   app.use('/api/applicantViews', require('./api/applicantView'));
   app.use('/api/usageLogs', require('./api/usageLog'));

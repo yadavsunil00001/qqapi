@@ -19,7 +19,7 @@
     "sequelize": "^3.5.1",
     "serve-favicon": "^2.3.0",
     "solr-client": "^0.6.0",
-    "vinyl-fs": "^2.3.1"
+    "oauth2-server": "yogesum/node-oauth2-server"
   },
   "devDependencies": {
     "autoprefixer": "^6.0.0",
