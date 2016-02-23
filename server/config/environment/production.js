@@ -37,4 +37,5 @@ module.exports = {
     core: process.env.SOLR_CORE,
     path: process.env.SOLR_PATH,
   },
+  QDMS_PATH: process.env.QDMS_PATH,
 };

@@ -11,15 +11,16 @@
     "cors": "^2.7.1",
     "errorhandler": "^1.4.2",
     "express": "^4.13.3",
+    "formidable": "^1.0.17",
     "lodash": "^4.4.0",
     "method-override": "^2.3.5",
     "moment": "^2.11.2",
     "morgan": "~1.6.1",
     "mysql": "^2.10.2",
+    "oauth2-server": "yogesum/node-oauth2-server",
     "sequelize": "^3.5.1",
     "serve-favicon": "^2.3.0",
-    "solr-client": "^0.6.0",
-    "oauth2-server": "yogesum/node-oauth2-server"
+    "solr-client": "^0.6.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.0.0",

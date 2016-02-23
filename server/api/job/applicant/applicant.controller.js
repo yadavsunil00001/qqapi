@@ -10,9 +10,19 @@
 'use strict';
 
 import _ from 'lodash';
-import {Solr} from '../../../sqldb';
+import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
+  JobApplication, ApplicantDownload, ApplicantSkill, User } from '../../../sqldb';
 import buckets from './../../../config/buckets';
 import stakeholders from './../../../config/stakeholders';
+import phpSerialize from './../../../components/php-serialize';
+import config from './../../../config/environment';
+var util = require('util');
+var formidable = require('formidable');
+var fs = require('fs');
+var mkdirp = require('mkdirp');
+
+
+
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -55,7 +65,7 @@ function handleEntityNotFound(res) {
 
 function handleError(res,statusCode, err) {
   statusCode = statusCode || 500;
-  res.status(statusCode).send(err);
+  res.status(statusCode).json(err);
 }
 
 // Gets a list of Applicants
@@ -108,4 +118,117 @@ export function index(req, res) {
     if (err) return handleError(res, 500, err);
     res.json(result.response.docs);
   });
+}
+
+// Creates a new Applicant in the DB
+export function create(req, res) {
+  console.log(req.body);
+  // parse a file upload
+  var form = new formidable.IncomingForm();
+
+  form.parse(req, function(err, fields, files) {
+    req.body = JSON.parse(fields.payload);
+    console.log(req.body);
+    // TODO Validatio for email id and phone number for same job
+    Applicant.create(req.body)
+      .then(function tempName(rows){
+        let generatedResponseId = rows.dataValues.id;
+        let rootFolderName = config.QDMS_PATH+"/Applicants/"+(generatedResponseId - (generatedResponseId % 10000))+"/"+generatedResponseId+"/";
+        let fileName = files.fileUpload.name;
+        fs.readFile(files.fileUpload.path, function (err, data) {
+          if(err){return res.json({err:err,desc:"read"});}
+          mkdirp(rootFolderName, function (err) {
+            if (err) return res.json(err);
+            let fileExtension = fileName.split(".").pop();
+            //doc, .docx, .pdf, .rtf or .txt
+            let allowedExtType = ['doc', 'docx', 'pdf', 'rtf','txt'];
+            // TODO Discuss on file type saving logic
+            if(allowedExtType.indexOf(fileExtension) === -1){
+              return res.json("File Type Not Allowed");
+            }
+            let finalFileName = rootFolderName+generatedResponseId+"."+fileExtension;
+            fs.writeFile(finalFileName, data, function (err) {
+              if(err){
+                return res.json({err:err,desc:"write"})
+              }
+
+              // Generating Data to Insert Into Resume table Starts Here
+              let resumeData = {
+                applicant_id : generatedResponseId,
+                contents: 'Please wait the file is under processing',
+                path : 'Applicant/'+(generatedResponseId - (generatedResponseId % 10000))/+'/'+generatedResponseId+'/'+generatedResponseId
+              };
+              const promise1 = Resume.create(resumeData)
+              // Generating Data to Insert Into Resume table Starts Here
+
+              // Generating Data to Insert Into ApplicantState table Starts Here
+              let applicantStateData = {
+                applicant_id : generatedResponseId,
+                user_id: req.user.id,
+                state_id : '1'
+              };
+              const promise2 = ApplicantState.create(applicantStateData)
+              // Generating Data to Insert Into ApplicantState table Starts Here
+
+              // TODO Remove Hardcoded
+              // Generating Data to Insert Into Email table Starts Here
+              let emailData = {
+                applicant_id : generatedResponseId,
+                email: 'dhruv@quetzal.in',
+              };
+              const promise3 = Email.create(emailData)
+              // Generating Data to Insert Into Email table Starts Here
+
+
+              // Generating Data to Insert Into PhoneNumber table Starts Here
+              let phoneNumberData = {
+                applicant_id : generatedResponseId,
+                number: 9757053090,
+              };
+              const promise4 = PhoneNumber.create(phoneNumberData)
+              // Generating Data to Insert Into PhoneNumber table Starts Here
+
+              // Generating Data to Insert Into JobApplication table Starts Here
+              let jobApplicationData = {
+                applicant_id : generatedResponseId,
+                job_id: req.params.jobId,
+              };
+              const promise5 = JobApplication.create(jobApplicationData)
+
+              // Generating Data to Insert Into JobApplication table Starts Here
+
+              // TODO Remove Hardcoded values
+              // Generating Data to Insert Into Experience table Starts Here
+              let experienceData = {
+                applicant_id : generatedResponseId,
+                employer_id: 11,
+                designation_id : 22,
+                region_id: 33,
+                salary: 44.33
+              };
+              const promise6 = Experience.create(experienceData)
+              // Generating Data to Insert Into Experience table Starts Here
+
+              return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6])
+                .then(promiseReturns => {
+                  return res.json("Applicant Creating Done!!!!");
+                })
+                .catch(err => handleError(res, 500, err))
+
+              //return res.json({fields: fields, files: files});
+            });
+          });
+
+        });
+
+        console.log(rootFolderName);
+
+        //return res.json(generatedResponseId);
+      })
+      .catch(err => handleError(res,500,err ));
+    //res.writeHead(200, {'content-type': 'text/plain'});
+    //res.write('received upload:\n\n');
+
+  });
+
 }
