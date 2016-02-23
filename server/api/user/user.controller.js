@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {User} from '../../sqldb';
+import {User, Group, Client, State, ActionableState} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -63,6 +63,68 @@ export function index(req, res) {
   User.findAll()
     .then(respondWithResult(res))
     .catch(handleError(res));
+}
+
+/**
+ * Get my info
+ */
+export function me(req, res, next) {
+  var userId = req.user.id;
+  Promise.all([
+      Group.findById(req.user.group_id, {
+        attributes: ['id', 'name'],
+      }),
+
+      Client.findById(req.user.client_id, {
+        attributes: ['id', 'name'],
+      }),
+    ])
+    .then(function gotUser(user) {
+      const userme = _.assign(req.user, {
+        user_type: user[0].name,
+        company_name: user[1].name,
+      });
+
+      res.json(userme);
+    })
+    .catch(err => next(err));
+}
+
+export function states(req, res, next) {
+  return State
+    .findAll({
+      attributes: ['id', 'name', 'parent_id', 'config'],
+      include: [
+        {
+          model: State,
+          as: 'Childs',
+          attributes: [['id', 'state_id']],
+          required: false,
+        },
+        {
+          model: ActionableState,
+          as: 'Actions',
+          where: {
+            group_id: 5,
+          },
+          attributes: [['child_id', 'state_id']],
+          required: false,
+        },
+      ],
+      order: [['id', 'ASC'], [{ model: ActionableState, as: 'Actions' }, 'id', 'ASC']],
+    })
+    .then(function buildStateConfig(states) {
+      const result = [];
+      states.forEach(function formatStates(stateModel) {
+        const state = stateModel.toJSON();
+        if (state.Childs.length === 0) state.Childs.push({ state_id: state.id });
+        state.config = JSON.parse(state.config); // Need to handle Parsing Error
+        result[state.id] = _.pick(state, ['id', 'name', 'config', 'Childs', 'Actions']);
+      });
+
+      return res.json(result);
+    })
+    .catch(err => next(err));
 }
 
 // Gets a single User from the DB

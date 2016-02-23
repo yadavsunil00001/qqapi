@@ -7,5 +7,4 @@ var router = express.Router();
 
 router.all('/token', controller);
 
-
 module.exports = router;

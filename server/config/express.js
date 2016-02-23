@@ -27,15 +27,6 @@ export default function(app) {
   app.use(methodOverride());
   app.use(cookieParser());
 
-  app.use(function(req, res, next){
-    req.user = {
-      id : 112,
-      client_id : 173,
-      group_id : 2
-    };
-    return next();
-  });
-
   app.set('appPath', path.join(config.root, 'client'));
 
   if ('production' === env) {

@@ -10,11 +10,16 @@
 'use strict';
 
 import _ from 'lodash';
-import {Authorise} from '../../sqldb';
+import {Authorise, App} from '../../sqldb';
 import oAuth from '../../components/oauthjs';
 
+function handleError(res, statusCode,err) {
+  statusCode = statusCode || 500;
+  return res.status(statusCode).send(err);
+}
+
 export function index(req, res){
-  App.findOne({
+  return App.findOne({
       where: {
         client_id: req.query.client_id,
         redirect_uri: req.query.redirect_uri,
@@ -23,9 +28,9 @@ export function index(req, res){
     })
     .then(model => {
       if (!model) return res.status(404).json({ error: 'Invalid Client' });
-      res.json(model);
+      return res.json(model);
     })
-    .catch(next);
+    .catch(err => handleError(res,500,err));
 }
 
 exports.create = oAuth.authCodeGrant((req, callback) => {

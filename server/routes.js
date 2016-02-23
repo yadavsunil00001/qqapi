@@ -6,11 +6,14 @@
 
 import errors from './components/errors';
 import path from 'path';
+import oAuth from  './components/oauthjs';
 
 export default function(app) {
   // Insert routes below
-  app.use('/authorise', require('./api/authorise'));
+
   app.use('/oauth', require('./api/oauth'));
+  app.use(oAuth.authorise());
+  app.use('/authorise', require('./api/authorise'));
   app.use('/api/welcomes', require('./api/welcome'));
   app.use('/api/applicantViews', require('./api/applicantView'));
   app.use('/api/usageLogs', require('./api/usageLog'));
@@ -64,7 +67,6 @@ export default function(app) {
   app.use('/api/accessTokens', require('./api/accessToken'));
   app.use('/api/applicantDownloads', require('./api/applicantDownload'));
   app.use('/api/states', require('./api/state'));
-  app.use('/api/login', require('./api/login'));
   app.use('/api/summary', require('./api/summary'));
   app.use('/api/jobComments', require('./api/jobComment'));
   app.use('/api/applicantStates', require('./api/applicantState'));
@@ -74,7 +76,7 @@ export default function(app) {
   app.use('/api/jobs', require('./api/job'));
   app.use('/api/applicants', require('./api/applicant'));
   app.use('/api/partners', require('./api/partner'));
-  //app.use('/api/users', require('./api/user'));
+  app.use('/api/users', require('./api/user'));
 
 
 
