@@ -21,51 +21,13 @@ var formidable = require('formidable');
 var fs = require('fs');
 var mkdirp = require('mkdirp');
 
-function respondWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function(entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
 
-function saveUpdates(updates) {
-  return function(entity) {
-    return entity.updateAttributes(updates)
-      .then(updated => {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function(entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(() => {
-          res.status(204).end();
-        });
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function(entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function handleError(res, statusCode) {
+function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
-  return function(err) {
+
     console.log("ERROR: ",err);
     res.status(statusCode).send(err);
-  };
+
 }
 
 // Gets a list of UserJobApplicants
@@ -117,20 +79,29 @@ export function index(req, res) {
 
 // Gets a single Applicant from the DB
 export function show(req, res) {
-  Applicant.find({
-      where: {
-        id: req.params.id
-      },
-      include: [{
-        model: ApplicantState
-      },{
-        model: Job
-      }]
-    })
-    .then(handleEntityNotFound(res))
-    .then(respondWithResult(res))
-    .catch(handleError(res));
-}
+  const fl = req.query.fl || [
+      'name', 'id', 'applicant_score', 'state_name', 'state_id',
+      'email', 'total_exp', 'skills', 'edu_degree', 'exp_salary',
+      'exp_designation', 'exp_employer', 'email', 'notice_period',
+      'mobile', 'exp_location', 'expected_ctc',
+    ].join(',');
+
+  const states = buckets[stakeholders[req.user.group_id]].ALL;
+
+  const solrQuery = Solr.createQuery()
+    .q(` type_s:applicant`)
+    //{!child of="type_s:job"} owner_id:${req.user.id} AND
+    .matchFilter('state_id', `(${states.join(' OR ')})`)
+    .matchFilter('id', `${req.params.id}`)
+    .fl(fl);
+
+  Solr.get('select', solrQuery, function solrCallback(err, result) {
+    if (err) return handleError(res, 500,err);
+    if (result.response.docs.length === 0) return handleError(res, 404,new Error('Applicant Not Found'));
+    res.json(result.response.docs[0]);
+  });
+};
+
 
 // Creates a new Applicant in the DB
 export function create(req, res) {
@@ -174,7 +145,7 @@ export function create(req, res) {
               .then(function(){
                console.log("Entry added in resume");
               })
-              .catch(handleError(res));
+              .catch(err => handleError(res,500,err));
               // Generating Data to Insert Into Resume table Starts Here
 
               // Generating Data to Insert Into ApplicantState table Starts Here
@@ -187,7 +158,7 @@ export function create(req, res) {
                 .then(function(){
                  console.log("Entry added in applicant state table");
                 })
-                .catch(handleError(res));
+                .catch(err => handleError(res,500,err));
               // Generating Data to Insert Into ApplicantState table Starts Here
 
               // TODO Remove Hardcoded
@@ -200,7 +171,7 @@ export function create(req, res) {
                 .then(function(){
                   console.log("Entry added in Email state table");
                 })
-                .catch(handleError(res));
+                .catch(err => handleError(res,500,err));
               // Generating Data to Insert Into Email table Starts Here
 
 
@@ -213,7 +184,7 @@ export function create(req, res) {
                 .then(function(){
                   console.log("Entry added in PhoneNumber state table");
                 })
-                .catch(handleError(res));
+                .catch(err => handleError(res,500,err));
               // Generating Data to Insert Into PhoneNumber table Starts Here
 
               // Generating Data to Insert Into JobApplication table Starts Here
@@ -225,7 +196,7 @@ export function create(req, res) {
                 .then(function(){
                   console.log("Entry added in JobApplication state table");
                 })
-                .catch(handleError(res));
+                .catch(err => handleError(res,500,err));
               // Generating Data to Insert Into JobApplication table Starts Here
 
               // TODO Remove Hardcoded values
@@ -241,7 +212,7 @@ export function create(req, res) {
                 .then(function(){
                   return res.json("Entry added in Experience table");
                 })
-                .catch(handleError(res));
+                .catch(err => handleError(res,500,err));
               // Generating Data to Insert Into Experience table Starts Here
 
 
@@ -255,7 +226,7 @@ export function create(req, res) {
 
         //return res.json(generatedResponseId);
       })
-      .catch(handleError(res));
+      .catch(err => handleError(res,500,err));
     //res.writeHead(200, {'content-type': 'text/plain'});
     //res.write('received upload:\n\n');
 
@@ -276,7 +247,7 @@ export function update(req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Deletes a Applicant from the DB
@@ -288,7 +259,7 @@ export function destroy(req, res) {
     })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Change State For Applicant
@@ -323,6 +294,6 @@ export function changeState(req, res){
       QueuedTask.create(task);
       res.status(201).end();
     })
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 

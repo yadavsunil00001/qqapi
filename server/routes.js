@@ -10,6 +10,7 @@ import oAuth from  './components/oauthjs';
 
 export default function(app) {
   // Insert routes below
+  app.use('/api/applicants', require('./api/applicant/comment'));
 
   app.use('/oauth', require('./api/oauth'));
   app.use('/authorise', require('./api/authorise'));
