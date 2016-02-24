@@ -30,6 +30,7 @@ export default function(app) {
   app.set('appPath', path.join(config.root, 'client'));
 
   if ('production' === env) {
+    app.use(oAuth.authorise());
     //app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
     //app.use(express.static(app.get('appPath')));
     app.use(morgan('dev'));
@@ -40,6 +41,12 @@ export default function(app) {
   }
 
   if ('development' === env || 'test' === env) {
+
+    app.use(function(req, res, next){
+      req.user = config.USER;
+      return next();
+    });
+
     app.use(express.static(path.join(config.root, '.tmp')));
     app.use(express.static(app.get('appPath')));
     app.use(morgan('dev'));

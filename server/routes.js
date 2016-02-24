@@ -12,7 +12,6 @@ export default function(app) {
   // Insert routes below
 
   app.use('/oauth', require('./api/oauth'));
-  app.use(oAuth.authorise());
   app.use('/authorise', require('./api/authorise'));
   app.use('/api/welcomes', require('./api/welcome'));
   app.use('/api/applicantViews', require('./api/applicantView'));

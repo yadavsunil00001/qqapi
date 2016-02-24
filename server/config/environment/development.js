@@ -42,6 +42,8 @@ module.exports = {
   PARTNER_REDIRECT_URI: process.env.PARTNER_REDIRECT_URI ,
 
   // Seed database on startup
-  seedDB: true
+  seedDB: true,
+
+  USER: JSON.parse(process.env.USER)
 
 };
