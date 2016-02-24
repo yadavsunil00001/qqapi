@@ -6,6 +6,7 @@ var controller = require('./applicant.controller');
 var router = express.Router();
 
 router.get('/', controller.index);
+router.get('/bulkResumeDownload', controller.bulkResumeDownload);
 router.get('/:id', controller.show);
 router.put('/:id', controller.update);
 router.patch('/:id', controller.update);

@@ -16,6 +16,7 @@ import path from 'path';
 import cors from 'cors';
 import config from './environment';
 import sqldb from '../sqldb';
+import 'express-zip';
 
 export default function(app) {
   var env = app.get('env');

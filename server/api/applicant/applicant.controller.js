@@ -73,7 +73,36 @@ export function index(req, res) {
   });
 }
 
+// bulkResumeDownload For Applicant
+export function bulkResumeDownload(req, res){
+  Resume
+    .findAll({
+      attributes: [['applicant_id', 'name'], 'path'],
+      where: {
+        applicant_id: req.query.ids.split(','),
+      },
+    })
+    .then(function sendResume(resumeModels) {
+      const resumes = resumeModels.map(resume => {
+        let path = `${config.QDMS_PATH}${resume.path}`;
+        console.log("test",path);
+        if (concat) {
+          path = `${path.substring(0, path.lastIndexOf('/') + 1)}concat.pdf`;
+        }
 
+        return {
+          path,
+          name: `${resume.get('name')}.pdf`,
+        };
+      });
+
+      // Set zip file name
+      let filename = req.query.id.split(',').join('_');
+      filename = concat ? `${filename}_concat` : filename;
+      res.zip(resumes, `${filename}.zip`);
+    })
+    .catch(err => handleError(res,500,err));
+};
 
 // Gets a single Applicant from the DB
 export function show(req, res) {
@@ -228,4 +257,5 @@ export function changeState(req, res){
     })
     .catch(err => handleError(res,500,err));
 }
+
 

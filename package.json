@@ -11,6 +11,7 @@
     "cors": "^2.7.1",
     "errorhandler": "^1.4.2",
     "express": "^4.13.3",
+    "express-zip": "^2.0.0",
     "formidable": "^1.0.17",
     "lodash": "^4.4.0",
     "method-override": "^2.3.5",
