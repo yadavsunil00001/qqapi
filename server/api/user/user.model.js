@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const salt = 'DYhG93b0fIxfs2guVoUubasdfajfkljasdjfaklsdjflakrfWwvniR2G0FgaC9mi';
 
 export default function(sequelize, DataTypes) {
-  return sequelize.define('User', {
+  const User = sequelize.define('User', {
     id: {
       type: DataTypes.INTEGER(11),
       autoIncrement: true,
@@ -144,10 +144,10 @@ export default function(sequelize, DataTypes) {
 
     classMethods: {
       associate: function associate(models) {
-        //User.belongsTo(models.Client, {
-        //  foreignKey: 'client_id',
-        //});
-        //
+        User.belongsTo(models.Client, {
+          foreignKey: 'client_id',
+        });
+
         //User.belongsTo(models.Group, {
         //  foreignKey: 'group_id',
         //});
@@ -185,5 +185,7 @@ export default function(sequelize, DataTypes) {
       },
     },
   });
+
+  return User;
 }
 
