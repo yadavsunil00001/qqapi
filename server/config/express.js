@@ -36,12 +36,7 @@ export default function(app) {
     app.use(morgan('dev'));
   }
 
-  if ('development' === env) {
-    app.use(require('connect-livereload')());
-  }
-
   if ('development' === env || 'test' === env) {
-
     app.use(function(req, res, next){
       req.user = config.USER;
       return next();
