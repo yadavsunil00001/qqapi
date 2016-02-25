@@ -22,11 +22,9 @@ var fs = require('fs');
 var mkdirp = require('mkdirp');
 
 
-
-
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -34,7 +32,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -43,7 +41,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -54,7 +52,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -63,7 +61,7 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res,statusCode, err) {
+function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
   res.status(statusCode).json(err);
 }
@@ -84,8 +82,8 @@ export function index(req, res) {
 
   let solrSelect = `type_s=applicant`;
 
-  if(req.user.group_id == 2){ // if consultant
-    solrSelect+= `AND owner_id:${req.user.id} AND _root_:${req.params.jobId}`
+  if (req.user.group_id == 2) { // if consultant
+    solrSelect += `AND owner_id:${req.user.id} AND _root_:${req.params.jobId}`
   }
 
   const states = [];
@@ -94,7 +92,6 @@ export function index(req, res) {
 
     if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
   });
-
 
 
   const solrQuery = Solr.createQuery()
@@ -120,115 +117,194 @@ export function index(req, res) {
   });
 }
 
+function validateEmailId(jobId, email) {
+  return JobApplication.findAll({
+    attributes: ['id'],
+    where: {
+      job_id: jobId
+    },
+    include: [
+      {
+        model: Applicant,
+        attributes: ['id'],
+        include: [
+          {
+            model: Email,
+            attributes: ['id'],
+            where: {
+              email: email,
+              status: 1
+            },
+          }
+        ],
+      }
+    ],
+  }).then(rows => {
+    if (rows.length > 0) {
+      return Promise.resolve(1)
+    } else {
+
+      return Promise.resolve(0)
+    }
+  }).catch(err => {
+  })
+}
+
+function validatePhoneNumber(jobId, number) {
+  return JobApplication.findAll({
+    attributes: ['id'],
+    where: {
+      job_id: jobId
+    },
+    include: [
+      {
+        model: Applicant,
+        attributes: ['id'],
+        include: [
+          {
+            model: PhoneNumber,
+            attributes: ['id'],
+            where: {
+              number: number,
+              status: 1
+            },
+          }
+        ],
+      }
+    ],
+  }).then(rows => {
+    if (rows.length > 0) {
+      return Promise.resolve(1)
+    } else {
+
+      return Promise.resolve(0)
+    }
+  }).catch(err => {
+
+  })
+}
 // Creates a new Applicant in the DB
 export function create(req, res) {
-  console.log(req.body);
+
   // parse a file upload
   var form = new formidable.IncomingForm();
 
-  form.parse(req, function(err, fields, files) {
+  form.parse(req, function (err, fields, files) {
     req.body = JSON.parse(fields.payload);
-    console.log(req.body);
+    const emailForValidation = req.body.email.email_id;
+    const numberForValidation = req.body.phoneNumber.number;
+    const jobId = req.params.jobId;
+
+
+    const validatePhoneNumberPromise = validatePhoneNumber(jobId, numberForValidation)
+    const validateEmailIdPromise = validateEmailId(jobId, emailForValidation);
     // TODO Validatio for email id and phone number for same job
-    Applicant.create(req.body)
-      .then(function tempName(rows){
-        let generatedResponseId = rows.dataValues.id;
-        let rootFolderName = config.QDMS_PATH+"/Applicants/"+(generatedResponseId - (generatedResponseId % 10000))+"/"+generatedResponseId+"/";
-        let fileName = files.fileUpload.name;
-        fs.readFile(files.fileUpload.path, function (err, data) {
-          if(err){return res.json({err:err,desc:"read"});}
-          mkdirp(rootFolderName, function (err) {
-            if (err) return res.json(err);
-            let fileExtension = fileName.split(".").pop();
-            //doc, .docx, .pdf, .rtf or .txt
-            let allowedExtType = ['doc', 'docx', 'pdf', 'rtf','txt'];
-            // TODO Discuss on file type saving logic
-            if(allowedExtType.indexOf(fileExtension) === -1){
-              return res.json("File Type Not Allowed");
-            }
-            let finalFileName = rootFolderName+generatedResponseId+"."+fileExtension;
-            fs.writeFile(finalFileName, data, function (err) {
-              if(err){
-                return res.json({err:err,desc:"write"})
-              }
 
-              // Generating Data to Insert Into Resume table Starts Here
-              let resumeData = {
-                applicant_id : generatedResponseId,
-                contents: 'Please wait the file is under processing',
-                path : 'Applicant/'+(generatedResponseId - (generatedResponseId % 10000))/+'/'+generatedResponseId+'/'+generatedResponseId
-              };
-              const promise1 = Resume.create(resumeData)
-              // Generating Data to Insert Into Resume table Starts Here
+    return Promise.all([validateEmailIdPromise, validatePhoneNumberPromise])
+      .then(function (validationResultArray) {
+        const emailValidationResult = validationResultArray[0];
+        const phoneValidationResult = validationResultArray[1];
+        if (emailValidationResult == 1 || phoneValidationResult == 1) {
+          res.status(409).json({
+            message: "phone or email conflict",
+            email: emailValidationResult,
+            number: phoneValidationResult
+          })
+        } else {
+          Applicant.build(req.body)
+            .save()
+            .then(function tempName(rows) {
+              let generatedResponseId = rows.dataValues.id;
+              let rootFolderName = config.QDMS_PATH + "/Applicants/" + (generatedResponseId - (generatedResponseId % 10000)) + "/" + generatedResponseId + "/";
+              let fileName = files.fileUpload.name;
+              fs.readFile(files.fileUpload.path, function (err, data) {
+                if (err) {
+                  return res.json({err: err, desc: "read"});
+                }
+                mkdirp(rootFolderName, function (err) {
+                  if (err) return res.json(err);
+                  let fileExtension = fileName.split(".").pop();
 
-              // Generating Data to Insert Into ApplicantState table Starts Here
-              let applicantStateData = {
-                applicant_id : generatedResponseId,
-                user_id: req.user.id,
-                state_id : '1'
-              };
-              const promise2 = ApplicantState.create(applicantStateData)
-              // Generating Data to Insert Into ApplicantState table Starts Here
+                  let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+                  // TODO Discuss on file type saving logic
+                  if (allowedExtType.indexOf(fileExtension) === -1) {
+                    return res.json("File Type Not Allowed");
+                  }
+                  let finalFileName = rootFolderName + generatedResponseId + "." + fileExtension;
+                  fs.writeFile(finalFileName, data, function (err) {
+                    if (err) {
+                      return res.json({err: err, desc: "write"})
+                    }
 
-              // TODO Remove Hardcoded
-              // Generating Data to Insert Into Email table Starts Here
-              let emailData = {
-                applicant_id : generatedResponseId,
-                email: 'dhruv@quetzal.in',
-              };
-              const promise3 = Email.create(emailData)
-              // Generating Data to Insert Into Email table Starts Here
+                    // Generating Data to Insert Into Resume table Starts Here
+                    let resumeData = {
+                      applicant_id: generatedResponseId,
+                      contents: 'Please wait the file is under processing',
+                      path: 'Applicant/' + (generatedResponseId - (generatedResponseId % 10000)) / +'/' + generatedResponseId + '/' + generatedResponseId
+                    };
+                    const promise1 = Resume.create(resumeData)
+                    // Generating Data to Insert Into Resume table Starts Here
+
+                    // Generating Data to Insert Into ApplicantState table Starts Here
+                    let applicantStateData = {
+                      applicant_id: generatedResponseId,
+                      user_id: req.user.id,
+                      state_id: '1'
+                    };
+                    const promise2 = ApplicantState.create(applicantStateData)
+                    // Generating Data to Insert Into ApplicantState table Starts Here
+
+                    // TODO Remove Hardcoded
+                    // Generating Data to Insert Into Email table Starts Here
+                    let emailData = {
+                      applicant_id: generatedResponseId,
+                      email: req.body.email.email_id,
+                    };
+                    const promise3 = Email.create(emailData)
+                    // Generating Data to Insert Into Email table Starts Here
 
 
-              // Generating Data to Insert Into PhoneNumber table Starts Here
-              let phoneNumberData = {
-                applicant_id : generatedResponseId,
-                number: 9757053090,
-              };
-              const promise4 = PhoneNumber.create(phoneNumberData)
-              // Generating Data to Insert Into PhoneNumber table Starts Here
+                    // Generating Data to Insert Into PhoneNumber table Starts Here
+                    let phoneNumberData = {
+                      applicant_id: generatedResponseId,
+                      number: req.body.phoneNumber.number,
+                    };
+                    const promise4 = PhoneNumber.create(phoneNumberData)
+                    // Generating Data to Insert Into PhoneNumber table Starts Here
 
-              // Generating Data to Insert Into JobApplication table Starts Here
-              let jobApplicationData = {
-                applicant_id : generatedResponseId,
-                job_id: req.params.jobId,
-              };
-              const promise5 = JobApplication.create(jobApplicationData)
+                    // Generating Data to Insert Into JobApplication table Starts Here
+                    let jobApplicationData = {
+                      applicant_id: generatedResponseId,
+                      job_id: req.params.jobId,
+                    };
+                    const promise5 = JobApplication.create(jobApplicationData)
 
-              // Generating Data to Insert Into JobApplication table Starts Here
+                    // Generating Data to Insert Into JobApplication table Starts Here
 
-              // TODO Remove Hardcoded values
-              // Generating Data to Insert Into Experience table Starts Here
-              let experienceData = {
-                applicant_id : generatedResponseId,
-                employer_id: 11,
-                designation_id : 22,
-                region_id: 33,
-                salary: 44.33
-              };
-              const promise6 = Experience.create(experienceData)
-              // Generating Data to Insert Into Experience table Starts Here
+                    // TODO Remove Hardcoded values
+                    // Generating Data to Insert Into Experience table Starts Here
+                    let experienceData = {
+                      applicant_id: generatedResponseId,
+                      employer_id: 11,
+                      designation_id: 22,
+                      region_id: 33,
+                      salary: 44.33
+                    };
+                    const promise6 = Experience.create(experienceData)
+                    // Generating Data to Insert Into Experience table Starts Here
 
-              return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6])
-                .then(promiseReturns => {
-                  return res.json("Applicant Creating Done!!!!");
-                })
-                .catch(err => handleError(res, 500, err))
-
-              //return res.json({fields: fields, files: files});
-            });
-          });
-
-        });
-
-        console.log(rootFolderName);
-
-        //return res.json(generatedResponseId);
+                    return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6])
+                      .then(promiseReturns => {
+                        return res.json("Applicant Creating Done!!!!");
+                      })
+                      .catch(err => handleError(res, 500, err))
+                  });
+                });
+              });
+            })
+            .catch(err => handleError(res, 500, err));
+        }
       })
-      .catch(err => handleError(res,500,err ));
-    //res.writeHead(200, {'content-type': 'text/plain'});
-    //res.write('received upload:\n\n');
-
+      .catch(err => handleError(res, 302, err));
   });
-
 }
