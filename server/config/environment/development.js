@@ -30,6 +30,7 @@ module.exports = {
     path: process.env.SOLR_PATH,
   },
   QDMS_PATH: process.env.QDMS_PATH,
+  QDMS_PATH_WELCOME: process.env.QDMS_PATH_WELCOME,
   OAUTH_SERVER: process.env.OAUTH_SERVER ,
   OAUTH_ENDPOINT: process.env.OAUTH_ENDPOINT ,
   ACCOUNTS_CLIENT: process.env.ACCOUNTS_CLIENT ,

@@ -11,7 +11,7 @@
 
 import _ from 'lodash';
 import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
-  JobApplication, ApplicantDownload, ApplicantSkill, User, Client } from '../../sqldb';
+  JobApplication, ApplicantDownload, ApplicantSkill, User, Client, Welcome } from '../../sqldb';
 import buckets from './../../config/buckets';
 import stakeholders from './../../config/stakeholders';
 import phpSerialize from './../../components/php-serialize';
@@ -258,4 +258,18 @@ export function changeState(req, res){
     .catch(err => handleError(res,500,err));
 }
 
-
+export function getResumeWelcome(req, res) {
+  Welcome
+    .find({
+      //attributes: ['path'],
+      where: { id: req.params.id},
+    })
+    .then(function formatFile(resume) {
+      fs.readFile(`${config.QDMS_PATH_WELCOME+(resume.id - (resume.id % 10000))+'/'+resume.id+'/'}${resume.path}`, (err, resumeFile) => {
+        if (err) return handleError(res, 500, err);
+        res.contentType('application/pdf');
+        res.send(resumeFile);
+      });
+    })
+    .catch(err => handleError(res,500,err));
+};

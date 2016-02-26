@@ -66,7 +66,12 @@ export function index(req, res) {
               case 5:
                 break;
               default:
-                user.name = 'QuezX';
+                if(req.user.group_id == "2"){
+                  user.name = user.name;
+                } else{
+                  user.name = 'QuezX';
+                }
+
                 break;
             }
 

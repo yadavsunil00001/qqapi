@@ -129,3 +129,19 @@ export function cvReceived(req, res) {
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
+
+export function preScreenedView(req, res) {
+  // Approval Status
+  // 1 -> Approved
+  // 2 -> Reject
+  // 3 -> Duplicate
+  Welcome.find({
+      where: {
+        id: req.params.id,
+        con_id: req.user.id
+      }
+    })
+    .then(handleEntityNotFound(res))
+    .then(respondWithResult(res))
+    .catch(handleError(res));
+}

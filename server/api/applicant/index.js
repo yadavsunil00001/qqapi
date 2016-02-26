@@ -12,6 +12,7 @@ router.put('/:id', controller.update);
 router.patch('/:id', controller.update);
 router.delete('/:id', controller.destroy);
 router.get('/:id/getResume', controller.getResume);
+router.get('/:id/getResumeWelcome', controller.getResumeWelcome);
 router.get('/:id/downloadResume', controller.downloadResume);
 router.post('/:id/changeState', controller.changeState);
 
