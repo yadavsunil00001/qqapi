@@ -69,7 +69,7 @@ export function index(req, res) {
 export function show(req, res) {
   Degree.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -90,12 +90,12 @@ export function create(req, res) {
 
 // Updates an existing Degree in the DB
 export function update(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
+  if (req.body.id) {
+    delete req.body.id;
   }
   Degree.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -108,7 +108,7 @@ export function update(req, res) {
 export function destroy(req, res) {
   Degree.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))

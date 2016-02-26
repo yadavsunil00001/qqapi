@@ -213,8 +213,8 @@ export function create(req, res) {
         } else {
           Applicant.build(req.body)
             .save()
-            .then(function tempName(rows) {
-              let generatedResponseId = rows.dataValues.id;
+            .then(function tempName(applicant) {
+              let generatedResponseId = applicant.id;
               let rootFolderName = config.QDMS_PATH + "/Applicants/" + (generatedResponseId - (generatedResponseId % 10000)) + "/" + generatedResponseId + "/";
               let fileName = files.fileUpload.name;
               fs.readFile(files.fileUpload.path, function (err, data) {
@@ -254,7 +254,6 @@ export function create(req, res) {
                     const promise2 = ApplicantState.create(applicantStateData);
                     // Generating Data to Insert Into ApplicantState table Starts Here
 
-                    // TODO Remove Hardcoded
                     // Generating Data to Insert Into Email table Starts Here
                     let emailData = {
                       applicant_id: generatedResponseId,
@@ -281,14 +280,13 @@ export function create(req, res) {
 
                     // Generating Data to Insert Into JobApplication table Starts Here
 
-                    // TODO Remove Hardcoded values
                     // Generating Data to Insert Into Experience table Starts Here
                     let experienceData = {
                       applicant_id: generatedResponseId,
-                      employer_id: 11, // TODO remove hardcoding
-                      designation_id: 22, // TODO remove hardcoding
-                      region_id: 33, // TODO remove hardcoding
-                      salary: 44.33 // TODO remove hardcoding
+                      employer_id: req.body.employer_id,
+                      designation_id: req.body.designation_id,
+                      region_id: req.body.region_id,
+                      salary: req.body.salary
                     };
                     const promise6 = Experience.create(experienceData);
                     // Generating Data to Insert Into Experience table Starts Here
@@ -296,7 +294,7 @@ export function create(req, res) {
                     // Generating Data to Insert Into Education table Starts Here
                     let educationData = {
                       applicant_id: generatedResponseId,
-                      degree_id: 11, // TODO remove hardcoding
+                      degree_id: req.body.degree_id,
                       institute_id: 1
                     };
                     const promise7 = Education.create(educationData);
