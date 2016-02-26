@@ -79,12 +79,6 @@ export function show(req, res) {
 
 // Creates a new Employer in the DB
 export function create(req, res) {
-  Employer.create(req.body)
-    .then(respondWithResult(res, 201))
-    .catch(handleError(res));
-}
-
-export function create(req, res) {
   Employer.build(req.body)
     .set('is_customer', 0)
     .set('employer_type_id', 0)

@@ -79,8 +79,12 @@ export function show(req, res) {
 
 // Creates a new Degree in the DB
 export function create(req, res) {
-  Degree.create(req.body)
-    .then(respondWithResult(res, 201))
+  Degree.build(req.body)
+    .set('verified', 0)
+    .set('system_defined', 1)
+    .set('timestamp', Date.now())
+    .save()
+    .then(degree => res.status(201).json(_.pick(degree, ['id', 'degree'])))
     .catch(handleError(res));
 }
 

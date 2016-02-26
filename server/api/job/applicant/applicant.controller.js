@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
+import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience, Education,
   JobApplication, ApplicantDownload, ApplicantSkill, User } from '../../../sqldb';
 import buckets from './../../../config/buckets';
 import stakeholders from './../../../config/stakeholders';
@@ -74,7 +74,7 @@ export function index(req, res) {
   const fl = req.query.fl || [
       'id', 'name', 'exp_designation', 'edu_degree', 'exp_salary',
       'exp_employer', 'total_exp', 'exp_location', 'state_id',
-      'state_name', 'applicant_score', 'created_on',
+      'state_name', 'applicant_score', 'created_on'
     ].join(',');
 
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
@@ -106,8 +106,8 @@ export function index(req, res) {
       {
         field: 'interview_time',
         start: req.query.interview_time.split(',')[0] || '*',
-        end: req.query.interview_time.split(',')[1] || '*',
-      },
+        end: req.query.interview_time.split(',')[1] || '*'
+      }
     ]);
   }
 
@@ -134,11 +134,11 @@ function validateEmailId(jobId, email) {
             where: {
               email: email,
               status: 1
-            },
+            }
           }
-        ],
+        ]
       }
-    ],
+    ]
   }).then(rows => {
     if (rows.length > 0) {
       return Promise.resolve(1)
@@ -167,11 +167,11 @@ function validatePhoneNumber(jobId, number) {
             where: {
               number: number,
               status: 1
-            },
+            }
           }
-        ],
+        ]
       }
-    ],
+    ]
   }).then(rows => {
     if (rows.length > 0) {
       return Promise.resolve(1)
@@ -196,7 +196,7 @@ export function create(req, res) {
     const jobId = req.params.jobId;
 
 
-    const validatePhoneNumberPromise = validatePhoneNumber(jobId, numberForValidation)
+    const validatePhoneNumberPromise = validatePhoneNumber(jobId, numberForValidation);
     const validateEmailIdPromise = validateEmailId(jobId, emailForValidation);
     // TODO Validatio for email id and phone number for same job
 
@@ -242,7 +242,7 @@ export function create(req, res) {
                       contents: 'Please wait the file is under processing',
                       path: 'Applicant/' + (generatedResponseId - (generatedResponseId % 10000)) / +'/' + generatedResponseId + '/' + generatedResponseId
                     };
-                    const promise1 = Resume.create(resumeData)
+                    const promise1 = Resume.create(resumeData);
                     // Generating Data to Insert Into Resume table Starts Here
 
                     // Generating Data to Insert Into ApplicantState table Starts Here
@@ -251,33 +251,33 @@ export function create(req, res) {
                       user_id: req.user.id,
                       state_id: '1'
                     };
-                    const promise2 = ApplicantState.create(applicantStateData)
+                    const promise2 = ApplicantState.create(applicantStateData);
                     // Generating Data to Insert Into ApplicantState table Starts Here
 
                     // TODO Remove Hardcoded
                     // Generating Data to Insert Into Email table Starts Here
                     let emailData = {
                       applicant_id: generatedResponseId,
-                      email: req.body.email.email_id,
+                      email: req.body.email.email_id
                     };
-                    const promise3 = Email.create(emailData)
+                    const promise3 = Email.create(emailData);
                     // Generating Data to Insert Into Email table Starts Here
 
 
                     // Generating Data to Insert Into PhoneNumber table Starts Here
                     let phoneNumberData = {
                       applicant_id: generatedResponseId,
-                      number: req.body.phoneNumber.number,
+                      number: req.body.phoneNumber.number
                     };
-                    const promise4 = PhoneNumber.create(phoneNumberData)
+                    const promise4 = PhoneNumber.create(phoneNumberData);
                     // Generating Data to Insert Into PhoneNumber table Starts Here
 
                     // Generating Data to Insert Into JobApplication table Starts Here
                     let jobApplicationData = {
                       applicant_id: generatedResponseId,
-                      job_id: req.params.jobId,
+                      job_id: req.params.jobId
                     };
-                    const promise5 = JobApplication.create(jobApplicationData)
+                    const promise5 = JobApplication.create(jobApplicationData);
 
                     // Generating Data to Insert Into JobApplication table Starts Here
 
@@ -285,17 +285,27 @@ export function create(req, res) {
                     // Generating Data to Insert Into Experience table Starts Here
                     let experienceData = {
                       applicant_id: generatedResponseId,
-                      employer_id: 11,
-                      designation_id: 22,
-                      region_id: 33,
-                      salary: 44.33
+                      employer_id: 11, // TODO remove hardcoding
+                      designation_id: 22, // TODO remove hardcoding
+                      region_id: 33, // TODO remove hardcoding
+                      salary: 44.33 // TODO remove hardcoding
                     };
-                    const promise6 = Experience.create(experienceData)
+                    const promise6 = Experience.create(experienceData);
                     // Generating Data to Insert Into Experience table Starts Here
 
-                    return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6])
+                    // Generating Data to Insert Into Education table Starts Here
+                    let educationData = {
+                      applicant_id: generatedResponseId,
+                      degree_id: 11, // TODO remove hardcoding
+                      institute_id: 1
+                    };
+                    const promise7 = Education.create(educationData);
+                    // Generating Data to Insert Into Education table Starts Here
+
+
+                    return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7])
                       .then(promiseReturns => {
-                        return res.json("Applicant Creating Done!!!!");
+                        return res.json({message: "success", applicant_id: promiseReturns[0]['applicant_id']});
                       })
                       .catch(err => handleError(res, 500, err))
                   });
