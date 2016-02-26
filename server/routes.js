@@ -6,7 +6,6 @@
 
 import errors from './components/errors';
 import path from 'path';
-import oAuth from  './components/oauthjs';
 
 export default function(app) {
   // Insert routes below

@@ -16,6 +16,7 @@ import path from 'path';
 import cors from 'cors';
 import config from './environment';
 import sqldb from '../sqldb';
+import oAuth from  '../components/oauthjs';
 import 'express-zip';
 
 export default function(app) {
