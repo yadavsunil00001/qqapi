@@ -69,7 +69,7 @@ export function index(req, res) {
 export function show(req, res) {
   Employer.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -84,14 +84,26 @@ export function create(req, res) {
     .catch(handleError(res));
 }
 
+export function create(req, res) {
+  Employer.build(req.body)
+    .set('is_customer', 0)
+    .set('employer_type_id', 0)
+    .set('verified', 0)
+    .set('timestamp', Date.now())
+    .set('system_defined', Date.now())
+    .save()
+    .then(employer => res.status(201).json(_.pick(employer, ['id', 'name'])))
+    .catch(handleError(res));
+}
+
 // Updates an existing Employer in the DB
 export function update(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
+  if (req.body.id) {
+    delete req.body.id;
   }
   Employer.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -104,7 +116,7 @@ export function update(req, res) {
 export function destroy(req, res) {
   Employer.find({
     where: {
-      _id: req.params.id
+      id: req.params.cid
     }
   })
     .then(handleEntityNotFound(res))
