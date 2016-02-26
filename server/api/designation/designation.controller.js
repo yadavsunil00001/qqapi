@@ -69,7 +69,7 @@ export function index(req, res) {
 export function show(req, res) {
   Designation.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -79,19 +79,22 @@ export function show(req, res) {
 
 // Creates a new Designation in the DB
 export function create(req, res) {
-  Designation.create(req.body)
-    .then(respondWithResult(res, 201))
+  Designation.build(req.body)
+    .set('verified', 0)
+    .set('timestamp', Date.now())
+    .save()
+    .then(designation => res.status(201).json(_.pick(designation, ['id', 'name'])))
     .catch(handleError(res));
 }
 
 // Updates an existing Designation in the DB
 export function update(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
+  if (req.body.id) {
+    delete req.body.id;
   }
   Designation.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -104,7 +107,7 @@ export function update(req, res) {
 export function destroy(req, res) {
   Designation.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
