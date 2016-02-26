@@ -12,7 +12,9 @@ export default function(app) {
   app.use('/api/applicants', require('./api/applicant/comment'));
 
   app.use('/oauth', require('./api/oauth'));
+  app.use('/api/oauth', require('./api/oauth'));
   app.use('/authorise', require('./api/authorise'));
+  app.use('/api/authorise', require('./api/authorise'));
   app.use('/api/welcomes', require('./api/welcome'));
   app.use('/api/applicantViews', require('./api/applicantView'));
   app.use('/api/usageLogs', require('./api/usageLog'));
