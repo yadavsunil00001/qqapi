@@ -16,7 +16,6 @@ import path from 'path';
 import cors from 'cors';
 import config from './environment';
 import sqldb from '../sqldb';
-import oAuth from  '../components/oauthjs';
 import 'express-zip';
 
 export default function(app) {
@@ -32,7 +31,6 @@ export default function(app) {
   app.set('appPath', path.join(config.root, 'client'));
 
   if ('production' === env) {
-    app.use(oAuth.authorise());
     //app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
     //app.use(express.static(app.get('appPath')));
     app.use(morgan('dev'));

@@ -6,15 +6,22 @@
 
 import errors from './components/errors';
 import path from 'path';
+import oAuth from  './components/oauthjs';
 
 export default function(app) {
-  // Insert routes below
-  app.use('/api/applicants', require('./api/applicant/comment'));
-
+  var env = app.get('env');
   app.use('/oauth', require('./api/oauth'));
   app.use('/api/oauth', require('./api/oauth'));
   app.use('/authorise', require('./api/authorise'));
   app.use('/api/authorise', require('./api/authorise'));
+  // Todo: Security Risk
+  if ('production' === env) {
+    app.use(oAuth.authorise());
+  }
+
+
+  // Insert routes below
+  app.use('/api/applicants', require('./api/applicant/comment'));
   app.use('/api/welcomes', require('./api/welcome'));
   app.use('/api/applicantViews', require('./api/applicantView'));
   app.use('/api/usageLogs', require('./api/usageLog'));
