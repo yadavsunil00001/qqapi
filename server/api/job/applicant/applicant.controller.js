@@ -191,8 +191,8 @@ export function create(req, res) {
 
   form.parse(req, function (err, fields, files) {
     req.body = JSON.parse(fields.payload);
-    const emailForValidation = req.body.email.email_id;
-    const numberForValidation = req.body.phoneNumber.number;
+    const emailForValidation = req.body.email_id;
+    const numberForValidation = req.body.number;
     const jobId = req.params.jobId;
 
 
@@ -257,7 +257,7 @@ export function create(req, res) {
                     // Generating Data to Insert Into Email table Starts Here
                     let emailData = {
                       applicant_id: generatedResponseId,
-                      email: req.body.email.email_id
+                      email: req.body.email_id
                     };
                     const promise3 = Email.create(emailData);
                     // Generating Data to Insert Into Email table Starts Here
@@ -266,7 +266,7 @@ export function create(req, res) {
                     // Generating Data to Insert Into PhoneNumber table Starts Here
                     let phoneNumberData = {
                       applicant_id: generatedResponseId,
-                      number: req.body.phoneNumber.number
+                      number: req.body.number
                     };
                     const promise4 = PhoneNumber.create(phoneNumberData);
                     // Generating Data to Insert Into PhoneNumber table Starts Here
