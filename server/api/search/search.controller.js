@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {Degree,Region,Institute,Industry,Employer,Skill,Func} from '../../sqldb';
+import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation} from '../../sqldb';
 
 function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
@@ -65,6 +65,9 @@ export function index(req, res) {
         break;
       case 'funcs':
         sequelizeSearch(Func)(req,res)
+        break;
+      case 'designations':
+        sequelizeSearch(Designation)(req,res)
         break;
       default:
         break;
