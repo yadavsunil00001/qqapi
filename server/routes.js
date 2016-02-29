@@ -10,6 +10,7 @@ import path from 'path';
 export default function(app) {
 
   // Insert routes below
+  app.use('/api/search', require('./api/search'));
   app.use('/api/applicants', require('./api/applicant/comment'));
   app.use('/api/welcomes', require('./api/welcome'));
   app.use('/api/applicantViews', require('./api/applicantView'));

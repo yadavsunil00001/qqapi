@@ -303,7 +303,7 @@ export function create(req, res) {
 
                     return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7])
                       .then(promiseReturns => {
-                        return res.json({message: "success", applicant_id: promiseReturns[0]['applicant_id']});
+                        return res.json({message: "success", id: promiseReturns[0]['applicant_id']});
                       })
                       .catch(err => handleError(res, 500, err))
                   });
