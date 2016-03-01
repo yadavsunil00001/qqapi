@@ -34,8 +34,8 @@ function sequelizeSearch(model, fieldName) {
     if (model.attributes.system_defined) options.where.system_defined = 1;
 
     model.findAll(options)
-      .then(function searchDone(institutes) {
-        res.json({ items: institutes });
+      .then(function searchDone(searchResults) {
+        res.json(searchResults);
       })
       .catch(err => handleError(res,500,err));
   };

@@ -211,6 +211,7 @@ export function create(req, res) {
             number: phoneValidationResult
           })
         } else {
+          req.body.updated_by = req.body.created_by = req.body.user_id = req.user.id;
           Applicant.build(req.body)
             .save()
             .then(function tempName(applicant) {
@@ -240,7 +241,7 @@ export function create(req, res) {
                     let resumeData = {
                       applicant_id: generatedResponseId,
                       contents: 'Please wait the file is under processing',
-                      path: 'Applicant/' + (generatedResponseId - (generatedResponseId % 10000)) / +'/' + generatedResponseId + '/' + generatedResponseId
+                      path: 'Applicants/' + (generatedResponseId - (generatedResponseId % 10000)) +'/' + generatedResponseId + '/' + generatedResponseId + "." +fileExtension
                     };
                     const promise1 = Resume.create(resumeData);
                     // Generating Data to Insert Into Resume table Starts Here
@@ -251,6 +252,7 @@ export function create(req, res) {
                       user_id: req.user.id,
                       state_id: '1'
                     };
+
                     const promise2 = ApplicantState.create(applicantStateData);
                     // Generating Data to Insert Into ApplicantState table Starts Here
 
@@ -303,7 +305,9 @@ export function create(req, res) {
 
                     return Promise.all([promise1, promise2, promise3, promise4, promise5, promise6, promise7])
                       .then(promiseReturns => {
-                        return res.json({message: "success", id: promiseReturns[0]['applicant_id']});
+                        return applicant.update({applicant_state_id:promiseReturns[1].id}).then(updatedApplicant => {
+                          return res.json({message: "success", id: promiseReturns[0]['applicant_id']});
+                        })
                       })
                       .catch(err => handleError(res, 500, err))
                   });
