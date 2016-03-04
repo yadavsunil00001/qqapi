@@ -11,6 +11,8 @@
 
 import _ from 'lodash';
 import {Degree} from '../../sqldb';
+import sequelize from 'sequelize';
+import {handleUniqueValidationError} from '../../components/sequelize-errors';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -51,18 +53,16 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode) {
+function handleError(res, statusCode,err) {
   statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
+  res.status(statusCode).send(err);
 }
 
 // Gets a list of Degrees
 export function index(req, res) {
   Degree.findAll()
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Gets a single Degree from the DB
@@ -74,18 +74,32 @@ export function show(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Creates a new Degree in the DB
 export function create(req, res) {
+  // Todo: Request Middleware: Refactor Table Degree.degree to Degree.name
+  req.body.degree = req.body.name
   Degree.build(req.body)
     .set('verified', 0)
     .set('system_defined', 1)
     .set('timestamp', Date.now())
     .save()
-    .then(degree => res.status(201).json(_.pick(degree, ['id', 'degree'])))
-    .catch(handleError(res));
+    .then(degree => {
+      degree = _.pick(degree, ['id', 'degree']);
+      // Todo: Response Middleware: Refactor Table Degree.degree to Degree.name
+      degree.name = degree.degree;
+      res.status(201).json(degree);
+    })
+    .catch(sequelize.ValidationError, handleUniqueValidationError(Degree,{degree: req.body.degree}))
+    .catch(function (err) {
+      // Todo: Response Middleware: Refactor Table Degree.degree to Degree.name
+      err.data = _.pick(err.data, ['id', 'degree'])
+      err.data.name = err.data.degree;
+      console.log("err.data",err.data)
+      return err.data ? res.status(409).json(err.data) : handleError(res,400,err)
+    });
 }
 
 // Updates an existing Degree in the DB
@@ -101,7 +115,7 @@ export function update(req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Deletes a Degree from the DB
@@ -113,5 +127,5 @@ export function destroy(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }

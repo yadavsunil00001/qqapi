@@ -183,10 +183,28 @@ function validatePhoneNumber(jobId, number) {
 
   })
 }
+
+// Check Already Applied
+export function alreadyApplied(req, res){
+  const validatePhoneNumberPromise = req.query.number ? validatePhoneNumber(req.params.jobId, req.query.number) : Promise.resolve(0);
+  const validateEmailIdPromise = req.query.email ? validateEmailId(req.params.jobId, req.query.email) : Promise.resolve(0);
+
+  return Promise.all([validateEmailIdPromise, validatePhoneNumberPromise])
+    .then(function (validationResultArray) {
+      const emailValidationResult = validationResultArray[0];
+      const phoneValidationResult = validationResultArray[1];
+      res.json({
+        message: "phone or email conflict",
+        email: emailValidationResult,
+        number: phoneValidationResult
+      })
+})
+}
+
 // Creates a new Applicant in the DB
 export function create(req, res) {
 
-  // parse a file upload
+  // parse a file upload Todo: file upload limit, extension
   var form = new formidable.IncomingForm();
 
   form.parse(req, function (err, fields, files) {

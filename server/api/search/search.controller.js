@@ -10,7 +10,8 @@
 'use strict';
 
 import _ from 'lodash';
-import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation} from '../../sqldb';
+import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Province} from '../../sqldb';
+import sequelize from 'sequelize';
 
 function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
@@ -41,6 +42,34 @@ function sequelizeSearch(model, fieldName) {
   };
 };
 
+function sequelizeSearchRegion(model, fieldName) {
+  const field = fieldName || 'name';
+  return function seqSearch(req, res) {
+    const options = {
+      attributes: ['id', [sequelize.fn('CONCAT_WS', ", ", sequelize.col('region'), sequelize.col('Province.name')), 'name']],//,'Province.name'
+      where: {},
+      limit: Number(req.query.limit) || 10,
+      offset: Number(req.query.offset) || 0,
+      include: {
+        model: Province,
+        attributes: []
+      }
+    };
+
+    options.where[field] = { $like: `${req.query.q}%` };
+
+    // some tables may not have system_defined field
+    if (model.attributes.system_defined) options.where.system_defined = 1;
+
+    model.findAll(options)
+      .then(function searchDone(searchResults) {
+        console.log(searchResults[0]);
+        res.json(searchResults);
+      })
+      .catch(err => handleError(res,500,err));
+  };
+};
+
 // Gets a list of Searchs
 export function index(req, res) {
   if(req.query.type){
@@ -49,7 +78,7 @@ export function index(req, res) {
         sequelizeSearch(Degree, 'degree')(req,res)
         break;
       case 'regions':
-        sequelizeSearch(Region, 'region')(req,res)
+        sequelizeSearchRegion(Region, 'region')(req,res)
         break;
       case 'institutes':
         sequelizeSearch(Institute)(req,res)

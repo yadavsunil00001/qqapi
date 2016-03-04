@@ -11,6 +11,8 @@
 
 import _ from 'lodash';
 import {Designation} from '../../sqldb';
+import sequelize from 'sequelize';
+import {handleUniqueValidationError} from '../../components/sequelize-errors';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -51,18 +53,16 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode) {
+function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
+  res.status(statusCode).send(err);
 }
 
 // Gets a list of Designations
 export function index(req, res) {
   Designation.findAll()
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Gets a single Designation from the DB
@@ -74,17 +74,24 @@ export function show(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Creates a new Designation in the DB
 export function create(req, res) {
-  Designation.build(req.body)
-    .set('verified', 0)
-    .set('timestamp', Date.now())
-    .save()
-    .then(designation => res.status(201).json(_.pick(designation, ['id', 'name'])))
-    .catch(handleError(res));
+  if(req.body.name) {
+    Designation.build(req.body)
+      .set('verified', 0)
+      .set('timestamp', Date.now())
+      .save()
+      .then(designation => res.status(201).json(_.pick(designation, ['id', 'name'])))
+      .catch(sequelize.ValidationError, handleUniqueValidationError(Designation,{name: req.body.name}))
+      .catch(function (err) {
+        return err.data ? res.status(409).json(_.pick(err.data, ['id', 'name'])) : handleError(res,400,err)
+      });
+  } else {
+    handleError(res,400,{message:'param "name" missing in request body'})
+  }
 }
 
 // Updates an existing Designation in the DB
@@ -100,7 +107,7 @@ export function update(req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
 
 // Deletes a Designation from the DB
@@ -112,5 +119,5 @@ export function destroy(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res,500,err));
 }
