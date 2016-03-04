@@ -63,7 +63,6 @@ function sequelizeSearchRegion(model, fieldName) {
 
     model.findAll(options)
       .then(function searchDone(searchResults) {
-        console.log(searchResults[0]);
         res.json(searchResults);
       })
       .catch(err => handleError(res,500,err));

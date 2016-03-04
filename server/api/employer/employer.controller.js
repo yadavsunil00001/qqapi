@@ -83,8 +83,8 @@ export function create(req, res) {
     // Todo: DB Not handle Unique
     Employer.find({where:{name:req.body.name}})
       .then(employer => {
-        if(employer.length == 0){
-          Employer.build(req.body)
+        if(!employer){
+          return Employer.build(req.body)
             .set('is_customer', 0)
             .set('employer_type_id', 0)
             .set('verified', 0)
@@ -99,9 +99,9 @@ export function create(req, res) {
         } else {
           return res.status(409).json(_.pick(employer, ['id', 'name']))
         }
-
-      }).catch(err => handleError(res,400,err))
-
+      }).catch(err => {
+        handleError(res, 400, err)
+      })
   } else {
     handleError(res,400,{message:'param "name" missing in request body'})
   }
