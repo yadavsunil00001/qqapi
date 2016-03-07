@@ -90,6 +90,11 @@ export default function(sequelize, DataTypes) {
         JobAllocation.belongsTo(models.User, {
           foreignKey: 'user_id',
         });
+
+        JobAllocation.belongsTo(models.ConsultantResponse, {
+          foreignKey: 'consultant_response_id',
+        });
+
       },
     },
   });

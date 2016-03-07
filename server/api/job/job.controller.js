@@ -65,40 +65,35 @@ function handleError(res, statusCode) {
 
 // Gets a list of Jobs
 export function index(req, res) {
-  //Job.findAll()
-  //  .then(respondWithResult(res))
-  //  .catch(handleError(res));
-  const offset = req.query.offset || 0;
-  const limit = (req.query.limit > 20) ? 20 : req.query.limit || 10;
-  const fl = req.query.fl || [
-      'updated_on','role','owner_id','consultant_score','direct_line_up','job_nature','eng_mgr_name',
-      'eng_mgr_name_sf','max_sal','max_exp','recruiter_username','id','job_code','client_name',
-      'client_name_sf','email','min_sal','min_exp','c','ient_score','type_s',
-      'screening_score','total_applicants','job_status','created_on',
-      'job_location','vacancy','skills'
-    ].join(',');
-
-  JobAllocation.findAll({
-    where: {
-      user_id: req.user.id
-    },
-      attributes: ['job_id'],
-    limit: parseInt(limit)
-  })
-  .then(function(jobs){
-    jobs = _.map(jobs,'job_id');
-    let insideQuery = jobs.join(' OR ');
-
-    // After getting job_id fetching data from Solr
-    const solrQuery = Solr.createQuery()
-      .q('id:('+insideQuery+') AND type_s:job ')
-      .fl(fl);
-    Solr.get('select', solrQuery, function solrCallback(err, result) {
-      if (err) return res.status(500).json(err);
-      res.json(result.response.docs);
-    });
-  })
-  .catch(handleCatch(res));
+  // Todo: ORM Impl: Writtern manual query becasue of currently sequelize don't have Multidatabase Join Support
+  const query =req.query.query || "";
+  db.sequelizeQuarc.query(`
+      SELECT
+        Job.id,
+        Job.user_id,
+        Job.role,
+        Job.job_code,
+        JobStatus.name AS job_status,
+        JobStatus.id AS job_id,
+        JobScore.consultant AS consultant,
+        JobScore.id AS job_score
+      FROM gloryque_quarc.jobs AS Job LEFT JOIN gloryque_quarc.job_statuses AS JobStatus
+          ON (Job.job_status_id = JobStatus.id)
+        LEFT JOIN gloryque_quarc.job_scores AS JobScore ON (Job.job_score_id = JobScore.id)
+        LEFT JOIN gloryque_quarc.job_allocations AS JobAllocation ON (Job.id = JobAllocation.job_id)
+        LEFT JOIN gloryque_quarc.consultant_responses AS ConsultantResponse
+          ON (ConsultantResponse.id = JobAllocation.consultant_response_id AND ConsultantResponse.user_id = '${req.user.id}')
+        INNER JOIN gloryque_quantum.users AS User ON (Job.user_id = User.id)
+      WHERE JobAllocation.user_id = ${req.user.id} AND JobAllocation.status = '1' AND ConsultantResponse.response_id = 1 AND
+            Job.status = '1' AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
+      GROUP BY Job.id
+      ORDER BY JobScore.consultant DESC
+      LIMIT ${(req.query.limit > 20) ? 20 : req.query.limit || 10}
+      OFFSET ${req.query.offset || 0}`,
+      {type: db.Sequelize.QueryTypes.SELECT})
+      .then(jobs => {
+        return res.json(jobs)
+      }).catch(err => handleError(res,500,err))
 
 }
 
