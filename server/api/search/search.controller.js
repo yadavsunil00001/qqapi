@@ -93,7 +93,7 @@ function applicantSearch(){
 
     const solrQuery = Solr.createQuery()
       // Todo: Solr Mobile Number field currently not allow partial search
-      .q(`owner_id:${req.user.id} AND type_s:applicant AND ( name:*${req.query.q}*  OR mobile:${req.query.q}  OR email:*${req.query.q}*  )`)
+      .q(`owner_id:${req.user.id} AND type_s:applicant AND ( name:*${req.query.q}*  ${!isNaN(req.query.q) ? 'OR mobile:'+req.query.q:''}  OR email:*${req.query.q}*  )`)
       .fl(fl)
       .matchFilter('state_id', `(${states.join(' OR ')})`)
       .start(offset)

@@ -70,13 +70,16 @@ export function index(req, res) {
   db.sequelizeQuarc.query(`
       SELECT
         Job.id,
-        Job.user_id,
+        Job.user_id AS owner_id,
         Job.role,
-        Job.job_code,
+        Job.job_code AS job_code,
         JobStatus.name AS job_status,
         JobStatus.id AS job_id,
-        JobScore.consultant AS consultant,
-        JobScore.id AS job_score
+        JobScore.consultant AS consultant_score,
+        JobScore.id AS job_score,
+        User.name AS owner,
+        Client.name AS owner_name
+
       FROM gloryque_quarc.jobs AS Job LEFT JOIN gloryque_quarc.job_statuses AS JobStatus
           ON (Job.job_status_id = JobStatus.id)
         LEFT JOIN gloryque_quarc.job_scores AS JobScore ON (Job.job_score_id = JobScore.id)
@@ -84,6 +87,7 @@ export function index(req, res) {
         LEFT JOIN gloryque_quarc.consultant_responses AS ConsultantResponse
           ON (ConsultantResponse.id = JobAllocation.consultant_response_id AND ConsultantResponse.user_id = '${req.user.id}')
         INNER JOIN gloryque_quantum.users AS User ON (Job.user_id = User.id)
+        LEFT JOIN  gloryque_quantum.clients AS Client ON  (User.client_id = Client.id)
       WHERE JobAllocation.user_id = ${req.user.id} AND JobAllocation.status = '1' AND ConsultantResponse.response_id = 1 AND
             Job.status = '1' AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
       GROUP BY Job.id
