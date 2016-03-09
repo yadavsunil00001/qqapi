@@ -145,3 +145,25 @@ export function preScreenedView(req, res) {
     .then(respondWithResult(res))
     .catch(handleError(res));
 }
+
+// Create applicant from social shared cv stored in welcome table
+// firstly fetch the particular record from welcome table then send request to applicant save to create applicant
+
+
+export function createApplicant(req, res) {
+  // Approval Status
+  // 27 -> Status id is for Screening Pending
+  // 37 -> Status id is for pre-screening Reject
+    Welcome.find({
+        where: {
+          id: req.params.id,
+          //con_id: req.user.id
+        }
+    })
+    .then(function(result){
+      let dataArray = result;
+      console.log(dataArray.id);
+      return res.json(dataArray);
+    })
+    .catch(handleError(res));
+}
