@@ -200,12 +200,12 @@ export function alreadyApplied(req, res){
 })
 }
 
-function saveApplicant(applicantDetails,stateId){
+export function saveApplicant(applicantDetails,stateId){
   const emailForValidation = applicantDetails.email_id;
   const numberForValidation = applicantDetails.number;
 
   const jobId = applicantDetails.jobId;
-  console.log("app",applicantDetails.jobId)
+  console.log("xapp",applicantDetails.fileUpload.name)
 
   const validatePhoneNumberPromise = validatePhoneNumber(jobId, numberForValidation);
   const validateEmailIdPromise = validateEmailId(jobId, emailForValidation);
@@ -231,14 +231,19 @@ function saveApplicant(applicantDetails,stateId){
             let generatedResponseId = applicant.id;
             let rootFolderName = config.QDMS_PATH + "/Applicants/" + (generatedResponseId - (generatedResponseId % 10000)) + "/" + generatedResponseId + "/";
             let fileName = applicantDetails.fileUpload.name;
+            console.log(fileName);
             return fsp.readFile(applicantDetails.fileUpload.path).then(function (data) {
+              //console.log("DHRUV", data);
+              //console.log("DHRUV", data);
+              //applicantDetails.fileUpload.path
+
               return mkdirp(rootFolderName).then(function () {
                 let fileExtension = fileName.split(".").pop();
-
+                console.log("fileExtension",fileName,fileExtension)
                 let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
                 // TODO Discuss on file type saving logic
                 if (allowedExtType.indexOf(fileExtension) === -1) {
-                  return Promise.reject({code:500,err: err, desc: "File Type Not Allowed"});
+                  return Promise.reject({code:500, desc: "File Type Not Allowed"});
                 }
                 let finalFileName = rootFolderName + generatedResponseId + "." + fileExtension;
                 return fsp.writeFile(finalFileName, data).then(function() {
@@ -335,7 +340,7 @@ export function create(req, res) {
 
   form.parse(req, function (err, fields, files) {
     let applicant = JSON.parse(fields.payload);
-
+    console.log(files.fileUpload.path);
     applicant.jobId = req.params.jobId;
     applicant.user_id = req.user.id;
     applicant.fileUpload = files.fileUpload;
