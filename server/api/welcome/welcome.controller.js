@@ -154,63 +154,100 @@ export function preScreenedView(req, res) {
 
 
 export function createApplicant(req, res) {
-  // Approval Status
-  // 27 -> Status id is for Screening Pending
-  // 37 -> Status id is for pre-screening Reject
+  // Approval Status  27 -> Status id is for Screening Pending, 37 -> Status id is for pre-screening Reject
+  var welcomeId = req.params.id;
   var stateId = req.body.stateId;
-  stateId = 27;
   var jobId = req.params.jobId;
-  jobId = 1110;
+  // Fetching details from welcome table for a particular id
     Welcome.find({
         where: {
-          id: req.params.id,
-          //con_id: req.user.id
+          id: welcomeId
         }
     })
-    .then(function(result){
-      let welcomeId = result.id;
-      let welcomePath = result.path;
-      //let welcomeIdPath = config.QDMS_PATH_WELCOME + (welcomeId - (welcomeId % 10000)) + "/" + welcomeId + "/" + welcomePath ;
-      let welcomeIdPath = "C:/home/gloryque/QDMS/Welcome/0/2193/You_Too_Can_Run_Neon_Run.pdf" ;
-      //return res.json(welcomeIdPath);
+    .then(function(welcomeData){
+      let welcomeId = welcomeData.id;
+      let welcomePath = welcomeData.path;
+      let welcomeIdPath = config.QDMS_PATH_WELCOME + (welcomeId - (welcomeId % 10000)) + "/" + welcomeId + "/" + welcomePath ;
+      //let welcomeIdPath = "C:/home/gloryque/QDMS/Welcome/0/2193/You_Too_Can_Run_Neon_Run.pdf" ;
 
-
-      let applicantData = {"name": "TESTING DHRUV",
-        "total_exp": 4,
-        "expected_ctc": 12,
-        "notice_period": 2,
-        "quezx_id": null,
-        "status": 1,
-        "verified": 1,
-        "score": 37,
-        "created_by": 201,
-        "created_at": "2015-05-20T13:37:32.000Z",
-        "updated_by": null,
-        "updated_on": "2015-10-23T05:09:40.000Z",
-        "parent_id": null,
-        "state_id": 26,
-        "screening_state_id": 1,
-        "applicant_screening_id": null,
-        "scheduled_on": null,
-        "employer_id": 11,
-        "designation_id": 12,
-        "region_id": 33,
-        "salary": 11,
-        "user_id": 14,
-        "number": 80222221111,
-        "email_id": "d3am2ajesh211@quetzal.in"};
-
-      applicantData.fileUpload = { name : result.path, path : welcomeIdPath};
+      // creating required array to be posted
+      let applicantData = {
+        "name": welcomeData.name,
+        "total_exp": welcomeData.total_exp,
+        "expected_ctc": welcomeData.expected_salary,
+        "notice_period": welcomeData.notice_period,
+        "state_id": stateId,
+        "employer_id": welcomeData.employer, // TODO
+        "designation_id": welcomeData.designation, // TODO  elite
+        "region_id": welcomeData.location, // TODO
+        "degree_id": welcomeData.higest_qualification,
+        "salary": welcomeData.current_salary,
+        "user_id": welcomeData.con_id,
+        "number": welcomeData.phone,
+        "email_id": welcomeData.email,
+      };
+      applicantData.fileUpload = { name : welcomeData.path, path : welcomeIdPath};
       applicantData.jobId = jobId;
-      console.log(applicantData.fileUpload.name)
+      //console.log(applicantData.fileUpload.name);
       return saveApplicant(applicantData, stateId).then(function(result){
-        return res.json(result);
+        var approval_status = 1;
+        if( stateId == 27 ){
+          approval_status = 1;
+          Welcome.update({
+            approval_status: approval_status
+          }, {
+            where: {
+              id : welcomeId
+            }
+          }).then(function() {
+            return res.json({
+              approval_status : approval_status,
+              message: 'Approved',
+              id: result.id
+            });
+          });
+        }else  if( stateId == 37 ){
+          approval_status = 2;
+          Welcome.update({
+            approval_status: approval_status
+          }, {
+            where: {
+              id : welcomeId
+            }
+          }).then(function() {
+            return res.json({
+              approval_status : approval_status,
+              message: 'Reject',
+              id: result.id
+            });
+          });
+        }else{
+          return res.json({
+            code: 409,
+            message: "Error Ocourred while action."
+          })
+        }
       }).catch(function(err){
-        console.log(err);
-        return res.json(err);
+        return res.json (err);
+        // Updating approval status to duplicate
+        // 1 => approved
+        // 2 => reject
+        // 3 => duplicate
+        var approval_status = 3;
+        Welcome.update({
+          approval_status: approval_status
+        }, {
+          where: {
+            id : welcomeId
+          }
+        }).then(function() {
+          return res.json({
+            code: 409,
+            approval_status : 3,
+            message: 'Duplicate'
+          });
+        });
       });
-      let dataArray = result;
-      console.log(dataArray.id);
     })
     .catch(err => handleError(res,500,err));
 }
