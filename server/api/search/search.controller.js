@@ -10,10 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Province,Solr} from '../../sqldb';
-import sequelize from 'sequelize';
-import buckets from './../../config/buckets';
-import stakeholders from './../../config/stakeholders';
+import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Province,Solr,STAKEHOLDERS,BUCKETS,Sequelize} from '../../sqldb';
 
 function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
@@ -48,7 +45,7 @@ function sequelizeSearchRegion(model, fieldName) {
   const field = fieldName || 'name';
   return function seqSearch(req, res) {
     const options = {
-      attributes: ['id', [sequelize.fn('CONCAT_WS', ", ", sequelize.col('region'), sequelize.col('Province.name')), 'name']],//,'Province.name'
+      attributes: ['id', [Sequelize.fn('CONCAT_WS', ", ", Sequelize.col('region'), Sequelize.col('Province.name')), 'name']],//,'Province.name'
       where: {},
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
@@ -83,7 +80,7 @@ function applicantSearch(){
       ].join(',');
 
     const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
-    const bucket = buckets[stakeholders[req.user.group_id]];
+    const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]];
     const states = [];
     rawStates.forEach(function normalize(state) {
       if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));

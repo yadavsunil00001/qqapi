@@ -11,9 +11,7 @@
 
 import _ from 'lodash';
 import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
-  JobApplication, ApplicantDownload, ApplicantSkill, User, Client, Welcome } from '../../sqldb';
-import buckets from './../../config/buckets';
-import stakeholders from './../../config/stakeholders';
+  JobApplication, ApplicantDownload, ApplicantSkill, User, Client, Welcome, STAKEHOLDERS, BUCKETS } from '../../sqldb';
 import phpSerialize from './../../components/php-serialize';
 import config from './../../config/environment';
 import util from 'util';
@@ -39,7 +37,7 @@ export function index(req, res) {
     ].join(',');
 
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
-  const bucket = buckets[stakeholders[req.user.group_id]];
+  const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]];
   const states = [];
   rawStates.forEach(function normalize(state) {
     if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
@@ -113,7 +111,7 @@ export function show(req, res) {
       'mobile', 'exp_location', 'expected_ctc',
     ].join(',');
 
-  const states = buckets[stakeholders[req.user.group_id]].ALL;
+  const states = BUCKETS[STAKEHOLDERS[req.user.group_id]].ALL;
 
   const solrQuery = Solr.createQuery()
     .q(` type_s:applicant`)

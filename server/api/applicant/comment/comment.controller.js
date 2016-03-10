@@ -10,15 +10,12 @@
 'use strict';
 
 import _ from 'lodash';
-import buckets from './../../../config/buckets';
-import stakeholders from './../../../config/stakeholders';
-import {QueuedTask, Job, JobApplication, Comment, User, ApplicantState} from '../../../sqldb';
+import {QueuedTask, Job, JobApplication, Comment, User, ApplicantState, BUCKETS, STAKEHOLDERS} from '../../../sqldb';
 
 function handleError(res, statusCode,err) {
   statusCode = statusCode || 500;
   res.status(statusCode).json(err);
 }
-
 
 // Gets a list of Comments
 export function index(req, res) {
@@ -38,7 +35,7 @@ export function index(req, res) {
     order: [['id', 'DESC']],
     where: {
       applicant_id: req.params.applicantId,
-      state_id: buckets[stakeholders[req.user.group_id]].ALL,
+      state_id: BUCKETS[STAKEHOLDERS[req.user.group_id]].ALL,
     },
   });
 
@@ -71,7 +68,6 @@ export function index(req, res) {
                 } else{
                   user.name = 'QuezX';
                 }
-
                 break;
             }
 

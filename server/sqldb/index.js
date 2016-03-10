@@ -8,10 +8,14 @@ import fs from 'fs';
 import path from 'path';
 import config from '../config/environment';
 import Sequelize from 'sequelize';
-const solrClient = require('solr-client');
+import solrClient from 'solr-client';
+import BUCKETS from './../config/buckets';
+import STAKEHOLDERS from './../config/stakeholders';
 
 var db = {
   Sequelize,
+  BUCKETS,
+  STAKEHOLDERS,
   Solr: solrClient.createClient(
     config.solr.host, config.solr.port,
     config.solr.core, config.solr.path
@@ -70,6 +74,8 @@ db.UsageLog = db.sequelizeQuarc.import('../api/usageLog/usageLog.model');
 db.Welcome = db.sequelizeQuarc.import('../api/welcome/welcome.model');
 db.ConsultantResponse = db.sequelizeQuarc.import('../api/consultantResponse/consultantResponse.model');
 db.Response = db.sequelizeQuarc.import('../api/response/response.model');
+db.Log = db.sequelizeQuarc.import('../api/log/log.model');
+db.ClientPayment = db.sequelizeQuarc.import('../api/clientPayment/clientPayment.model');
 
 db.AccessToken = db.sequelizeQuantum.import('../api/accessToken/accessToken.model');
 db.App = db.sequelizeQuantum.import('../api/app/app.model');

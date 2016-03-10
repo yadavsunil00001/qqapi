@@ -48,6 +48,21 @@ const BUCKETS = {
       18, 2, 3, 11, 14,
     ],
   },
+  // Todo: Database mappings
+  GROUPS:{
+    GLORY_CLIENTS: 1,
+    CONSULTANTS: 2,
+    CANDIDATES:3,
+    INTERNAL_TEAM: 4,
+    UBER_CLIENT_RECRUITERS:5,
+    NORMAL_USER:6,
+    QUEZX_AND_QUARC_CONSULTANT:7,
+    SCREENING:8,
+    ADMIN_UBER:9,
+    BUSINESS_TEAM:10,
+    INTERNAL_TEAM_UBER:11,
+    UBER_CLIENT_FINANCE:12
+  }
 };
 
 module.exports = BUCKETS;

@@ -11,9 +11,7 @@
 
 import _ from 'lodash';
 import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience, Education,
-  JobApplication, ApplicantDownload, ApplicantSkill, User } from '../../../sqldb';
-import buckets from './../../../config/buckets';
-import stakeholders from './../../../config/stakeholders';
+  JobApplication, ApplicantDownload, ApplicantSkill, User ,STAKEHOLDERS,BUCKETS} from '../../../sqldb';
 import phpSerialize from './../../../components/php-serialize';
 import config from './../../../config/environment';
 import util from 'util';
@@ -77,7 +75,7 @@ export function index(req, res) {
     ].join(',');
 
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
-  const bucket = buckets[stakeholders[req.user.group_id]]; // stakeholder is 2|consultant 5|client
+  const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]]; // stakeholder is 2|consultant 5|client
 
   let solrSelect = `type_s=applicant`;
 
@@ -205,7 +203,6 @@ export function saveApplicant(applicantDetails,stateId){
   const numberForValidation = applicantDetails.number;
 
   const jobId = applicantDetails.jobId;
-  console.log("xapp",applicantDetails.fileUpload.name)
 
   const validatePhoneNumberPromise = validatePhoneNumber(jobId, numberForValidation);
   const validateEmailIdPromise = validateEmailId(jobId, emailForValidation);
@@ -231,15 +228,11 @@ export function saveApplicant(applicantDetails,stateId){
             let generatedResponseId = applicant.id;
             let rootFolderName = config.QDMS_PATH + "/Applicants/" + (generatedResponseId - (generatedResponseId % 10000)) + "/" + generatedResponseId + "/";
             let fileName = applicantDetails.fileUpload.name;
-            console.log(fileName);
             return fsp.readFile(applicantDetails.fileUpload.path).then(function (data) {
-              //console.log("DHRUV", data);
-              //console.log("DHRUV", data);
               //applicantDetails.fileUpload.path
 
               return mkdirp(rootFolderName).then(function () {
                 let fileExtension = fileName.split(".").pop();
-                console.log("fileExtension",fileName,fileExtension)
                 let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
                 // TODO Discuss on file type saving logic
                 if (allowedExtType.indexOf(fileExtension) === -1) {
@@ -340,16 +333,13 @@ export function create(req, res) {
 
   form.parse(req, function (err, fields, files) {
     let applicant = JSON.parse(fields.payload);
-    console.log(files.fileUpload.path);
     applicant.jobId = req.params.jobId;
     applicant.user_id = req.user.id;
     applicant.fileUpload = files.fileUpload;
 
     saveApplicant(applicant).then(function(saveStatus){
-      console.log("res",saveStatus)
       res.json(saveStatus);
     }).catch(function(err){
-      console.log(err);
       res.status(err.code||500).json(err)
     })
   });

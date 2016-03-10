@@ -11,8 +11,6 @@
 
 import _ from 'lodash';
 import {JobComment,ApplicantState, User} from '../../../sqldb';
-import buckets from './../../../config/buckets';
-import stakeholders from './../../../config/stakeholders';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
