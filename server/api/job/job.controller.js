@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,ConsultantResponse} from '../../sqldb';
+import {User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,ConsultantResponse,Welcome} from '../../sqldb';
 
 function handleCatch(res, statusCode){
   return function(err){

@@ -71,7 +71,7 @@ db.Referral = db.sequelizeQuarc.import('../api/referral/referral.model');
 db.Resume = db.sequelizeQuarc.import('../api/resume/resume.model');
 db.State = db.sequelizeQuarc.import('../api/state/state.model');
 db.UsageLog = db.sequelizeQuarc.import('../api/usageLog/usageLog.model');
-db.Welcome = db.sequelizeQuarc.import('../api/welcome/welcome.model');
+db.Reference  = db.sequelizeQuarc.import('../api/reference/reference.model');
 db.ConsultantResponse = db.sequelizeQuarc.import('../api/consultantResponse/consultantResponse.model');
 db.Response = db.sequelizeQuarc.import('../api/response/response.model');
 db.Log = db.sequelizeQuarc.import('../api/log/log.model');
@@ -104,5 +104,8 @@ Object.keys(db).forEach(function model(modelName) {
     db[modelName].associate(db);
   }
 });
+
+// Proxy
+db.Welcome = db.Reference;
 
 export default db;

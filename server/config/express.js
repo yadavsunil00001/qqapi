@@ -31,6 +31,9 @@ export default function(app) {
 
   app.set('appPath', path.join(config.root, 'client'));
 
+  // Plugged Applications
+  app.use('/applications/partner/api', require('../applications/partner/api/login'));
+
   app.oauth = oAuthComponent;
   // OAuth Token authorization_code, password, refresh_token
   app.all('/oauth/token', app.oauth.grant());

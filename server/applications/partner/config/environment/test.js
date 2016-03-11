@@ -1,17 +1,16 @@
 'use strict';
 
-// Development specific configuration
-// ==================================
+// Test specific configuration
+// ===========================
 module.exports = {
-
-  // Sequelize connection opions
+  // MongoDB connection options
   quarc: {
     username: process.env.QUARC_MYSQL_USER,
     password: process.env.QUARC_MYSQL_PASS,
     database: process.env.QUARC_MYSQL_DB,
     host: process.env.QUARC_MYSQL_HOST,
     dialect: 'mysql',
-    logging: true,
+    logging: false,
     timezone: '+05:30',
   },
   quantum: {
@@ -29,9 +28,5 @@ module.exports = {
     core: process.env.SOLR_CORE,
     path: process.env.SOLR_PATH,
   },
-  QDMS_PATH: process.env.QDMS_PATH,
-  QDMS_PATH_WELCOME: process.env.QDMS_PATH_WELCOME,
-
-  USER: JSON.parse(process.env.USER),
 
 };

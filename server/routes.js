@@ -10,6 +10,8 @@ import path from 'path';
 export default function(app) {
 
   // Insert routes below
+  app.use('/api/jobs', require('./api/job/reference'));
+  app.use('/api/references', require('./api/reference'));
   app.use('/api/clientPayments', require('./api/clientPayment'));
   app.use('/api/logs', require('./api/log'));
   app.use('/api/responses', require('./api/response'));
@@ -80,8 +82,6 @@ export default function(app) {
   app.use('/api/applicants', require('./api/applicant'));
   app.use('/api/partners', require('./api/partner'));
   app.use('/api/users', require('./api/user'));
-
-
 
   // All undefined asset or api routes should return a 404
   //app.route('/:url(api|auth|components|app|bower_components|assets)/*')

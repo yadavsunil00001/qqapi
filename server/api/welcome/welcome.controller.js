@@ -55,10 +55,7 @@ function handleEntityNotFound(res) {
 
 function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
-
-    console.log(err);
-    res.status(statusCode).send(err);
-  
+  res.status(statusCode).send(err);
 }
 
 // Gets a list of Welcomes
@@ -112,24 +109,6 @@ export function destroy(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(err => handleError(res,500,err));
-}
-
-// cvReceived for a particular job id and for a particular con_id this
-
-export function cvReceived(req, res) {
-  // Approval Status
-  // 1 -> Approved
-  // 2 -> Reject
-  // 3 -> Duplicate
-    Welcome.findAll({
-      where: {
-        job_id: req.params.jobId,
-        con_id: req.user.id
-      }
-    })
-    .then(handleEntityNotFound(res))
-    .then(respondWithResult(res))
     .catch(err => handleError(res,500,err));
 }
 
@@ -188,7 +167,6 @@ export function createApplicant(req, res) {
       };
       applicantData.fileUpload = { name : welcomeData.path, path : welcomeIdPath};
       applicantData.jobId = jobId;
-      //console.log(applicantData.fileUpload.name);
       return saveApplicant(applicantData, stateId).then(function(result){
         var approval_status = 1;
         if( stateId == 27 ){

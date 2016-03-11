@@ -1,13 +1,11 @@
 'use strict';
 
 var express = require('express');
-var controller = require('./welcome.controller');
+var controller = require('./reference.controller');
 
 var router = express.Router();
 
 router.get('/', controller.index);
-router.get('/:id/preScreenedView', controller.preScreenedView);
-router.post('/:id/createApplicant', controller.createApplicant);
 router.get('/:id', controller.show);
 router.post('/', controller.create);
 router.put('/:id', controller.update);
