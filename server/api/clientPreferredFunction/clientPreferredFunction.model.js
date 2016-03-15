@@ -9,7 +9,7 @@ module.exports = function ClientPreferredFunctionModel(sequelize, DataTypes) {
       allowNull: false,
       unique: true,
     },
-    timestamps: {
+    timestamp: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
@@ -20,6 +20,14 @@ module.exports = function ClientPreferredFunctionModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
+      getClientPreferredFunctionList  : function getClientPreferredFunctionList (db, client_id){
+        return db.ClientPreferredFunction.findAll({
+          where: {
+            client_id: client_id
+          },
+          attributes: ['id','func_id'],
+        })
+      },
       associate: function associate(models) {
         ClientPreferredFunction.belongsTo(models.Func, {
           foreignKey: 'func_id',

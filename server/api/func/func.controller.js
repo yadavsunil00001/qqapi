@@ -69,7 +69,7 @@ export function index(req, res) {
 export function show(req, res) {
   Func.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -86,12 +86,12 @@ export function create(req, res) {
 
 // Updates an existing Func in the DB
 export function update(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
+  if (req.body.id) {
+    delete req.body.id;
   }
   Func.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
@@ -104,10 +104,26 @@ export function update(req, res) {
 export function destroy(req, res) {
   Func.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
     .catch(handleError(res));
+}
+
+// Get Function List with  System_defined = 1
+export function getFunctionList(req, res){
+  Func.findAll({
+      where: {
+        system_defined: 1
+      }
+    }
+  )
+  .then(response => {
+    return res.json({response});
+  })
+  .catch(function(err){
+    return res.json({err});
+  });
 }

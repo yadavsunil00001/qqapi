@@ -43,6 +43,15 @@ module.exports = function FuncModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
+      getFunctionList : function getFunctionList(db){
+        return db.Func.findAll({
+          where: {
+            system_defined: 1
+          },
+          attributes: ['id','name'],
+          order: '"name" ASC'
+        })
+      },
       associate: function associate(models) {
         Func.hasMany(models.Job);
         Func.hasMany(models.ClientPreferredFunction);

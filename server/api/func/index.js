@@ -6,6 +6,7 @@ var controller = require('./func.controller');
 var router = express.Router();
 
 router.get('/', controller.index);
+router.get('/getFunctionList', controller.getFunctionList);
 router.get('/:id', controller.show);
 router.post('/', controller.create);
 router.put('/:id', controller.update);

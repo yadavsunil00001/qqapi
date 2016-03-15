@@ -6,6 +6,10 @@ var controller = require('./client.controller');
 var router = express.Router();
 
 router.get('/', controller.index);
+router.get('/preferences', controller.preferences);
+router.get('/checkTerminationStatus', controller.checkTerminationStatus);
+// :id taken from session hence using /clients/updatePreferences instead of /clients/:id/updatePreferences
+router.post('/updatePreferences', controller.updatePreferences);
 router.get('/:id', controller.show);
 router.post('/', controller.create);
 router.put('/:id', controller.update);

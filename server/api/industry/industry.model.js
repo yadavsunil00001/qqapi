@@ -38,6 +38,15 @@ module.exports = function IndustryModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
+      getIndustryList : function getIndustryList(db){
+        return db.Industry.findAll({
+          where: {
+            system_defined: 1
+          },
+          attributes: ['id','name'],
+          order: '"name" ASC'
+        })
+      },
       associate: function associate(models) {
         Industry.hasMany(models.Client);
         Industry.hasMany(models.ClientPreferredIndustry);
