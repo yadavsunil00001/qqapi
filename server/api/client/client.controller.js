@@ -10,7 +10,8 @@
 'use strict';
 
 import _ from 'lodash';
-import db,{Client, Func, Industry, ClientPreferredFunction, ClientPreferredIndustry} from '../../sqldb';
+import db,{Client,Applicant, Job, JobApplication, ApplicantState, State, Func, Solr,
+  Industry, ClientPreferredFunction, ClientPreferredIndustry, Sequelize} from '../../sqldb';
 
 
 function respondWithResult(res, statusCode) {
@@ -52,11 +53,10 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode) {
+function handleError(res, statusCode,err) {
+  console.log("err",err)
   statusCode = statusCode || 500;
-  return function (err) {
     res.status(statusCode).send(err);
-  };
 }
 
 // Gets a list of Clients
@@ -82,7 +82,7 @@ export function show(req, res) {
 export function create(req, res) {
   Client.create(req.body)
     .then(respondWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Updates an existing Client in the DB
@@ -98,7 +98,7 @@ export function update(req, res) {
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Deletes a Client from the DB
@@ -110,7 +110,7 @@ export function destroy(req, res) {
     })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
 
 // To get preferences of the consultant
@@ -264,6 +264,56 @@ export function updatePreferences(req, res){
 
   })
   .catch(err => handleError(res, 500, err));
+}
 
+export function dashboard(req, res) {
 
+  Applicant.findAll({
+    where: {
+      //user_id : req.user.id
+      user_id : 310
+    },
+    attributes: ['id'/*[Sequelize.fn('count', Sequelize.col('*')),'count']*/],
+    include: [
+      {
+        model: ApplicantState,
+        attributes: [],
+        where: {
+          state_id : [6,22,32,33]
+        },
+        include: {
+          model: State,
+          attributes: ['name'],
+          where: {
+            //id : [6,22,32,33]
+          },
+        }
+      }
+    ],
+    raw: true
+  })
+  .then(resultData => {
+    // Getting count applicant ids wrt state ids
+    var _count = _.countBy(_.map(resultData,"ApplicantState.State.id"));
+    // extracting applicant ids from result data which is used later to fetch data from query
+    var _applicantIds = _.map(resultData,"id");
+    var countData = [];
+    for(var id in _count){
+      var x = {};
+      x.id = id;
+      x.name = (_.filter(resultData,{"ApplicantState.State.id":parseInt(id)})[0]["ApplicantState.State.name"]);
+      x.count = _count[id];
+      countData.push(x);
+    }
+    // Fetching data from applicant using solr
+    const solrQuery = Solr.createQuery()
+      .q(` type_s:applicant`)
+      .matchFilter('id', `(${_applicantIds.join(' ')})`);
+    Solr.get('select', solrQuery, function solrCallback(err, result) {
+      if (err) return handleError(res, 500,err);
+      return res.json({ countData,applicantData:result.response.docs});
+    });
+
+  })
+  .catch(err => handleError(res, 500, err));
 }
