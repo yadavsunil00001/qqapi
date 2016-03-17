@@ -135,7 +135,9 @@ export function preScreenedView(req, res) {
 export function createApplicant(req, res) {
   // Approval Status  27 -> Status id is for Screening Pending, 37 -> Status id is for pre-screening Reject
   var welcomeId = req.params.id;
-  var stateId = req.body.stateId;
+  // 27 => Screening pending
+  // 37 => Pre-Screening Reject
+  var stateId = (req.body.approve === true) ? 27 : 37;
   var jobId = req.params.jobId;
   // Fetching details from welcome table for a particular id
     Welcome.find({

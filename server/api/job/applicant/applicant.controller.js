@@ -253,7 +253,7 @@ export function saveApplicant(applicantDetails,stateId){
                   let applicantStateData = {
                     applicant_id: generatedResponseId,
                     user_id: applicantDetails.user_id,
-                    state_id: stateId ? stateId : '1'
+                    state_id: stateId ? stateId : '27' // 27 => Screening Pending 
                   };
 
                   const applicateStatePromise = ApplicantState.create(applicantStateData);
