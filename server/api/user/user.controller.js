@@ -76,13 +76,45 @@ export function me(req, res, next) {
       }),
 
       Client.findById(req.user.client_id, {
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time' ],
+      }),
+      User.findById(req.user.id, {
+        attributes: ['id', 'name', 'is_active'],
       }),
     ])
-    .then(function gotUser(user) {
+    .then(promiseReturns => {
+      console.log(promiseReturns[1]);
+      const group = promiseReturns[0];
+      const client = promiseReturns[1];
+      const user = promiseReturns[2];
+
+      var whatBlocked = {};
+      var is_blocked = false;
+
+      if(user.is_active === 0 ){
+        var is_blocked = true;
+        whatBlocked.is_active = true;
+      }
+
+      if(client.consultant_survey === 0 ){
+        var is_blocked = true;
+        whatBlocked.consultant_survey = true;
+      }
+
+      if(client.termination_flag === 0 ){
+        var is_blocked = true;
+        whatBlocked.termination_flag = true;
+      }
+
       const userme = _.assign(req.user, {
-        user_type: user[0].name,
-        company_name: user[1].name,
+        user_type: group.name,
+        company_name: client.name,
+        perc_revenue_share: client.dataValues.perc_revenue_share,
+        termination_flag: client.dataValues.termination_flag,
+        consultant_survey: client.dataValues.consultant_survey,
+        consultant_survey_time: client.dataValues.consultant_survey_time,
+        is_blocked : is_blocked,
+        whatBlocked : whatBlocked
       });
 
       res.json(userme);
