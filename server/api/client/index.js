@@ -9,6 +9,7 @@ router.get('/', controller.index);
 router.get('/preferences', controller.preferences);
 router.get('/dashboard', controller.dashboard);
 router.get('/checkTerminationStatus', controller.checkTerminationStatus);
+router.post('/makeUserActive', controller.makeUserActive);
 // :id taken from session hence using /clients/updatePreferences instead of /clients/:id/updatePreferences
 router.post('/updatePreferences', controller.updatePreferences);
 router.get('/:id', controller.show);

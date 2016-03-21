@@ -114,6 +114,27 @@ export function destroy(req, res) {
     .catch(err => handleError(res, 500, err));
 }
 
+export function makeUserActive(req, res) {
+  // Approval Status
+  // 1 -> Approved
+  // 2 -> Reject
+  // 3 -> Duplicate
+  User.update({
+    is_active: 1
+  }, {
+    where: {
+      id : req.user.id
+    }
+  }).then(function() {
+    return res.json({
+      is_active : 1,
+      message: 'Is Active',
+    });
+  })
+  .catch(err => handleError(res,500,err));
+}
+
+
 // To get preferences of the consultant
 export function checkTerminationStatus(req, res) {
   let clientId = req.user.client_id;

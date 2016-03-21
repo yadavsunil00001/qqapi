@@ -72,15 +72,15 @@ export function me(req, res, next) {
   var userId = req.user.id;
   Promise.all([
       Group.findById(req.user.group_id, {
-        attributes: ['id', 'name'],
+        attributes: ['id', 'name']
       }),
 
       Client.findById(req.user.client_id, {
-        attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time' ],
+        attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time' ]
       }),
       User.findById(req.user.id, {
-        attributes: ['id', 'name', 'is_active'],
-      }),
+        attributes: ['id', 'name', 'is_active']
+      })
     ])
     .then(promiseReturns => {
       console.log(promiseReturns[1]);
