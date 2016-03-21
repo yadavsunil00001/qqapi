@@ -114,9 +114,7 @@ export function show(req, res) {
   const states = BUCKETS[STAKEHOLDERS[req.user.group_id]].ALL;
 
   const solrQuery = Solr.createQuery()
-    .q(` type_s:applicant`)
-    //{!child of="type_s:job"} owner_id:${req.user.id} AND
-    .matchFilter('state_id', `(${states.join(' OR ')})`)
+    .q(`type_s:applicant`)
     .matchFilter('id', `${req.params.id}`)
     .fl(fl);
 
@@ -256,18 +254,3 @@ export function changeState(req, res){
     .catch(err => handleError(res,500,err));
 }
 
-export function getResumeWelcome(req, res) {
-  Welcome
-    .find({
-      //attributes: ['path'],
-      where: { id: req.params.id},
-    })
-    .then(function formatFile(resume) {
-      fs.readFile(`${config.QDMS_PATH_WELCOME+(resume.id - (resume.id % 10000))+'/'+resume.id+'/'}${resume.path}`, (err, resumeFile) => {
-        if (err) return handleError(res, 500, err);
-        res.contentType('application/pdf');
-        res.send(resumeFile);
-      });
-    })
-    .catch(err => handleError(res,500,err));
-};

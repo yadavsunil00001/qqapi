@@ -146,7 +146,9 @@ export default function(sequelize, DataTypes) {
 
     classMethods: {
       associate: function associate(models) {
-        ApplicantState.hasMany(models.Applicant);
+        ApplicantState.belongsTo(models.Applicant,{
+          foreignKey: 'applicant_id',
+        });
 
         ApplicantState.belongsTo(models.State, {
           foreignKey: 'state_id',

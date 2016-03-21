@@ -58,7 +58,7 @@ function sequelizeSearchRegion(model, fieldName) {
     options.where[field] = { $like: `${req.query.q}%` };
 
     // some tables may not have system_defined field
-    if (model.attributes.system_defined) options.where.system_defined = 1;
+    if (model.attributes.verified) options.where.verified = 2;
 
     model.findAll(options)
       .then(function searchDone(searchResults) {

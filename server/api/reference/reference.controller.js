@@ -69,7 +69,7 @@ export function index(req, res) {
 export function show(req, res) {
   Reference.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
