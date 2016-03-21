@@ -10,7 +10,8 @@
 'use strict';
 
 import _ from 'lodash';
-import db,{Client,Applicant, Job, JobApplication, ApplicantState, State, Func, Solr,
+import moment from 'moment';
+import db,{Client,Applicant, Job, JobApplication, ApplicantState, State, Func, Solr, User, JobAllocation,
   Industry, ClientPreferredFunction, ClientPreferredIndustry, Sequelize} from '../../sqldb';
 
 
@@ -270,8 +271,7 @@ export function dashboard(req, res) {
 
   Applicant.findAll({
     where: {
-      //user_id : req.user.id
-      user_id : 310
+      user_id : req.user.id
     },
     attributes: ['id'/*[Sequelize.fn('count', Sequelize.col('*')),'count']*/],
     include: [
@@ -286,7 +286,7 @@ export function dashboard(req, res) {
           attributes: ['name'],
           where: {
             //id : [6,22,32,33]
-          },
+          }
         }
       }
     ],
@@ -294,14 +294,15 @@ export function dashboard(req, res) {
   })
   .then(resultData => {
     // Getting count applicant ids wrt state ids
-    var _count = _.countBy(_.map(resultData,"ApplicantState.State.id"));
+    console.log(resultData);
+    var _count = _.countBy(_.map(resultData,"ApplicantStates.State.id"));
     // extracting applicant ids from result data which is used later to fetch data from query
     var _applicantIds = _.map(resultData,"id");
     var countData = [];
     for(var id in _count){
       var x = {};
       x.id = id;
-      x.name = (_.filter(resultData,{"ApplicantState.State.id":parseInt(id)})[0]["ApplicantState.State.name"]);
+      x.name = (_.filter(resultData,{"ApplicantStates.State.id":parseInt(id)})[0]["ApplicantStates.State.name"]);
       x.count = _count[id];
       countData.push(x);
     }
@@ -311,9 +312,203 @@ export function dashboard(req, res) {
       .matchFilter('id', `(${_applicantIds.join(' ')})`);
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res, 500,err);
-      return res.json({ countData,applicantData:result.response.docs});
-    });
 
+      // Calculating Screening ratio
+      const screeningDataPromise =  Applicant.count({
+        where: {
+          user_id : req.user.id
+        },
+        attributes: ['id'],
+        include: [
+          {
+            model: ApplicantState,
+            attributes: [],
+            where: {
+              state_id : [1,2,3,4,5,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+            },
+            include: {
+              model: State,
+              attributes: ['name']
+            }
+          }
+        ],
+        raw: true
+      });
+
+      const screeningAllDataPromise = Applicant.count({
+          where: {
+            user_id : req.user.id
+          },
+          attributes: ['id'],
+          include: [
+            {
+              model: ApplicantState,
+              attributes: [],
+              where: {
+                state_id : [1,2,3,4,5,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+              },
+              include: {
+                model: State,
+                attributes: ['name']
+              }
+            }
+          ],
+          raw: true
+        });
+
+      // Calculating shortlisting ratio
+      const shortlistingDataPromise =  Applicant.count({
+        where: {
+          user_id : req.user.id
+        },
+        attributes: ['id'],
+        include: [
+          {
+            model: ApplicantState,
+            attributes: [],
+            where: {
+              state_id : [4,5,8,9,10,11,12,15,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+            },
+            include: {
+              model: State,
+              attributes: ['name']
+            }
+          }
+        ],
+        raw: true
+      });
+
+      const shortlistingAllDataPromise = Applicant.count({
+        where: {
+          user_id : req.user.id
+        },
+        attributes: ['id'],
+        include: [
+          {
+            model: ApplicantState,
+            attributes: [],
+            where: {
+              state_id : [2,3,4,5,8,9,10,11,12,15,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+            },
+            include: {
+              model: State,
+              attributes: ['name']
+            }
+          }
+        ],
+        raw: true
+      });
+
+      // TODO Refactor code to bring joining date
+      const upcomingOfferDataPromise = Applicant.findAll({
+        where: {
+          user_id : req.user.id
+        },
+        attributes: ['id','name'],
+        include: [
+          {
+            model: ApplicantState,
+            attributes: [],
+            where: {
+              state_id : [10,20]
+            },
+            include: {
+              model: State,
+              attributes: ['name']
+            }
+          },
+          {
+            model: JobApplication,
+            attributes: [],
+            include: [{
+              model: Job,
+              attributes: ['role'],
+            }]
+          }
+        ],
+        raw: true
+      });
+
+      // TODO Refactor Code Optimization and upcoming interview data pending
+      // New Profile data is allocated today data
+      const promiseNewProfileData = JobAllocation.findAll({
+        where: {
+          user_id : req.user.id,
+          created_on : {
+            // TODO remove hard coding of gte
+            //gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+            gte: '2016-02-18 00:00:00'
+          }
+        },
+        attributes: ['job_id','created_on'],
+        raw: true
+      });
+
+      // TODO Refactor code to bring Interview Date date
+      const upcomingInterviewDataPromise = Applicant.findAll({
+        where: {
+          user_id : req.user.id
+        },
+        attributes: ['id','name'],
+        include: [
+          {
+            model: ApplicantState,
+            attributes: [],
+            where: {
+              state_id : [5, 8, 17]
+            },
+            include: {
+              model: State,
+              attributes: ['name']
+            }
+          },
+          {
+            model: JobApplication,
+            attributes: [],
+            include: [{
+              model: Job,
+              attributes: ['role'],
+            }]
+          }
+        ],
+        raw: true
+      });
+
+
+
+      return Promise.all([screeningDataPromise, screeningAllDataPromise, shortlistingDataPromise, shortlistingAllDataPromise,
+          upcomingOfferDataPromise, promiseNewProfileData, upcomingInterviewDataPromise])
+        .then(promiseReturns => {
+          var screeningRatio = Math.round((promiseReturns[0] / promiseReturns[1]) * 100);
+          var shortlistingRatio = Math.round((promiseReturns[2] / promiseReturns[3]) * 100);
+          var _job_ids = _.map(promiseReturns[5],"job_id");
+          // Checking if any job is allocated today or not
+          if(_job_ids.length == 0){
+            return res.json({ countData,
+              applicantData: result.response.docs,
+              screeningRatio: screeningRatio,
+              shortlistingRatio: shortlistingRatio,
+              upcomingOfferData: promiseReturns[4]
+            });
+          }else{
+            // Fetching data from applicant using solr
+            const solrQuery = Solr.createQuery()
+              .q(` type_s:job`)
+              .matchFilter('id', `(${_job_ids.join(' ')})`);
+            Solr.get('select', solrQuery, function solrCallback(err, resultDataJobs) {
+              if (err) return handleError(res, 500,err);
+              return res.json({ countData,
+                applicantData: result.response.docs,
+                screeningRatio: screeningRatio,
+                shortlistingRatio: shortlistingRatio,
+                upcomingOfferData: promiseReturns[4],
+                upcomingInterviewData: promiseReturns[5],
+                newProfileData: resultDataJobs.response.docs
+              });
+            });
+          } // End Checking if any job is allocated today or not
+        });
+    });
   })
   .catch(err => handleError(res, 500, err));
 }
