@@ -88,32 +88,29 @@ export function me(req, res, next) {
       const client = promiseReturns[1];
       const user = promiseReturns[2];
 
-      var whatBlocked = {};
+      var whatBlocked = [];
       var is_blocked = false;
 
       if(user.is_active === 0 ){
-        var is_blocked = true;
-        whatBlocked.is_active = true;
+        whatBlocked.push({ priority: 0,url:'terms-and-conditions'});
       }
 
       if(client.consultant_survey === 0 ){
-        var is_blocked = true;
-        whatBlocked.consultant_survey = true;
+        whatBlocked.push({ priority: 1 ,url:'preferences'})
       }
 
       if(client.termination_flag === 0 ){
-        var is_blocked = true;
-        whatBlocked.termination_flag = true;
+        whatBlocked.push({ priority: 2,url:'terminated-message'})
       }
 
       const userme = _.assign(req.user, {
         user_type: group.name,
         company_name: client.name,
-        perc_revenue_share: client.dataValues.perc_revenue_share,
-        termination_flag: client.dataValues.termination_flag,
-        consultant_survey: client.dataValues.consultant_survey,
-        consultant_survey_time: client.dataValues.consultant_survey_time,
-        is_blocked : is_blocked,
+        percRevenueShare: client.dataValues.perc_revenue_share,
+        terminationFlag: client.dataValues.termination_flag,
+        consultantSurvey: client.dataValues.consultant_survey,
+        consultantSurveyTime: client.dataValues.consultant_survey_time,
+        isBlocked : is_blocked,
         whatBlocked : whatBlocked
       });
 
