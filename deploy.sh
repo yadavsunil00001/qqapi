@@ -23,9 +23,6 @@ git init
 echo "Adding remote"
 git remote add dist https://github.com/manjeshpv/quarc.api.dist
 
-echo "Pulling from dokku"
-git pull origin master
-
 echo "Adding files to git"
 git add *
 
@@ -33,7 +30,7 @@ echo "Commiting..."
 git commit -m "new"
 
 echo "Started deploying"
-git push dokku master --force
+git push dist master --force
 
 echo "Deployed Successfully!"
 exit 0
