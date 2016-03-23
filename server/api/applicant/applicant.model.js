@@ -298,9 +298,9 @@ export default function(sequelize, DataTypes) {
           attributes: ['id'],
           where: { job_id: jobId },
           include: [{
-              model: models.Applicant,
-              attributes: ['id'],
-              include: [{ model: models.Email, attributes: ['id'], where: {email: email,status: 1}}]
+            model: models.Applicant,
+            attributes: ['id'],
+            include: [{ model: models.Email, attributes: ['id'], where: {email: email,status: 1}}]
           }]
         }).then(rows => {
           if (rows.length > 0) return Promise.resolve(true)
@@ -350,10 +350,11 @@ export default function(sequelize, DataTypes) {
               code: 409,
               message: "phone or email conflict"
             }, status))
-            return models.Applicant.build(_.pick(applicantToSave, ['name', 'expected_ctc', 'salary', 'notice_period', 'total_exp',]), {
+            return models.Applicant.build(_.pick(applicantToSave, ['name', 'expected_ctc', 'salary', 'notice_period', 'total_exp']), {
                 include: [models.PhoneNumber, models.Email, models.Education, models.JobApplication,
                   models.ApplicantState, models.Experience,models.Resume] // Resume added to retrive
               })
+              .set('user_id', userId)
               .set('created_by', userId)
               .set('updated_by', userId)
               .set('Emails', {email: applicantToSave.email_id})
@@ -515,8 +516,7 @@ export default function(sequelize, DataTypes) {
                 "exp_employer": experience.employer,
                 "_root_": jobId
               };
-              console.log("exp",experience)
-              console.log(JSON.stringify(solrRecord))
+
               return db.Solr.add(solrRecord, function solrJobAdd(err) {
                 if (err) return Promise.reject(err);
                 return db.Solr.softCommit();

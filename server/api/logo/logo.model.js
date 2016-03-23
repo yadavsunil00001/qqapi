@@ -34,7 +34,7 @@ module.exports = function LogoModel(sequelize, DataTypes) {
       allowNull: false,
     },
   }, {
-    tableName: 'hotlines',
+    tableName: 'logos',
     timestamps: false,
     underscored: true,
 

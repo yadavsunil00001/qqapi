@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,ConsultantResponse,Welcome} from '../../sqldb';
+import db, {User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,ConsultantResponse,Welcome} from '../../sqldb';
 
 function handleCatch(res, statusCode){
   return function(err){
@@ -353,21 +353,52 @@ export function allocationStatusNew(req, res) {
 
 // Gets a single Job from the DB
 export function show(req, res) {
+  // @todo refine and restructure flow
+  const following = req.followingJobs ? ` OR id:(${req.followingJobs})` : '';
   const fl = req.query.fl || [
-      'updated_on','role','owner_id','consultant_score','direct_line_up','job_nature','eng_mgr_name',
-      'eng_mgr_name_sf','max_sal','max_exp','recruiter_username','id','job_code','client_name',
-      'client_name_sf','email','min_sal','min_exp','c','ient_score','type_s',
-      'screening_score','total_applicants','job_status','created_on',
-      'job_location','vacancy','skills'
+      'id', 'role', 'owner_id', 'max_sal', 'min_sal', 'job_code', 'min_exp', 'max_exp',
+      'client_name', 'job_status', 'job_status_id', 'required_skills', 'optional_skills',
+      'interview_addr', 'interview_place_direction', 'days_per_week', 'job_location',
+      'end_work_time', 'start_work_time', 'degrees', 'institutes', '_root_', 'vacancy',
+      'employers', 'industries', 'perks', 'preferred_genders', 'responsibility',
     ].join(',');
 
-  const solrQuery = Solr.createQuery()
-    .q(`id:${req.params.jobId} AND type_s:job`)
+  const solrQuery = db.Solr
+    .createQuery()
+    .q(`id:${req.params.jobId} AND type_s:job `)//AND (owner_id:${req.user.id}${following})
     .fl(fl);
-  Solr.get('select', solrQuery, function solrCallback(err, result) {
-    if (err) return res.status(500).json(err);
-    let responsJson =  (result.response.docs instanceof Array) ? result.response.docs[0] : result.response.docs
-    res.json(responsJson);
+  const clientAttr = [
+    'description', 'reg_address', 'min_emp', 'max_emp', 'website',
+    'apple_store_link', 'playstore_link', 'windows_store_link',
+  ];
+  let getClient;
+
+  if (~fl.indexOf('_root_')) {
+    getClient = db.Client.findById(req.user.client_id, {
+      attributes: clientAttr,
+      include: [db.Logo],
+    });
+  }
+
+  db.Solr.get('select', solrQuery, function solrCallback(err, result) {
+    if (err) return handleError(res,500,err);
+    const job = result.response.docs;
+
+    // @todo handle error from components/error
+    if (!job.length) return handleError(res,404,new Error('Job not found'));
+    if (~fl.indexOf('_root_')) {
+      return getClient
+        .then(clientModel => {
+          const client = clientModel.toJSON();
+          console.log("client",client)
+          const logo = new Buffer(client.Logo.logo).toString('base64');
+          client.logo = `data:${client.Logo.mime};base64,${logo}`;
+          job[0]._root_ = _.pick(client, clientAttr.concat(['logo']));
+          res.json(job[0]);
+        });
+    }
+
+    res.json(job[0]);
   });
 }
 
