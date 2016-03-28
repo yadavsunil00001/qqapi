@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
+import db, {Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
   JobApplication, ApplicantDownload, ApplicantSkill, User, Client, Welcome, STAKEHOLDERS, BUCKETS } from '../../sqldb';
 import phpSerialize from './../../components/php-serialize';
 import config from './../../config/environment';
@@ -67,7 +67,23 @@ export function index(req, res) {
   }
   Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return res.status(500).json(err);
-    res.json(result.response.docs);
+    if (!~fl.indexOf('_root_')) return res.json(result.response.docs);
+    var applicants = result.response.docs
+    const solrInnerQuery = db.Solr
+      .createQuery()
+      .q(`id:(${applicants.map(a => a._root_).join(' OR ')}) AND type_s:job`)
+      .fl(['role', 'id']);
+
+    // Get job to attach to results
+    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, jobs) {
+      if (jobErr) return res.status(500).json(err);
+      applicants.forEach(function attachJob(applicant, key) {
+        applicants[key]._root_ = jobs.response.docs
+          .filter(s => s.id === applicants[key]._root_)[0];
+      });
+
+      res.json(applicants);
+    });
   });
 }
 
