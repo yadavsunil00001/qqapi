@@ -8,6 +8,7 @@ var router = express.Router();
 router.get('/', controller.index);
 router.get('/search', controller.search);
 router.get('/allocationStatusNew', controller.allocationStatusNew);
+router.get('/allocationStatusNewCount', controller.allocationStatusNewCount);
 router.get('/:jobId', controller.show);
 router.post('/:jobId/consultantResponse', controller.consultantResponse);
 router.post('/', controller.create);

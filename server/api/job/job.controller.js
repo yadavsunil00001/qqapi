@@ -10,7 +10,8 @@
 'use strict';
 
 import _ from 'lodash';
-import db, {User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,ConsultantResponse,Welcome} from '../../sqldb';
+import db, {BUCKETS,User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,
+  ConsultantResponse,Welcome} from '../../sqldb';
 
 function handleCatch(res, statusCode){
   return function(err){
@@ -65,7 +66,7 @@ function handleError(res, statusCode,err ) {
 // Gets a list of Jobs
 export function index(req, res) {
   // Todo: ORM Impl: Writtern manual query becasue of currently sequelize don't have Multidatabase Join Support
-  const query =req.query.query || "";
+const query =req.query.query || "";
   sequelizeQuarc.query(`
       SELECT
         Job.id,
@@ -97,6 +98,7 @@ export function index(req, res) {
       .then(jobs => {
         return res.json(jobs)
       }).catch(err => handleError(res,500,err))
+
 
 }
 
@@ -349,6 +351,15 @@ export function allocationStatusNew(req, res) {
       }
     })
   .catch(err => handleError(res,500,err))
+}
+
+// List Jobs allocationed to consultant
+export function allocationStatusNewCount(req, res) {
+  return JobAllocation.count({
+      where: {consultant_response_id: null, user_id: 112},
+      include: [{model: db.Job, where: {status: 1}}]
+    })
+    .then(count => res.json({count})).catch(err=>handleError(res, 500, err))
 }
 
 // Gets a single Job from the DB
