@@ -5,6 +5,7 @@ import fsp from 'fs-promise';
 import mkdirp from 'mkdirp-then';
 import path from 'path';
 import config from './../../config/environment';
+import phpSerialize from './../../components/php-serialize';
 
 export default function(sequelize, DataTypes) {
   const Applicant =  sequelize.define('Applicant', {
@@ -373,6 +374,7 @@ export default function(sequelize, DataTypes) {
                 const applicantIdLowerRoundOff = (applicant.id - (applicant.id % 10000)).toString();
                 let absoluteFolderPathToSave = path.join(config.QDMS_PATH, "Applicants", applicantIdLowerRoundOff, applicant.id.toString()) + "/";
                 let fileName = file.name;
+                // Todo: Copy is better than read and write
                 const resumePromise = fsp.readFile(file.path).then(function (fileStream) {
                   return mkdirp(absoluteFolderPathToSave).then(function () {
                     let fileExtension = fileName.split(".").pop(); // Extension
@@ -382,6 +384,17 @@ export default function(sequelize, DataTypes) {
                     }
                     let absoluteFilePath = absoluteFolderPathToSave + applicant.id + "." + fileExtension;
                     return fsp.writeFile(absoluteFilePath, fileStream).then(function () {
+
+                      const data = phpSerialize.serialize({
+                        command: `${config.QUARC_PATH}app/Console/cake`,
+                        params: [
+                          'beautify_file',
+                          '-t', 'a',
+                          '-a', applicant.id,
+                        ],
+                      });
+
+                      models.QueuedTask.create({ jobType: 'Execute', group: 'conversion', data });
                       return models.Resume.create({
                         applicant_id: applicant.id,
                         contents: 'Please wait the file is under processing',
@@ -418,6 +431,7 @@ export default function(sequelize, DataTypes) {
         if(!userId) return Promise.reject("updateSolr: userId not defined")
         if(!jobId) return Promise.reject("updateSolr: jobId not defined")
 
+        // Todo: _this is current applicant, No need to query again
         return db.Applicant.find({
           attributes:['id','name','total_exp','expected_ctc','notice_period',['score','applicant_score'],'verified'
             ,['created_at','created_on'],'updated_on',['user_id','owner_id']],
@@ -483,12 +497,12 @@ export default function(sequelize, DataTypes) {
             const experience = resolvedPromise[5]
             var engagementManagerId = client['Client.eng_mgr_id']
 
-            //console.log("applicant.ApplicantState",applicant)
             return db.User.find({where:{id:engagementManagerId},attributes:['name'],raw:true}).then(engMgr => {
               var solrRecord = {
                 "updated_on": applicant.updated_on,
                 "type_s": "applicant",
-                "owner_id": applicant.user_id,
+                // Todo: .user_id is found in previousDatavalues of applicant, so currently taken from _this
+                "owner_id": applicant.user_id || _this.user_id,
                 "mobile": applicant.PhoneNumbers[0].number,
                 "verified": applicant.verified,
                 "applicant_score": applicant.score,

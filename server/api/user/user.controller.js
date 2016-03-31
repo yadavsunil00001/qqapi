@@ -104,6 +104,7 @@ export function me(req, res, next) {
       }
 
       const userme = _.assign(req.user, {
+        name: user.name,
         user_type: group.name,
         company_name: client.name,
         percRevenueShare: client.dataValues.perc_revenue_share,

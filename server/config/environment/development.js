@@ -30,7 +30,7 @@ module.exports = {
     path: process.env.SOLR_PATH,
   },
   QDMS_PATH: process.env.QDMS_PATH,
-  QDMS_PATH_WELCOME: process.env.QDMS_PATH_WELCOME,
+  QUARC_PATH: process.env.QUARC_PATH,
 
   USER: JSON.parse(process.env.USER),
 

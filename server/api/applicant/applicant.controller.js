@@ -250,7 +250,7 @@ export function changeState(req, res){
     .then((model) => {
 
       const data = phpSerialize.serialize({
-        command: `${config.quarcPath}app/Console/cake`,
+        command: `${config.QUARC_PATH}app/Console/cake`,
         params: [
           'state_change_action',
           '-s', model.state_id,

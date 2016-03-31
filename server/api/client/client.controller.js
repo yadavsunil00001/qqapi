@@ -11,9 +11,14 @@
 
 import _ from 'lodash';
 import moment from 'moment';
+import path from 'path';
+import fs from 'fs';
+import handlebars from 'handlebars';
+var wkhtmltopdf = require('wkhtmltopdf');
 import db,{Client,Applicant, Job, JobApplication, ApplicantState, State, Func, Solr, User, JobAllocation,
-  Industry, ClientPreferredFunction, ClientPreferredIndustry, Sequelize} from '../../sqldb';
-
+  Industry, ClientPreferredFunction, ClientPreferredIndustry, Sequelize, QueuedTask} from '../../sqldb';
+import config from './../../config/environment';
+import phpSerialize from './../../components/php-serialize';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -69,11 +74,11 @@ export function index(req, res) {
 
 // Gets a single Client from the DB
 export function show(req, res) {
-  Client.find({
-      where: {
-        id: req.params.id
-      }
-    })
+    Client.find({
+        where: {
+          id: req.params.id
+        }
+      })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
     .catch(handleError(res));
@@ -115,25 +120,128 @@ export function destroy(req, res) {
 }
 
 export function makeUserActive(req, res) {
-  // Approval Status
-  // 1 -> Approved
-  // 2 -> Reject
-  // 3 -> Duplicate
-  User.update({
-    is_active: 1
-  }, {
+  // get your data into a variable
+  User.find({
     where: {
-      id : req.user.id
+      id: req.user.id
+    },
+    attributes: ['id','name','email_id','timestamp'],
+    include: {
+      model: Client,
+      attributes: ['name','perc_revenue_share','reg_address'],
     }
-  }).then(function() {
-    return res.json({
-      is_active : 1,
-      message: 'Is Active',
+  })
+  .then(user => {
+    //console.log(user);
+    //return res.json(user.Client.get('perc_revenue_share'));
+    var client_data = {
+      'current_date' :moment().format('Do MMMM YYYY'),
+      'company_name' : user.Client.get('name'),
+      'perc_revenue_share' : user.Client.get('perc_revenue_share'),
+      'company_address' : user.Client.get('reg_address')
+    };
+    var options = {
+      'pageSize': 'A4',
+      'encoding': 'UTF-8',
+      'no-print-media-type': true,
+      'outline': true,
+      'dpi': 300,
+      'margin-bottom': 0,
+      'margin-left': 5,
+      'margin-right': 5,
+      'margin-top': 5
+    };
+    // set up your handlebars template
+    fs.readFile(path.join(config.root,'server','views','terms-and-condition-pdf.html'), 'utf8', function (err,data) {
+        if (err) {
+          return res.json(err);
+        }
+        // compile the template
+        var template = handlebars.compile(data.replace(/\n|\r/g, ""));
+        // call template as a function, passing in your data as the context
+        var outputString = template(client_data);
+        // TODO GENERATE HTML FOR FRONTEND
+        wkhtmltopdf(outputString, options)
+          .pipe(fs.createWriteStream(config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf'));
+        // Sending mail to user with attachement of file using queue
+        const queueData = phpSerialize.serialize({
+          settings: {
+            subject: 'QuezX.com | Acceptance of Terms & Conditions',
+            to: user.dataValues.email_id,
+            bcc: 'agreement@quetzal.in',
+            from: ['notifications@quezx.com', 'QuezX.com'],
+            domain: 'Quezx.com',
+            emailFormat: 'html',
+            template: ['SignupConsultantEmail'],
+            attachments : [
+              {
+                'terms_and_condition.pdf' : config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf',
+              }
+            ]
+          },
+          vars: {
+            consultantName: user.dataValues.Client.name
+          }
+        });
+        const task = {
+          jobType: 'Email',
+          group: 'low',
+          data: queueData
+        };
+      // Creating entry in queued task Ends here
+      QueuedTask.create(task);
+      // Updating user is_active flag and setting it to 1
+      return User.update({
+        is_active: 1
+      }, {
+        where: {
+          id : req.user.id
+        }
+      }).then(function() {
+         return
+        })
+        .catch(err => handleError(res,500,err));
     });
+    return res.json(user);
   })
   .catch(err => handleError(res,500,err));
 }
 
+export function agreement(req, res) {
+  // get your data into a variable
+  User.find({
+    where: {
+      id: req.user.id
+    },
+    attributes: ['id','name','email_id','timestamp'],
+    include: {
+      model: Client,
+      attributes: ['name','perc_revenue_share','reg_address'],
+    }
+  })
+  .then(user => {
+    var client_data = {
+      'current_date' :moment().format('Do MMMM YYYY'),
+      'company_name' : user.dataValues.Client.name,
+      'perc_revenue_share' : user.dataValues.Client.perc_revenue_share,
+      'company_address' : user.dataValues.Client.reg_address
+    };
+    // set up your handlebars template
+
+    fs.readFile(path.join(config.root,'server','views','terms-and-conditions.html'), 'utf8', function (err,data) {
+        if (err) {
+          return res.json(err);
+        }
+        // compile the template
+        var template = handlebars.compile(data.replace(/\n|\r/g, ""));
+        // call template as a function, passing in your data as the context
+        var outputString = template(client_data);
+      return res.end(outputString);
+    });
+  })
+  .catch(err => handleError(res,500,err));
+
+}
 
 // To get preferences of the consultant
 export function checkTerminationStatus(req, res) {
@@ -457,8 +565,8 @@ export function dashboard(req, res) {
           user_id : req.user.id,
           created_on : {
             // TODO remove hard coding of gte
-            //gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
-            gte: '2016-02-18 00:00:00'
+            gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+            //gte: '2016-02-18 00:00:00'
           }
         },
         attributes: ['job_id','created_on'],
