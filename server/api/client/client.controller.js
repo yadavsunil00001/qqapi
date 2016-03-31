@@ -614,9 +614,12 @@ export function dashboard(req, res) {
         include: [
           {
             model: ApplicantState,
-            attributes: [],
+            attributes: ['id', 'updated_on'],
             where: {
-              state_id : [5, 8, 17]
+              state_id : [5,8,17],
+              updated_on : {
+                gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+              }
             },
             include: {
               model: State,
@@ -625,17 +628,45 @@ export function dashboard(req, res) {
           },
           {
             model: JobApplication,
-            attributes: [],
+            attributes: ['id'],
             include: [{
               model: Job,
-              attributes: ['role'],
+              attributes: ['id','role','user_id'],
             }]
           }
         ],
-        raw: true
+        raw:true
+      }).then(upcomingInterviewApplicants => {
+        var _user_ids = _.uniq(_.map(upcomingInterviewApplicants,'JobApplications.Job.user_id'));
+        return User.findAll({
+          where: {
+            id: _user_ids
+          },
+          attributes : ['id'],
+          include: {
+            model: Client,
+            attributes: ['id','name']
+          }
+
+        }).then(_user_data => {
+          //return _user_data;
+          var upcomingInterviewData = upcomingInterviewApplicants.map(function(applicant) {
+            const userId =_.get(applicant, 'JobApplications.Job.user_id');
+            return {
+              id:_.get(applicant, 'id'),
+              name:_.get(applicant, 'name'),
+              stateId: _.get(applicant, 'ApplicantStates.State.id'),
+              stateName:_.get(applicant, 'ApplicantStates.State.name'),
+              jobId:_.get(applicant, 'JobApplications.Job.id'),
+              jobRole:_.get(applicant, 'JobApplications.Job.role'),
+              jobClientId: userId,
+              jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
+              joinDate: moment(_.get(applicant, 'ApplicantStates.updated_on')).format('D/MM/YYYY')
+            };
+          });
+          return upcomingInterviewData;
+        });
       });
-
-
 
       return Promise.all([screeningDataPromise, screeningAllDataPromise, shortlistingDataPromise, shortlistingAllDataPromise,
           upcomingOfferDataPromise, promiseNewProfileData, upcomingInterviewDataPromise])
@@ -646,17 +677,6 @@ export function dashboard(req, res) {
           var upcomingOfferData = promiseReturns[4];
           var newProfiles = promiseReturns[5];
           var upcomingInterviewData = promiseReturns[6];
-
-          upcomingInterviewData = upcomingInterviewData.map(function(item) {
-            return {
-              id:_.get(item, 'id'),
-              stateId: _.get(item, 'ApplicantStates.State.id'),
-              stateName:_.get(item, 'ApplicantStates.State.name'),
-              jobId:_.get(item, 'JobApplications.Job.id'),
-              jobRole:_.get(item, 'JobApplications.Job.role')
-            };
-          });
-
           // Checking if any job is allocated today or not
           if(newProfiles.length == 0){
             var newProfileData = [];
