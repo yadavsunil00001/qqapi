@@ -279,15 +279,15 @@ export function preferences(req, res) {
 
   return Promise.all([clientDataPromise, functionListPromise, clientPreferredListPromise, industryListPromise, clientIndustryListPromise])
     .then(promiseReturns => {
-      var resultData = {};
+      var allApplicants = {};
       const clientData = promiseReturns[0]; // TODO After UI client data needs to be removed.
-      resultData.functionList = promiseReturns[1];
+      allApplicants.functionList = promiseReturns[1];
       const  preferredFunctionList = promiseReturns[2];
-      resultData.industryList = promiseReturns[3];
+      allApplicants.industryList = promiseReturns[3];
       const preferredIndustryList = promiseReturns[4];
 
       var preferredFunctionListIds = _.map(preferredFunctionList, 'func_id');
-      resultData.functionList.map(function (item, index) {
+      allApplicants.functionList.map(function (item, index) {
         // Performance issue: to be improved : matching with all data
         var status = preferredFunctionListIds.indexOf(item.id);
         // Todo: @manjesh sequelizeInstance.dataValues need to simplified
@@ -300,7 +300,7 @@ export function preferences(req, res) {
       });
 
       var preferredIndustryListIds = _.map(preferredIndustryList, 'industry_id');
-      resultData.industryList.map(function (item, index) {
+      allApplicants.industryList.map(function (item, index) {
         // Performance issue: to be improved : matching with all data
         var status = preferredIndustryListIds.indexOf(item.id);
         // Todo: @manjesh sequelizeInstance.dataValues need to simplified
@@ -313,7 +313,7 @@ export function preferences(req, res) {
       });
 
       var ctcRange = [clientData.min_ctc, clientData.max_ctc];
-      resultData.ctcRange = ENUM.CTC_RANGES.map(function (item) {
+      allApplicants.ctcRange = ENUM.CTC_RANGES.map(function (item) {
         if (item.min >= ctcRange[0] && item.max <= ctcRange[1])
           item.selected = true;
         else
@@ -321,7 +321,7 @@ export function preferences(req, res) {
         return item;
       });
 
-      return res.json(resultData);
+      return res.json(allApplicants);
 
     })
     .catch(function (err) {
@@ -421,23 +421,24 @@ export function dashboard(req, res) {
     ],
     raw: true
   })
-  .then(resultData => {
+  .then(allApplicants => {
     // Getting count applicant ids wrt state ids
-    console.log(resultData);
-    var _count = _.countBy(_.map(resultData,"ApplicantStates.State.id"));
+
+    var _count = _.countBy(_.map(allApplicants,"ApplicantStates.State.id"));
     // extracting applicant ids from result data which is used later to fetch data from query
-    var _applicantIds = _.map(resultData,"id");
+    var _applicantIds = _.map(allApplicants,"id");
     var countData = [];
     for(var id in _count){
-      var x = {};
-      x.id = id;
-      x.name = (_.filter(resultData,{"ApplicantStates.State.id":parseInt(id)})[0]["ApplicantStates.State.name"]);
-      x.count = _count[id];
-      countData.push(x);
+      var widgetItem = {};
+      widgetItem.id = id;
+      widgetItem.name = _.get(_.filter(allApplicants,{"ApplicantStates.State.id":parseInt(id)})[0],"ApplicantStates.State.name");
+      widgetItem.count = _count[id];
+      countData.push(widgetItem);
     }
     // Fetching data from applicant using solr
     const solrQuery = Solr.createQuery()
       .q(` type_s:applicant`)
+      .fl('id,name,state_name,exp_designation,exp_employer,_root_')
       .matchFilter('id', `(${_applicantIds.join(' ')})`);
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res, 500,err);
@@ -537,9 +538,12 @@ export function dashboard(req, res) {
         include: [
           {
             model: ApplicantState,
-            attributes: [],
+            attributes: ['id', 'suggested_join_date'],
             where: {
-              state_id : [10,20]
+              state_id : [10,20],
+              suggested_join_date : {
+                gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+              }
             },
             include: {
               model: State,
@@ -548,14 +552,44 @@ export function dashboard(req, res) {
           },
           {
             model: JobApplication,
-            attributes: [],
+            attributes: ['id'],
             include: [{
               model: Job,
-              attributes: ['role'],
+              attributes: ['id','role','user_id'],
             }]
           }
         ],
-        raw: true
+        raw:true
+      }).then(upcomingOfferApplicants => {
+        var _user_ids = _.uniq(_.map(upcomingOfferApplicants,'JobApplications.Job.user_id'));
+        return User.findAll({
+          where: {
+            id: _user_ids
+          },
+          attributes : ['id'],
+          include: {
+            model: Client,
+            attributes: ['id','name']
+          }
+
+        }).then(_user_data => {
+          //return _user_data;
+          var upcomingOfferData = upcomingOfferApplicants.map(function(applicant) {
+            const userId =_.get(applicant, 'JobApplications.Job.user_id');
+            return {
+              id:_.get(applicant, 'id'),
+              name:_.get(applicant, 'name'),
+              stateId: _.get(applicant, 'ApplicantStates.State.id'),
+              stateName:_.get(applicant, 'ApplicantStates.State.name'),
+              jobId:_.get(applicant, 'JobApplications.Job.id'),
+              jobRole:_.get(applicant, 'JobApplications.Job.role'),
+              jobClientId: userId,
+              jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
+              joinDate: moment(_.get(applicant, 'ApplicantStates.suggested_join_date')).format('D/MM/YYYY')
+            };
+          });
+          return upcomingOfferData;
+        });
       });
 
       // TODO Refactor Code Optimization and upcoming interview data pending
@@ -564,9 +598,7 @@ export function dashboard(req, res) {
         where: {
           user_id : req.user.id,
           created_on : {
-            // TODO remove hard coding of gte
             gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
-            //gte: '2016-02-18 00:00:00'
           }
         },
         attributes: ['job_id','created_on'],
@@ -625,16 +657,6 @@ export function dashboard(req, res) {
             };
           });
 
-          upcomingOfferData = upcomingOfferData.map(function(item) {
-            return {
-              id:_.get(item, 'id'),
-              stateId: _.get(item, 'ApplicantStates.State.id'),
-              stateName:_.get(item, 'ApplicantStates.State.name'),
-              jobId:_.get(item, 'JobApplications.Job.id'),
-              jobRole:_.get(item, 'JobApplications.Job.role')
-            };
-          });
-
           // Checking if any job is allocated today or not
           if(newProfiles.length == 0){
             var newProfileData = [];
@@ -650,10 +672,11 @@ export function dashboard(req, res) {
             // Fetching data from applicant using solr
             const solrQuery = Solr.createQuery()
               .q(`type_s:job`)
+              .fl('id,role,min_sal,max_sal,job_location')
               .matchFilter('id', `(${_.map(newProfiles,"job_id").join(' ')})`);
-            Solr.get('select', solrQuery, function solrCallback(err, resultDataJobs) {
+            Solr.get('select', solrQuery, function solrCallback(err, allApplicantsJobs) {
               if (err) return handleError(res, 500,err);
-              var newProfileData =  resultDataJobs.response.docs;
+              var newProfileData =  allApplicantsJobs.response.docs;
               return res.json({
                 countData,
                 rating,
