@@ -266,7 +266,7 @@ export function preferences(req, res) {
   var ctcRange = [{min:0,max:3,selected:true}, {min:10,max:15}, {min:20,max:30}, {min:30,max:100}]; // req.body.ctcRange
   const clientDataPromise = Client.find({
     where: {
-      id: 173
+      id: req.user.client_id
     },
     attributes: ['id', 'name', 'termination_flag', 'perc_revenue_share', 'consultant_survey', 'bd_mgr_id', 'eng_mgr_id', 'min_ctc', 'max_ctc'],
   });
@@ -441,7 +441,7 @@ export function dashboard(req, res) {
       .matchFilter('id', `(${_applicantIds.join(' ')})`);
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res, 500,err);
-
+      var applicantData = result.response.docs;
       // Calculating Screening ratio
       const screeningDataPromise =  Applicant.count({
         where: {
@@ -610,29 +610,59 @@ export function dashboard(req, res) {
         .then(promiseReturns => {
           var screeningRatio = Math.round((promiseReturns[0] / promiseReturns[1]) * 100);
           var shortlistingRatio = Math.round((promiseReturns[2] / promiseReturns[3]) * 100);
-          var _job_ids = _.map(promiseReturns[5],"job_id");
+          var rating = (screeningRatio + shortlistingRatio)/200 * 5;
+          var upcomingOfferData = promiseReturns[4];
+          var newProfiles = promiseReturns[5];
+          var upcomingInterviewData = promiseReturns[6];
+
+          upcomingInterviewData = upcomingInterviewData.map(function(item) {
+            return {
+              id:_.get(item, 'id'),
+              stateId: _.get(item, 'ApplicantStates.State.id'),
+              stateName:_.get(item, 'ApplicantStates.State.name'),
+              jobId:_.get(item, 'JobApplications.Job.id'),
+              jobRole:_.get(item, 'JobApplications.Job.role')
+            };
+          });
+
+          upcomingOfferData = upcomingOfferData.map(function(item) {
+            return {
+              id:_.get(item, 'id'),
+              stateId: _.get(item, 'ApplicantStates.State.id'),
+              stateName:_.get(item, 'ApplicantStates.State.name'),
+              jobId:_.get(item, 'JobApplications.Job.id'),
+              jobRole:_.get(item, 'JobApplications.Job.role')
+            };
+          });
+
           // Checking if any job is allocated today or not
-          if(_job_ids.length == 0){
-            return res.json({ countData,
-              applicantData: result.response.docs,
-              screeningRatio: screeningRatio,
-              shortlistingRatio: shortlistingRatio,
-              upcomingOfferData: promiseReturns[4]
+          if(newProfiles.length == 0){
+            var newProfileData = [];
+            return res.json({
+              countData,
+              rating,
+              applicantData,
+              screeningRatio,
+              shortlistingRatio,
+              upcomingOfferData
             });
-          }else{
+          } else{
             // Fetching data from applicant using solr
             const solrQuery = Solr.createQuery()
-              .q(` type_s:job`)
-              .matchFilter('id', `(${_job_ids.join(' ')})`);
+              .q(`type_s:job`)
+              .matchFilter('id', `(${_.map(newProfiles,"job_id").join(' ')})`);
             Solr.get('select', solrQuery, function solrCallback(err, resultDataJobs) {
               if (err) return handleError(res, 500,err);
-              return res.json({ countData,
-                applicantData: result.response.docs,
-                screeningRatio: screeningRatio,
-                shortlistingRatio: shortlistingRatio,
-                upcomingOfferData: promiseReturns[4],
-                upcomingInterviewData: promiseReturns[5],
-                newProfileData: resultDataJobs.response.docs
+              var newProfileData =  resultDataJobs.response.docs;
+              return res.json({
+                countData,
+                rating,
+                applicantData,
+                screeningRatio,
+                shortlistingRatio,
+                upcomingOfferData,
+                upcomingInterviewData,
+                newProfileData
               });
             });
           } // End Checking if any job is allocated today or not

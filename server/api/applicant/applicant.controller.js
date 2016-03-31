@@ -67,18 +67,22 @@ export function index(req, res) {
   }
   Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return res.status(500).json(err);
-    if (!~fl.indexOf('_root_')) return res.json(result.response.docs);
     var applicants = result.response.docs
+    if(!applicants.length) return res.json(applicants)
+    if (!~fl.indexOf('_root_')) return res.json(applicants);
+
     const solrInnerQuery = db.Solr
       .createQuery()
       .q(`id:(${applicants.map(a => a._root_).join(' OR ')}) AND type_s:job`)
       .fl(['role', 'id']);
 
     // Get job to attach to results
-    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, jobs) {
-      if (jobErr) return res.status(500).json(err);
+    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
+      if(jobErr) return res.status(500).json(err);
+      const jobs = result.response.docs;
+      if(!jobs.length) res.json(result.response.docs)
       applicants.forEach(function attachJob(applicant, key) {
-        applicants[key]._root_ = jobs.response.docs
+        applicants[key]._root_ = jobs
           .filter(s => s.id === applicants[key]._root_)[0];
       });
 
@@ -179,6 +183,7 @@ export function getResume(req, res) {
     })
     .then(function formatFile(resume) {
       fs.readFile(`${config.QDMS_PATH}${resume.path}`, (err, resumeFile) => {
+        if(err.code=="ENOENT") return res.send("<br><br><h1 style='text-align: center'>Requested Resume Not Found</h1>")
         if (err) return handleError(res, 500, err);
         res.contentType('application/pdf');
         res.send(resumeFile);

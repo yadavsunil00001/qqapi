@@ -57,17 +57,12 @@ export function index(req, res) {
 
             // Customized commenter naming to be viewed by recruiters
             switch (user.group_id) {
-              case 2:
-                user.name = 'Recruiter';
+              case 2: // if comment is from consultant then show his details
+              case 5: // if comment is from client then show client details
+                user.name = user.name;
                 break;
-              case 5:
-                break;
-              default:
-                if(req.user.group_id == "2"){
-                  user.name = user.name;
-                } else{
-                  user.name = 'QuezX';
-                }
+              default: // any other case considered as Quezx Users
+                user.name = 'QuezX';
                 break;
             }
 

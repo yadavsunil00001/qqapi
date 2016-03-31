@@ -210,7 +210,7 @@ export function allocationStatusNew(req, res) {
       ON (Job.user_id = User.id)
     LEFT JOIN gloryque_quantum.clients AS Client
       ON ( Client.id = User.client_id)
-  WHERE JobAllocation.user_id = 112 AND Job.status = '1' AND JobAllocation.status = '1'
+  WHERE JobAllocation.user_id = ${req.user.id} AND Job.status = '1' AND JobAllocation.status = '1'
   GROUP BY JobAllocation.job_id) AS TEMP ${ states.length ? 'WHERE response_id IN ('+ states.join()+ ')':'' }
   LIMIT ${ req.query.limit ? parseInt(req.query.limit) : 100 }
   OFFSET ${req.query.offset || 0}`;
@@ -356,7 +356,7 @@ export function allocationStatusNew(req, res) {
 // List Jobs allocationed to consultant
 export function allocationStatusNewCount(req, res) {
   return JobAllocation.count({
-      where: {consultant_response_id: null, user_id: 112},
+      where: {consultant_response_id: null, user_id: req.user.id},
       include: [{model: db.Job, where: {status: 1}}]
     })
     .then(count => res.json({count})).catch(err=>handleError(res, 500, err))
