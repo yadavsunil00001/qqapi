@@ -14,10 +14,10 @@ router.get('/agreement', controller.agreement);
 router.post('/acceptAgreement', controller.makeUserActive);
 // :id taken from session hence using /clients/updatePreferences instead of /clients/:id/updatePreferences
 router.post('/updatePreferences', controller.updatePreferences);
-router.get('/:id', controller.show);
-router.post('/', controller.create);
-router.put('/:id', controller.update);
-router.patch('/:id', controller.update);
-router.delete('/:id', controller.destroy);
+//router.get('/:id', controller.show);
+//router.post('/', controller.create);
+//router.put('/:id', controller.update);
+//router.patch('/:id', controller.update);
+//router.delete('/:id', controller.destroy);
 
 module.exports = router;

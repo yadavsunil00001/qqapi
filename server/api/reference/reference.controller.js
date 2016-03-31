@@ -51,18 +51,19 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode) {
+function handleError(res, statusCode,err) {
   statusCode = statusCode || 500;
-  return function(err) {
-    res.status(statusCode).send(err);
-  };
+  res.status(statusCode).send(err);
 }
 
 // Gets a list of References
 export function index(req, res) {
-  Reference.findAll()
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+  // Approval Status
+  // 0 -> Action Required 1 -> Approved 2 -> Reject 3 -> Duplicate
+  Reference.findAll({where: {con_id: req.user.id}})
+    .then(handleEntityNotFound(res))
+    .then(refereneces => res.json(refereneces))
+    .catch(err => handleError(res, 500, err));
 }
 
 // Gets a single Reference from the DB
@@ -74,14 +75,14 @@ export function show(req, res) {
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Creates a new Reference in the DB
 export function create(req, res) {
   Reference.create(req.body)
     .then(respondWithResult(res, 201))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Updates an existing Reference in the DB
@@ -91,23 +92,23 @@ export function update(req, res) {
   }
   Reference.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Deletes a Reference from the DB
 export function destroy(req, res) {
   Reference.find({
     where: {
-      _id: req.params.id
+      id: req.params.id
     }
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
