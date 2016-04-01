@@ -183,8 +183,8 @@ export function getResume(req, res) {
     })
     .then(function formatFile(resume) {
       fs.readFile(`${config.QDMS_PATH}${resume.path}`, (err, resumeFile) => {
-        if(err.code=="ENOENT") return res.send("<br><br><h1 style='text-align: center'>Requested Resume Not Found</h1>")
-        if (err) return handleError(res, 500, err);
+        if(err) if(err.code=="ENOENT") return res.send("<br><br><h1 style='text-align: center'>Requested Resume Not Found</h1>")
+        if(err) return handleError(res, 500, err);
         res.contentType('application/pdf');
         res.send(resumeFile);
       });

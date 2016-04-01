@@ -424,14 +424,14 @@ export function dashboard(req, res) {
   .then(allApplicants => {
     // Getting count applicant ids wrt state ids
 
-    var _count = _.countBy(_.map(allApplicants,"ApplicantStates.State.id"));
+    var _count = _.countBy(_.map(allApplicants,"ApplicantState.State.id"));
     // extracting applicant ids from result data which is used later to fetch data from query
     var _applicantIds = _.map(allApplicants,"id");
     var countData = [];
     for(var id in _count){
       var widgetItem = {};
       widgetItem.id = id;
-      widgetItem.name = _.get(_.filter(allApplicants,{"ApplicantStates.State.id":parseInt(id)})[0],"ApplicantStates.State.name");
+      widgetItem.name = _.get(_.filter(allApplicants,{"ApplicantState.State.id":parseInt(id)})[0],"ApplicantState.State.name");
       widgetItem.count = _count[id];
       countData.push(widgetItem);
     }
@@ -579,13 +579,13 @@ export function dashboard(req, res) {
             return {
               id:_.get(applicant, 'id'),
               name:_.get(applicant, 'name'),
-              stateId: _.get(applicant, 'ApplicantStates.State.id'),
-              stateName:_.get(applicant, 'ApplicantStates.State.name'),
+              stateId: _.get(applicant, 'ApplicantState.State.id'),
+              stateName:_.get(applicant, 'ApplicantState.State.name'),
               jobId:_.get(applicant, 'JobApplications.Job.id'),
               jobRole:_.get(applicant, 'JobApplications.Job.role'),
               jobClientId: userId,
               jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
-              joinDate: moment(_.get(applicant, 'ApplicantStates.suggested_join_date')).format('D/MM/YYYY')
+              joinDate: moment(_.get(applicant, 'ApplicantState.suggested_join_date')).format('D/MM/YYYY')
             };
           });
           return upcomingOfferData;
@@ -659,19 +659,19 @@ export function dashboard(req, res) {
               sameElse: 'DD/MM/YYYY'
             });
 
-            const time = moment(_.get(applicant, 'ApplicantStates.updated_on')).format('h a')
+            const time = moment(_.get(applicant, 'ApplicantState.updated_on')).format('h a')
 
             return {
               id:_.get(applicant, 'id'),
               name:_.get(applicant, 'name'),
               //stateId: _.get(applicant, 'ApplicantStates.State.id'),
-              stateName:_.get(applicant, 'ApplicantStates.State.name'),
+              stateName:_.get(applicant, 'ApplicantState.State.name'),
               jobId:_.get(applicant, 'JobApplications.Job.id'),
               jobRole:_.get(applicant, 'JobApplications.Job.role'),
               jobClientId: userId,
               jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
               interviewTime:  time +", " + day,
-              updated_on:  moment(_.get(applicant, 'ApplicantStates.updated_on')).format('D/MM/YYYY h a')
+              updated_on:  moment(_.get(applicant, 'ApplicantState.updated_on')).format('D/MM/YYYY h a')
             };
           });
           return upcomingInterviewData;

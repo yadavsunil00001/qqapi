@@ -181,12 +181,6 @@ export default function(sequelize, DataTypes) {
           foreignKey: 'user_id',
         });
 
-        Applicant.hasMany(models.ApplicantState, {
-          defaultScope: {
-            where: { status: 1 },
-          },
-        });
-
         Applicant.belongsTo(models.ApplicantState, {
           defaultScope: {
             where: { status: 1 },
@@ -361,7 +355,6 @@ export default function(sequelize, DataTypes) {
               .set('Emails', {email: applicantToSave.email_id})
               .set('Education', {degree_id: applicantToSave.degree_id, institute_id: applicantToSave.institute_id})
               .set('PhoneNumbers', {number: applicantToSave.number})
-              .set('ApplicantStates', {state_id: stateId, user_id: userId})
               .set('JobApplications', {job_id: jobId})
               .set('Experiences', {
                 region_id: applicantToSave.region_id,
@@ -371,53 +364,57 @@ export default function(sequelize, DataTypes) {
               })
               .save()
               .then(function (applicant) {
-                const applicantIdLowerRoundOff = (applicant.id - (applicant.id % 10000)).toString();
-                let absoluteFolderPathToSave = path.join(config.QDMS_PATH, "Applicants", applicantIdLowerRoundOff, applicant.id.toString()) + "/";
-                let fileName = file.name;
-                // Todo: Copy is better than read and write
-                const resumePromise = fsp.readFile(file.path).then(function (fileStream) {
-                  return mkdirp(absoluteFolderPathToSave).then(function () {
-                    let fileExtension = fileName.split(".").pop(); // Extension
-                    let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
-                    if (allowedExtType.indexOf(fileExtension) === -1) {
-                      return Promise.reject({code: 500, desc: "File Type Not Allowed"});
-                    }
-                    let absoluteFilePath = absoluteFolderPathToSave + applicant.id + "." + fileExtension;
-                    return fsp.writeFile(absoluteFilePath, fileStream).then(function () {
 
-                      const data = phpSerialize.serialize({
-                        command: `${config.QUARC_PATH}app/Console/cake`,
-                        params: [
-                          'beautify_file',
-                          '-t', 'a',
-                          '-a', applicant.id,
-                        ],
-                      });
+                return  models.ApplicantState
+                  .create({state_id: stateId, user_id: userId,applicant_id:applicant.id})
+                .then(applicantState => {
 
-                      models.QueuedTask.create({ jobType: 'Execute', group: 'conversion', data });
-                      return models.Resume.create({
-                        applicant_id: applicant.id,
-                        contents: 'Please wait the file is under processing',
-                        path: path.join('Applicants/', applicantIdLowerRoundOff, applicant.id.toString(), [applicant.id, fileExtension].join("."))
+                  const applicantIdLowerRoundOff = (applicant.id - (applicant.id % 10000)).toString();
+                  let absoluteFolderPathToSave = path.join(config.QDMS_PATH, "Applicants", applicantIdLowerRoundOff, applicant.id.toString()) + "/";
+                  let fileName = file.name;
+
+                  // Todo: Copy is better than read and write
+                  const resumePromise = fsp.readFile(file.path).then(function (fileStream) {
+                    return mkdirp(absoluteFolderPathToSave).then(function () {
+                      let fileExtension = fileName.split(".").pop(); // Extension
+                      let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+                      if (allowedExtType.indexOf(fileExtension) === -1) {
+                        return Promise.reject({code: 500, desc: "File Type Not Allowed"});
+                      }
+                      let absoluteFilePath = absoluteFolderPathToSave + applicant.id + "." + fileExtension;
+                      return fsp.writeFile(absoluteFilePath, fileStream).then(function () {
+                        const data = phpSerialize.serialize({
+                          command: `${config.QUARC_PATH}app/Console/cake`,
+                          params: [
+                            'beautify_file',
+                            '-t', 'a',
+                            '-a', applicant.id,
+                          ],
+                        });
+
+                        models.QueuedTask.create({ jobType: 'Execute', group: 'conversion', data });
+                        return models.Resume.create({
+                          applicant_id: applicant.id,
+                          contents: 'Please wait the file is under processing',
+                          path: path.join('Applicants/', applicantIdLowerRoundOff, applicant.id.toString(), [applicant.id, fileExtension].join("."))
+                        });
                       });
                     });
                   });
-                });
 
-                return Promise.all([
-                  applicant.update({applicant_state_id: applicant.ApplicantStates[0].id}),
-                  resumePromise
-                ]).then(function (promiseReturns) {
-                  var applicant = promiseReturns[0];
-
-                  // Async: Not returned
-                  applicant.updateSolr(models,userId,jobId).then(re =>{
-                    console.log("applicant indexed")
-                  }).catch(err => {
-                    console.log("solr index failed",err)
+                  return Promise.all([
+                    applicant.update({applicant_state_id: applicantState.id}),
+                    resumePromise
+                  ]).then(function (promiseReturns) {
+                    var applicant = promiseReturns[0];
+                    // Async: Not returned
+                    applicant.updateSolr(models,userId,jobId).then(re =>{
+                      console.log("applicant indexed")
+                    }).catch(err => {
+                      console.log("solr index failed",err)
+                    })
+                    return applicant;
                   })
-
-                  return applicant;
                 })
               })
           })
@@ -503,11 +500,11 @@ export default function(sequelize, DataTypes) {
                 "type_s": "applicant",
                 // Todo: .user_id is found in previousDatavalues of applicant, so currently taken from _this
                 "owner_id": applicant.user_id || _this.user_id,
-                "mobile": applicant.PhoneNumbers[0].number,
+                "mobile": _.get(applicant.PhoneNumbers[0],'number'),
                 "verified": applicant.verified,
                 "applicant_score": applicant.score,
                 "expected_ctc": applicant.expected_ctc,
-                "state_name": applicant.ApplicantStates.length ? applicant.ApplicantStates[0].State.name : "",
+                "state_name": applicant.ApplicantState.State.get('name'),
                 "created_on": applicant.created_on,
                 "name": applicant.name,
                 "id": applicant.id,
