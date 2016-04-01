@@ -237,7 +237,7 @@ export function allocationStatusNew(req, res) {
                   ON (Job.user_id = User.id)
                 LEFT JOIN gloryque_quantum.clients AS Client
                   ON ( Client.id = User.client_id)
-              WHERE JobAllocation.user_id = 112 AND Job.status = '1' AND JobAllocation.status = '1'
+              WHERE JobAllocation.user_id = ${req.user.id} AND Job.status = '1' AND JobAllocation.status = '1'
               GROUP BY JobAllocation.job_id) AS TEMP
             GROUP BY  response_id`;
 
@@ -322,18 +322,21 @@ export function allocationStatusNew(req, res) {
             job.region = regions[parseInt(job.region_id)]
             job.score = jobScores[parseInt(job.job_score_id)]
             job.priority = priority[parseInt(job.job_status_id)]
-            if(job.clientPayments.length>0){
-              if(job.clientPayments[0]['isFixed']==1){
-                job.payment = 'Fixed - Standard';
-              } else if(job.clientPayments[0]['isFixed']==2) {
-                job.payment = 'Fixed - Customised';
-              } else if(job.clientPayments[0]['isFixed']==3){
-                job.payment =  '1% EMI - Customised';
-              } else {
-                job.payment = '1% EMI - Standard';
+            if(job.clientPayments){
+              if(job.clientPayments.length>0){
+                if(job.clientPayments[0]['isFixed']==1){
+                  job.payment = 'Fixed - Standard';
+                } else if(job.clientPayments[0]['isFixed']==2) {
+                  job.payment = 'Fixed - Customised';
+                } else if(job.clientPayments[0]['isFixed']==3){
+                  job.payment =  '1% EMI - Customised';
+                } else {
+                  job.payment = '1% EMI - Standard';
+                }
+              } else{
+                job.payment = '-';
               }
-            } else{
-              job.payment = '-';
+              delete job.clientPayments;
             }
 
             return job;

@@ -438,7 +438,7 @@ export function dashboard(req, res) {
     // Fetching data from applicant using solr
     const solrQuery = Solr.createQuery()
       .q(` type_s:applicant`)
-      .fl('id,name,state_name,exp_designation,exp_employer,_root_')
+      .fl('id,name,mobile,email,state_name,exp_designation,exp_employer,_root_')
       .matchFilter('id', `(${_applicantIds.join(' ')})`);
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res, 500,err);
@@ -652,16 +652,26 @@ export function dashboard(req, res) {
           //return _user_data;
           var upcomingInterviewData = upcomingInterviewApplicants.map(function(applicant) {
             const userId =_.get(applicant, 'JobApplications.Job.user_id');
+
+            const day = moment().utcOffset("+05:30").calendar('2016-04-01', {
+              sameDay: '[Today]',
+              lastDay: '[Tomorrow]', //nextDay: '[Yesterday]',
+              sameElse: 'DD/MM/YYYY'
+            });
+
+            const time = moment(_.get(applicant, 'ApplicantStates.updated_on')).format('h a')
+
             return {
               id:_.get(applicant, 'id'),
               name:_.get(applicant, 'name'),
-              stateId: _.get(applicant, 'ApplicantStates.State.id'),
+              //stateId: _.get(applicant, 'ApplicantStates.State.id'),
               stateName:_.get(applicant, 'ApplicantStates.State.name'),
               jobId:_.get(applicant, 'JobApplications.Job.id'),
               jobRole:_.get(applicant, 'JobApplications.Job.role'),
               jobClientId: userId,
               jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
-              joinDate: moment(_.get(applicant, 'ApplicantStates.updated_on')).format('D/MM/YYYY')
+              interviewTime:  time +", " + day,
+              updated_on:  moment(_.get(applicant, 'ApplicantStates.updated_on')).format('D/MM/YYYY h a')
             };
           });
           return upcomingInterviewData;
@@ -697,6 +707,15 @@ export function dashboard(req, res) {
             Solr.get('select', solrQuery, function solrCallback(err, allApplicantsJobs) {
               if (err) return handleError(res, 500,err);
               var newProfileData =  allApplicantsJobs.response.docs;
+
+              newProfileData = newProfileData.map(data => {
+                let profile = {id:data.id,jobLocation:data.job_location,role:data.role}
+                if(typeof data.max_sal !== undefined && typeof data.min_sal !== undefined ) {
+                  if(data.max_sal) profile.salaryRange = data.min_sal + "-" + data.max_sal + " Lakhs"
+                }
+                return profile;
+              });
+
               return res.json({
                 countData,
                 rating,
