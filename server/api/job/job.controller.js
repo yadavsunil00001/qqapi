@@ -258,7 +258,7 @@ export function allocationStatusNew(req, res) {
           }
           jobCount.push({id:'all',count:total})//    ['NEW', 'ACCEPTED','HOLD', 'REJECTED'].length
           return jobCount;
-        }).catch(err => handleError(res,500,err))
+        })
       }
 
       if(jobs.length){
@@ -346,11 +346,11 @@ export function allocationStatusNew(req, res) {
 
           //return res.json({jobs:allJobs,stateMenu:[{ id:0,name:'New'},{ id:1, name:'Accepted'},{id:2,name:'Hide'},{id:3,name:'Rejected'},{id:'all',name:'All'}]})
 
-        }).catch(err => handleError(res,500,err))
+        })
       } else {
-        jobCountPromise.then(jobCount => {
-          res.status(200).json({jobs:[],meta:{jobsCount:jobCount}})
-        }).catch(err => handleError(res,500,err))
+        return jobCountPromise.then(jobCount => {
+          return res.status(200).json({jobs:[],meta:{jobsCount:jobCount}})
+        })
       }
     })
   .catch(err => handleError(res,500,err))

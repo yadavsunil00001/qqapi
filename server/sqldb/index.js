@@ -76,6 +76,9 @@ db.ConsultantResponse = db.sequelizeQuarc.import('../api/consultantResponse/cons
 db.Response = db.sequelizeQuarc.import('../api/response/response.model');
 db.Log = db.sequelizeQuarc.import('../api/log/log.model');
 db.ClientPayment = db.sequelizeQuarc.import('../api/clientPayment/clientPayment.model');
+db.ApplicantPreferenceTime = db.sequelizeQuarc.import('../api/applicantPreferenceTime/applicantPreferenceTime.model');
+db.ApplicantScreening = db.sequelizeQuarc.import('../api/applicantScreening/applicantScreening.model');
+db.ScreeningState = db.sequelizeQuarc.import('../api/screeningState/screeningState.model');
 
 db.AccessToken = db.sequelizeQuantum.import('../api/accessToken/accessToken.model');
 db.App = db.sequelizeQuantum.import('../api/app/app.model');
@@ -98,6 +101,9 @@ db.Region = db.sequelizeQuantum.import('../api/region/region.model');
 db.Scope = db.sequelizeQuantum.import('../api/scope/scope.model');
 db.Skill = db.sequelizeQuantum.import('../api/skill/skill.model');
 db.User = db.sequelizeQuantum.import('../api/user/user.model');
+
+// Dashboard App
+db.bdQuery = db.sequelizeQuarc.import('../applications/dashboard/api/bdQuery/bdQuery.model');
 
 Object.keys(db).forEach(function model(modelName) {
   if ('associate' in db[modelName]) {

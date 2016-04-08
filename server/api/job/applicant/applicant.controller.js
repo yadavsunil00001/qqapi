@@ -66,6 +66,7 @@ function handleEntityNotFound(res) {
 }
 
 function handleError(res, statusCode, err) {
+  console.log("Error",err)
   statusCode = statusCode || 500;
   res.status(statusCode).json(err);
 }
@@ -140,7 +141,15 @@ export function create(req, res) {
       .then(status => {
         if (status.email === true || status.number === true) return res.status(409).json(_.extend({
           code: 409, message: "Already candidate uploaded with this Phone or Email"}, status))
-        return Applicant.saveApplicant(db,applicant, files.fileUpload, req.user.id, req.params.jobId)
+        var file = files.fileUpload;
+        let fileExtension = file.name.split(".").pop(); // Extension
+        let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+
+        if (allowedExtType.indexOf(fileExtension.toLowerCase()) === -1) {
+          return res.status(400).json({code: "400 Bad Request", message: "File Type Not Allowed"});
+        }
+
+        return Applicant.saveApplicant(db,applicant, file, req.user.id, req.params.jobId)
           .then(savedApplicant => res.json( _.pick(savedApplicant,['id'])))
       })
       .catch(err => handleError(res,500,err));

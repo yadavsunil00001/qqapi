@@ -1,18 +1,9 @@
 'use strict';
 
-// Production specific configuration
-// =================================
+// Test specific configuration
+// ===========================
 module.exports = {
-  // Server IP
-  ip:     process.env.OPENSHIFT_NODEJS_IP ||
-          process.env.IP ||
-          undefined,
-
-  // Server port
-  port:   process.env.OPENSHIFT_NODEJS_PORT ||
-          process.env.PORT ||
-          8080,
-
+  // MongoDB connection options
   quarc: {
     username: process.env.QUARC_MYSQL_USER,
     password: process.env.QUARC_MYSQL_PASS,
@@ -28,7 +19,7 @@ module.exports = {
     database: process.env.QUANTUM_MYSQL_DB,
     host: process.env.QUANTUM_MYSQL_HOST,
     dialect: 'mysql',
-    logging: false,
+    logging: true,
     timezone: '+05:30',
   },
   solr: {
@@ -37,10 +28,5 @@ module.exports = {
     core: process.env.SOLR_CORE,
     path: process.env.SOLR_PATH,
   },
-  QDMS_PATH: process.env.QDMS_PATH,
-  QUARC_PATH: process.env.QUARC_PATH,
 
-  URLS: {
-    QUARC_UI_PARTNER: process.env.URLS_QUARC_UI_PARTNER
-  }
 };

@@ -34,6 +34,7 @@ export default function(app) {
   // Plugged Applications
   app.use('/applications/partner/api', require('../applications/partner/api/login'));
   app.use('/applications/manage/api', require('../applications/manage/api/login'));
+  app.use('/applications/dashboard/api', require('../applications/dashboard/api/bdQuery'));
 
   app.oauth = oAuthComponent;
   // OAuth Token authorization_code, password, refresh_token

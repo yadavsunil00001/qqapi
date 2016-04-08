@@ -10,6 +10,9 @@ import path from 'path';
 export default function(app) {
 
   // Insert routes below
+  app.use('/api/screeningStates', require('./api/screeningState'));
+  app.use('/api/applicantScreenings', require('./api/applicantScreening'));
+  app.use('/api/applicantPreferenceTimes', require('./api/applicantPreferenceTime'));
   app.use('/api/jobs', require('./api/job/reference'));
   app.use('/api/references', require('./api/reference'));
   app.use('/api/clientPayments', require('./api/clientPayment'));

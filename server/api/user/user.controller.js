@@ -135,7 +135,7 @@ export function states(req, res, next) {
           model: ActionableState,
           as: 'Actions',
           where: {
-            group_id: 5,
+            group_id: 2,
           },
           attributes: [['child_id', 'state_id']],
           required: false,
@@ -147,7 +147,7 @@ export function states(req, res, next) {
       const result = [];
       states.forEach(function formatStates(stateModel) {
         const state = stateModel.toJSON();
-        if (state.Childs.length === 0) state.Childs.push({ state_id: state.id });
+        //if (state.Childs.length === 0) state.Childs.push({ state_id: state.id });
         state.config = JSON.parse(state.config); // Need to handle Parsing Error
         result[state.id] = _.pick(state, ['id', 'name', 'config', 'Childs', 'Actions']);
       });

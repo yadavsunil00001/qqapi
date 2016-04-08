@@ -1,4 +1,6 @@
 'use strict';
+import phpSerialize from './../../components/php-serialize';
+import config from './../../config/environment';
 
 export default function(sequelize, DataTypes) {
   const ApplicantState = sequelize.define('ApplicantState', {
@@ -157,8 +159,43 @@ export default function(sequelize, DataTypes) {
         ApplicantState.belongsTo(models.User, {
           foreignKey: 'user_id',
         });
+
+        ApplicantState.belongsTo(models.JobScore);
       },
+      updateState(models,applicantState,LoggedInUserId) {
+        applicantState.user_id = !applicantState.user_id ? LoggedInUserId: applicantState.user_id;
+        return models.ApplicantState.create(applicantState).then(aplState => {
+          var applicant = {
+            applicant_state_id:aplState.id,
+            state_id: applicantState.state_id,
+            id: applicantState.applicant_id
+          };
+          return models.Applicant.findById(applicant.id).then(applicant => {
+            return applicant.update(applicant)
+          })
+        });
+      }
     },
+    hooks:{
+      afterCreate(instance){
+        var models = require('./../../sqldb');
+
+        return models.JobApplication.find({attributes:['id','job_id'],where: {applicant_id:instance.applicant_id}}).then(aplState => {
+          const jobScoreUpdateOptions = phpSerialize.serialize({
+            command: `${config.QUARC_PATH}app/Console/cake`,
+            params: [
+              'update_job_score',
+              '-j', aplState.job_id,
+              '-a', aplState.id
+            ],
+          });
+          return models.QueuedTask.create({jobType: 'Execute', group: 'jobScoreUpdate', data:jobScoreUpdateOptions})
+        }).catch(err => {
+          return console.log('Error: applicantStateModel -> afterCreate -> JobApplication.find ->QueuedTask',err)
+        })
+
+      }
+    }
   });
 
   ApplicantState.beforeValidate(function beforeValidate(as) {
@@ -176,3 +213,4 @@ export default function(sequelize, DataTypes) {
 
   return ApplicantState;
 }
+

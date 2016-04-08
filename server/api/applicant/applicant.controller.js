@@ -22,6 +22,7 @@ import moment from 'moment';
 
 
 function handleError(res, statusCode, err) {
+  console.log("Error: handleError >",err)
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -74,7 +75,7 @@ export function index(req, res) {
     const solrInnerQuery = db.Solr
       .createQuery()
       .q(`id:(${applicants.map(a => a._root_).join(' OR ')}) AND type_s:job`)
-      .fl(['role', 'id']);
+      .fl(['role', 'id','client_name',]);
 
     // Get job to attach to results
     db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
@@ -103,7 +104,6 @@ export function bulkResumeDownload(req, res){
     .then(function sendResume(resumeModels) {
       const resumes = resumeModels.map(resume => {
         let path = `${config.QDMS_PATH}${resume.path}`;
-        console.log("test",path);
         if (concat) {
           path = `${path.substring(0, path.lastIndexOf('/') + 1)}concat.pdf`;
         }

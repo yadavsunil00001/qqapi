@@ -34,4 +34,8 @@ module.exports = {
 
   USER: JSON.parse(process.env.USER),
 
+  URLS: {
+    QUARC_UI_PARTNER: process.env.URLS_QUARC_UI_PARTNER
+  }
+
 };
