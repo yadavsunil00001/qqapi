@@ -40,20 +40,36 @@ export function index(req, res) {
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
   const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]];
   const states = [];
-  rawStates.forEach(function normalize(state) {
-    if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
+  rawStates.forEach(function boostStates(state, sIndex) {
+    // add weight to each state depending on positon in state array
+    if (isNaN(state) && bucket[state]) {
+      const bucketLength = bucket[state].length
+      bucket[state].forEach((s, i) => states.push(`${s}^=${bucketLength - i}`));
+    }
 
-    if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
+    if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) {
+      states.push(`${state}^=${bucketLength - sIndex}`);
+    }
   });
+  //rawStates.forEach(function normalize(state) {
+  //  if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
+  //
+  //  if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
+  //});
   //var solrQuery = solr.createQuery().q('({!child of="type_s:job"}owner_id:' + clientId +
 //      ') AND type_s:applicant AND ' + stateParam).fl(fl).sort({_root_: 'DESC', type_s: 'DESC'}).start(start).rows(rows);
 
   const solrQuery = Solr.createQuery()
-    .q('(owner_id:' + req.user.id +') AND type_s:applicant ')
-    // {!child of="type_s:job"}
-    .sort({_root_: 'DESC', type_s: 'DESC'})
+    .q(`state_id:(${states.map(s => s).join(' ')})`)
+    .matchFilter(
+      encodeURIComponent('type_s'),
+      `applicant AND (owner_id:${req.user.id})`
+    )
+    //.q('(owner_id:' + req.user.id +') AND type_s:applicant ')
+    //// {!child of="type_s:job"}
+    //.sort({_root_: 'DESC', type_s: 'DESC'})
+    //.matchFilter('state_id', `(${states.join(' OR ')})`)
     .fl(fl)
-    .matchFilter('state_id', `(${states.join(' OR ')})`)
     .start(offset)
     .rows(limit);
 
