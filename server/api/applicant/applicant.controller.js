@@ -90,8 +90,9 @@ export function index(req, res) {
 
     const solrInnerQuery = db.Solr
       .createQuery()
-      .q(`id:(${applicants.map(a => a._root_).join(' OR ')}) AND type_s:job`)
-      .fl(['role', 'id','client_name',]);
+      .q(`id:(${(_.uniq(applicants.map(a => a._root_))).join(' OR ')}) AND type_s:job`)
+      .fl(['role', 'id','client_name',])
+      .rows(applicants.length);
 
     // Get job to attach to results
     db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
