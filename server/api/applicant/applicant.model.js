@@ -473,6 +473,14 @@ export default function (sequelize, DataTypes) {
               })
           })
       },
+      getPreferredPath(fpath) {
+        var folder = path.dirname(fpath)+"/";
+        var file = folder + 'concat.pdf';
+        if (fsp.existsSync(config.QDMS_PATH + file)) {
+          return file;
+        }
+        return fpath;
+      },
       sendWelcomeEmail: function (models, id) {
         var datetime = {
           applicant_id: id,

@@ -59,7 +59,7 @@ function handleError(res, statusCode, err) {
 
 // Get Applicant State distribution for applicant states
 export function dashboard(req, res) {
-  let states = buckets.CLIENTS.PENDING_FEEDBACK;
+  let states = buckets.CONSULTANTS.TASKS;
   if (req.query.state_id) states = req.query.state_id.split(',').map(Number);
 
   const solrQuery = Solr.createQuery()

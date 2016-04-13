@@ -79,7 +79,7 @@ export function index(req, res) {
 
     // Get job to attach to results
     db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
-      if(jobErr) return res.status(500).json(err);
+      if(jobErr) return handleError(res,500,job);
       const jobs = result.response.docs;
       if(!jobs.length) res.json(result.response.docs)
       applicants.forEach(function attachJob(applicant, key) {
@@ -180,10 +180,12 @@ export function getResume(req, res) {
     .find({
       attributes: ['path'],
       where: { applicant_id: req.params.id },
+      order : 'id DESC',
     })
     .then(function formatFile(resume) {
+      //const resumePath = Applicant.getPreferredPath(resume.path) Feature Concat Removed
       fs.readFile(`${config.QDMS_PATH}${resume.path}`, (err, resumeFile) => {
-        if(err) if(err.code=="ENOENT") return res.send("<br><br><h1 style='text-align: center'>Requested Resume Not Found</h1>")
+        if(err) if(err.code=="ENOENT") return res.send("<br><br><h1 style='text-align: center'>Please wait the file is under processing...</h1>")
         if(err) return handleError(res, 500, err);
         res.contentType('application/pdf');
         res.send(resumeFile);

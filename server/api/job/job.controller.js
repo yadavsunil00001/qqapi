@@ -166,6 +166,7 @@ function CakeList(jsonArray,key,value){
 
 // List Jobs allocationed to consultant
 export function allocationStatusNew(req, res) {
+  const query = req.query.q || '';
 
   const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
   //
@@ -211,9 +212,9 @@ export function allocationStatusNew(req, res) {
     LEFT JOIN gloryque_quantum.clients AS Client
       ON ( Client.id = User.client_id)
   WHERE JobAllocation.user_id = ${req.user.id} AND Job.status = '1' AND JobAllocation.status = '1'
-  GROUP BY JobAllocation.job_id) AS TEMP ${ states.length ? 'WHERE response_id IN ('+ states.join()+ ')':'' }
+  GROUP BY JobAllocation.job_id) AS TEMP ${ states.length ? 'WHERE (role LIKE "%'+query+'%" OR owner_company LIKE "%'+query+'%" ) AND response_id IN ('+ states.join()+ ')':'' }
   LIMIT ${ req.query.limit ? parseInt(req.query.limit) : 100 }
-  OFFSET ${req.query.offset || 0}`;
+  OFFSET ${req.query.offset || 0} `;
 
   let priorityPromise = JobStatus.findAll({
     attributes: ['id','name']

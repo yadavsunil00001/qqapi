@@ -443,292 +443,311 @@ export function dashboard(req, res) {
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res, 500,err);
       var applicantData = result.response.docs;
-      // Calculating Screening ratio
-      const screeningDataPromise =  Applicant.count({
-        where: {
-          user_id : req.user.id
-        },
-        attributes: ['id'],
-        include: [
-          {
-            model: ApplicantState,
-            attributes: [],
-            where: {
-              state_id : [1,2,3,4,5,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
-            },
-            include: {
-              model: State,
-              attributes: ['name']
-            }
-          }
-        ],
-        raw: true
-      });
+        if(!allApplicants.length) return res.json(applicantData)
 
-      const screeningAllDataPromise = Applicant.count({
-          where: {
-            user_id : req.user.id
-          },
-          attributes: ['id'],
-          include: [
-            {
-              model: ApplicantState,
-              attributes: [],
-              where: {
-                state_id : [1,2,3,4,5,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
-              },
-              include: {
-                model: State,
-                attributes: ['name']
-              }
-            }
-          ],
-          raw: true
-        });
+        const solrInnerQuery = db.Solr
+          .createQuery()
+          .q(`id:(${applicantData.map(a => a._root_).join(' OR ')}) AND type_s:job`)
+          .fl(['role', 'id','client_name',]);
 
-      // Calculating shortlisting ratio
-      const shortlistingDataPromise =  Applicant.count({
-        where: {
-          user_id : req.user.id
-        },
-        attributes: ['id'],
-        include: [
-          {
-            model: ApplicantState,
-            attributes: [],
-            where: {
-              state_id : [4,5,8,9,10,11,12,15,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
-            },
-            include: {
-              model: State,
-              attributes: ['name']
-            }
-          }
-        ],
-        raw: true
-      });
-
-      const shortlistingAllDataPromise = Applicant.count({
-        where: {
-          user_id : req.user.id
-        },
-        attributes: ['id'],
-        include: [
-          {
-            model: ApplicantState,
-            attributes: [],
-            where: {
-              state_id : [2,3,4,5,8,9,10,11,12,15,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
-            },
-            include: {
-              model: State,
-              attributes: ['name']
-            }
-          }
-        ],
-        raw: true
-      });
-
-      // TODO Refactor code to bring joining date
-      const upcomingOfferDataPromise = Applicant.findAll({
-        where: {
-          user_id : req.user.id
-        },
-        attributes: ['id','name'],
-        include: [
-          {
-            model: ApplicantState,
-            attributes: ['id', 'suggested_join_date'],
-            where: {
-              state_id : [10,20],
-              suggested_join_date : {
-                gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
-              }
-            },
-            include: {
-              model: State,
-              attributes: ['name']
-            }
-          },
-          {
-            model: JobApplication,
-            attributes: ['id'],
-            include: [{
-              model: Job,
-              attributes: ['id','role','user_id'],
-            }]
-          }
-        ],
-        raw:true
-      }).then(upcomingOfferApplicants => {
-        var _user_ids = _.uniq(_.map(upcomingOfferApplicants,'JobApplications.Job.user_id'));
-        return User.findAll({
-          where: {
-            id: _user_ids
-          },
-          attributes : ['id'],
-          include: {
-            model: Client,
-            attributes: ['id','name']
-          }
-
-        }).then(_user_data => {
-          //return _user_data;
-          var upcomingOfferData = upcomingOfferApplicants.map(function(applicant) {
-            const userId =_.get(applicant, 'JobApplications.Job.user_id');
-            return {
-              id:_.get(applicant, 'id'),
-              name:_.get(applicant, 'name'),
-              stateId: _.get(applicant, 'ApplicantState.State.id'),
-              stateName:_.get(applicant, 'ApplicantState.State.name'),
-              jobId:_.get(applicant, 'JobApplications.Job.id'),
-              jobRole:_.get(applicant, 'JobApplications.Job.role'),
-              jobClientId: userId,
-              jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
-              joinDate: moment(_.get(applicant, 'ApplicantState.suggested_join_date')).format('D/MM/YYYY')
-            };
-          });
-          return upcomingOfferData;
-        });
-      });
-
-      // TODO Refactor Code Optimization and upcoming interview data pending
-      // New Profile data is allocated today data
-      const promiseNewProfileData = JobAllocation.findAll({
-        where: {
-          user_id : req.user.id,
-          created_on : {
-            gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
-          }
-        },
-        attributes: ['job_id','created_on'],
-        raw: true
-      });
-
-      // TODO Refactor code to bring Interview Date date
-      const upcomingInterviewDataPromise = Applicant.findAll({
-        where: {
-          user_id : req.user.id
-        },
-        attributes: ['id','name'],
-        include: [
-          {
-            model: ApplicantState,
-            attributes: ['id', 'updated_on'],
-            where: {
-              state_id : [5,8,17],
-              updated_on : {
-                gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
-              }
-            },
-            include: {
-              model: State,
-              attributes: ['name']
-            }
-          },
-          {
-            model: JobApplication,
-            attributes: ['id'],
-            include: [{
-              model: Job,
-              attributes: ['id','role','user_id'],
-            }]
-          }
-        ],
-        raw:true
-      }).then(upcomingInterviewApplicants => {
-        var _user_ids = _.uniq(_.map(upcomingInterviewApplicants,'JobApplications.Job.user_id'));
-        return User.findAll({
-          where: {
-            id: _user_ids
-          },
-          attributes : ['id'],
-          include: {
-            model: Client,
-            attributes: ['id','name']
-          }
-
-        }).then(_user_data => {
-          //return _user_data;
-          var upcomingInterviewData = upcomingInterviewApplicants.map(function(applicant) {
-            const userId =_.get(applicant, 'JobApplications.Job.user_id');
-
-            const day = moment().utcOffset("+05:30").calendar('2016-04-01', {
-              sameDay: '[Today]',
-              lastDay: '[Tomorrow]', //nextDay: '[Yesterday]',
-              sameElse: 'DD/MM/YYYY'
+        // Get job to attach to results
+        db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
+          if (jobErr) return handleError(res, 500, jobErr);
+          const jobs = result.response.docs;
+          if (jobs.length) {
+            applicantData.forEach(function attachJob(applicant, key) {
+              applicantData[key]._root_ = jobs
+                .filter(s => s.id === applicantData[key]._root_)[0];
             });
-
-            const time = moment(_.get(applicant, 'ApplicantState.updated_on')).format('h a')
-
-            return {
-              id:_.get(applicant, 'id'),
-              name:_.get(applicant, 'name'),
-              //stateId: _.get(applicant, 'ApplicantStates.State.id'),
-              stateName:_.get(applicant, 'ApplicantState.State.name'),
-              jobId:_.get(applicant, 'JobApplications.Job.id'),
-              jobRole:_.get(applicant, 'JobApplications.Job.role'),
-              jobClientId: userId,
-              jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
-              interviewTime:  time +", " + day,
-              updated_on:  moment(_.get(applicant, 'ApplicantState.updated_on')).format('D/MM/YYYY h a')
-            };
-          });
-          return upcomingInterviewData;
-        });
-      });
-
-      return Promise.all([screeningDataPromise, screeningAllDataPromise, shortlistingDataPromise, shortlistingAllDataPromise,
-          upcomingOfferDataPromise, promiseNewProfileData, upcomingInterviewDataPromise])
-        .then(promiseReturns => {
-          var screeningRatio = Math.round((promiseReturns[0] / promiseReturns[1]) * 100);
-          var shortlistingRatio = Math.round((promiseReturns[2] / promiseReturns[3]) * 100);
-          var rating = (screeningRatio + shortlistingRatio)/200 * 5;
-          var upcomingOfferData = promiseReturns[4];
-          var newProfiles = promiseReturns[5];
-          var upcomingInterviewData = promiseReturns[6];
-          // Checking if any job is allocated today or not
-          if(newProfiles.length == 0){
-            var newProfileData = [];
-            return res.json({
-              countData,
-              rating,
-              applicantData,
-              screeningRatio,
-              shortlistingRatio,
-              upcomingOfferData
-            });
-          } else{
-            // Fetching data from applicant using solr
-            const solrQuery = Solr.createQuery()
-              .q(`type_s:job`)
-              .fl('id,role,min_sal,max_sal,job_location')
-              .matchFilter('id', `(${_.map(newProfiles,"job_id").join(' ')})`);
-            Solr.get('select', solrQuery, function solrCallback(err, allApplicantsJobs) {
-              if (err) return handleError(res, 500,err);
-              var newProfileData =  allApplicantsJobs.response.docs;
-
-              newProfileData = newProfileData.map(data => {
-                let profile = {id:data.id,jobLocation:data.job_location,role:data.role}
-                if(typeof data.max_sal !== undefined && typeof data.min_sal !== undefined ) {
-                  if(data.max_sal) profile.salaryRange = data.min_sal + "-" + data.max_sal + " Lakhs"
+          }
+          const screeningDataPromise =  Applicant.count({
+            where: {
+              user_id : req.user.id
+            },
+            attributes: ['id'],
+            include: [
+              {
+                model: ApplicantState,
+                attributes: [],
+                where: {
+                  state_id : [1,2,3,4,5,8,9,10,11,12,14,15,16,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+                },
+                include: {
+                  model: State,
+                  attributes: ['name']
                 }
-                return profile;
-              });
+              }
+            ],
+            raw: true
+          });
 
-              return res.json({
-                countData,
-                rating,
-                applicantData,
-                screeningRatio,
-                shortlistingRatio,
-                upcomingOfferData,
-                upcomingInterviewData,
-                newProfileData
+          const screeningAllDataPromise = Applicant.count({
+            where: {
+              user_id : req.user.id
+            },
+            attributes: ['id'],
+            include: [
+              {
+                model: ApplicantState,
+                attributes: [],
+                where: {
+                  state_id : [1,2,3,4,5,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+                },
+                include: {
+                  model: State,
+                  attributes: ['name']
+                }
+              }
+            ],
+            raw: true
+          });
+
+          // Calculating shortlisting ratio
+          const shortlistingDataPromise =  Applicant.count({
+            where: {
+              user_id : req.user.id
+            },
+            attributes: ['id'],
+            include: [
+              {
+                model: ApplicantState,
+                attributes: [],
+                where: {
+                  state_id : [4,5,8,9,10,11,12,15,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+                },
+                include: {
+                  model: State,
+                  attributes: ['name']
+                }
+              }
+            ],
+            raw: true
+          });
+
+          const shortlistingAllDataPromise = Applicant.count({
+            where: {
+              user_id : req.user.id
+            },
+            attributes: ['id'],
+            include: [
+              {
+                model: ApplicantState,
+                attributes: [],
+                where: {
+                  state_id : [2,3,4,5,8,9,10,11,12,15,17,18,19,20,21,22,23,24,25,28,29,30,31,33,34,35,36,38]
+                },
+                include: {
+                  model: State,
+                  attributes: ['name']
+                }
+              }
+            ],
+            raw: true
+          });
+
+          // TODO Refactor code to bring joining date
+          const upcomingOfferDataPromise = Applicant.findAll({
+            where: {
+              user_id : req.user.id
+            },
+            attributes: ['id','name'],
+            include: [
+              {
+                model: ApplicantState,
+                attributes: ['id', 'suggested_join_date'],
+                where: {
+                  state_id : [10,20],
+                  suggested_join_date : {
+                    gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+                  }
+                },
+                include: {
+                  model: State,
+                  attributes: ['name']
+                }
+              },
+              {
+                model: JobApplication,
+                attributes: ['id'],
+                include: [{
+                  model: Job,
+                  attributes: ['id','role','user_id'],
+                }]
+              }
+            ],
+            raw:true
+          }).then(upcomingOfferApplicants => {
+            var _user_ids = _.uniq(_.map(upcomingOfferApplicants,'JobApplications.Job.user_id'));
+            return User.findAll({
+              where: {
+                id: _user_ids
+              },
+              attributes : ['id'],
+              include: {
+                model: Client,
+                attributes: ['id','name']
+              }
+
+            }).then(_user_data => {
+              //return _user_data;
+              var upcomingOfferData = upcomingOfferApplicants.map(function(applicant) {
+                const userId =_.get(applicant, 'JobApplications.Job.user_id');
+                return {
+                  id:_.get(applicant, 'id'),
+                  name:_.get(applicant, 'name'),
+                  stateId: _.get(applicant, 'ApplicantState.State.id'),
+                  stateName:_.get(applicant, 'ApplicantState.State.name'),
+                  jobId:_.get(applicant, 'JobApplications.Job.id'),
+                  jobRole:_.get(applicant, 'JobApplications.Job.role'),
+                  jobClientId: userId,
+                  jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
+                  joinDate: moment(_.get(applicant, 'ApplicantState.suggested_join_date')).format('D/MM/YYYY')
+                };
               });
+              return upcomingOfferData;
             });
-          } // End Checking if any job is allocated today or not
-        });
+          });
+
+          // TODO Refactor Code Optimization and upcoming interview data pending
+          // New Profile data is allocated today data
+          const promiseNewProfileData = JobAllocation.findAll({
+            where: {
+              user_id : req.user.id,
+              created_on : {
+                gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+              }
+            },
+            attributes: ['job_id','created_on'],
+            raw: true
+          });
+
+          // TODO Refactor code to bring Interview Date date
+          const upcomingInterviewDataPromise = Applicant.findAll({
+            where: {
+              user_id : req.user.id
+            },
+            attributes: ['id','name'],
+            include: [
+              {
+                model: ApplicantState,
+                attributes: ['id', 'updated_on'],
+                where: {
+                  state_id : [5,8,17],
+                  updated_on : {
+                    gte: moment().startOf('day').format('YYYY-MM-DD H:m:s')
+                  }
+                },
+                include: {
+                  model: State,
+                  attributes: ['name']
+                }
+              },
+              {
+                model: JobApplication,
+                attributes: ['id'],
+                include: [{
+                  model: Job,
+                  attributes: ['id','role','user_id'],
+                }]
+              }
+            ],
+            raw:true
+          }).then(upcomingInterviewApplicants => {
+            var _user_ids = _.uniq(_.map(upcomingInterviewApplicants,'JobApplications.Job.user_id'));
+            return User.findAll({
+              where: {
+                id: _user_ids
+              },
+              attributes : ['id'],
+              include: {
+                model: Client,
+                attributes: ['id','name']
+              }
+
+            }).then(_user_data => {
+              //return _user_data;
+              var upcomingInterviewData = upcomingInterviewApplicants.map(function(applicant) {
+                const userId =_.get(applicant, 'JobApplications.Job.user_id');
+
+                const day = moment().utcOffset("+05:30").calendar('2016-04-01', {
+                  sameDay: '[Today]',
+                  lastDay: '[Tomorrow]', //nextDay: '[Yesterday]',
+                  sameElse: 'DD/MM/YYYY'
+                });
+
+                const time = moment(_.get(applicant, 'ApplicantState.updated_on')).format('h a')
+
+                return {
+                  id:_.get(applicant, 'id'),
+                  name:_.get(applicant, 'name'),
+                  //stateId: _.get(applicant, 'ApplicantStates.State.id'),
+                  stateName:_.get(applicant, 'ApplicantState.State.name'),
+                  jobId:_.get(applicant, 'JobApplications.Job.id'),
+                  jobRole:_.get(applicant, 'JobApplications.Job.role'),
+                  jobClientId: userId,
+                  jobClientName: _.get(_.filter(_user_data,user => { return user.id==userId})[0],'Client.name'),
+                  interviewTime:  time +", " + day,
+                  updated_on:  moment(_.get(applicant, 'ApplicantState.updated_on')).format('D/MM/YYYY h a')
+                };
+              });
+              return upcomingInterviewData;
+            });
+          });
+
+          return Promise.all([screeningDataPromise, screeningAllDataPromise, shortlistingDataPromise, shortlistingAllDataPromise,
+              upcomingOfferDataPromise, promiseNewProfileData, upcomingInterviewDataPromise])
+            .then(promiseReturns => {
+              var screeningRatio = Math.round((promiseReturns[0] / promiseReturns[1]) * 100);
+              var shortlistingRatio = Math.round((promiseReturns[2] / promiseReturns[3]) * 100);
+              var rating = (screeningRatio + shortlistingRatio)/200 * 5;
+              var upcomingOfferData = promiseReturns[4];
+              var newProfiles = promiseReturns[5];
+              var upcomingInterviewData = promiseReturns[6];
+              // Checking if any job is allocated today or not
+              if(newProfiles.length == 0){
+                var newProfileData = [];
+                return res.json({
+                  countData,
+                  rating,
+                  applicantData,
+                  screeningRatio,
+                  shortlistingRatio,
+                  upcomingOfferData
+                });
+              } else{
+                // Fetching data from applicant using solr
+                const solrQuery = Solr.createQuery()
+                  .q(`type_s:job`)
+                  .fl('id,role,min_sal,max_sal,job_location')
+                  .matchFilter('id', `(${_.map(newProfiles,"job_id").join(' ')})`);
+                Solr.get('select', solrQuery, function solrCallback(err, allApplicantsJobs) {
+                  if (err) return handleError(res, 500,err);
+                  var newProfileData =  allApplicantsJobs.response.docs;
+
+                  newProfileData = newProfileData.map(data => {
+                    let profile = {id:data.id,jobLocation:data.job_location,role:data.role}
+                    if(typeof data.max_sal !== undefined && typeof data.min_sal !== undefined ) {
+                      if(data.max_sal) profile.salaryRange = data.min_sal + "-" + data.max_sal + " Lakhs"
+                    }
+                    return profile;
+                  });
+
+                  return res.json({
+                    countData,
+                    rating,
+                    applicantData,
+                    screeningRatio,
+                    shortlistingRatio,
+                    upcomingOfferData,
+                    upcomingInterviewData,
+                    newProfileData
+                  });
+                });
+              } // End Checking if any job is allocated today or not
+            });
+        })
+      // Calculating Screening ratio
+
     });
   })
   .catch(err => handleError(res, 500, err));

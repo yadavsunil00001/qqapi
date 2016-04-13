@@ -124,6 +124,9 @@ export function states(req, res, next) {
   return State
     .findAll({
       attributes: ['id', 'name', 'parent_id', 'config'],
+      where: {
+        parent_id: null
+      },
       include: [
         {
           model: State,
