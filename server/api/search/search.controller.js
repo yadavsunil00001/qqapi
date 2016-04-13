@@ -73,6 +73,7 @@ function sequelizeSearchRegion(model, fieldName) {
 function applicantSearch(){
   return function(req,res){
     // @todo more refactor Repeated Code
+    if(!req.query.q) return res.json([])
     const offset = req.query.offset || 0;
     const limit = (req.query.limit > 20) ? 20 : req.query.limit || 10;
     const fl = req.query.fl || [
@@ -81,32 +82,13 @@ function applicantSearch(){
         'state_name', 'applicant_score', 'created_on', '_root_','email','mobile'
       ].join(',');
 
-    const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
-    const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]];
-    const states = [];
-    rawStates.forEach(function normalize(state) {
-      if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
-
-      if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
-    });
-
     const solrQuery = Solr.createQuery()
       // Todo: Solr Mobile Number field currently not allow partial search
       .q(`owner_id:${req.user.id} AND type_s:applicant AND ( name:*${req.query.q}*  ${!isNaN(req.query.q) ? 'OR mobile:'+req.query.q:''}  OR email:*${req.query.q}*  )`)
       .fl(fl)
-      .matchFilter('state_id', `(${states.join(' OR ')})`)
       .start(offset)
       .rows(limit);
 
-    if (req.query.interview_time) {
-      solrQuery.rangeFilter([
-        {
-          field: 'interview_time',
-          start: req.query.interview_time.split(',')[0] || '*',
-          end: req.query.interview_time.split(',')[1] || '*',
-        },
-      ]);
-    }
 
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res,400,err);
