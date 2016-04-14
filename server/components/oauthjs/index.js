@@ -21,6 +21,7 @@ module.exports = require('oauth2-server')({
           const token = accessToken.toJSON();
           token.user = token.User;
           callback(null, token);
+          return
         })
         .catch(callback);
     },
@@ -38,16 +39,18 @@ module.exports = require('oauth2-server')({
         .then(function serializeClient(client) {
           if (!client) return callback(null, false);
           callback(null, client.toJSON());
+          return
         })
         .catch(callback);
     },
 
     grantTypeAllowed: function grantTypeAllowed(clientId, grantType, callback) {
       callback(null, true);
+      return;
     },
 
     saveAccessToken: function saveAccessToken(accessToken, client, expires, user, callback) {
-      AccessToken
+      return AccessToken
         .build({ expires })
         .set('app_id', client.id)
         .set('access_token', accessToken)
@@ -66,12 +69,13 @@ module.exports = require('oauth2-server')({
         .then(function verifyAuthCode(authCodeModel) {
           if (!authCodeModel) return callback(null, false);
           callback(null, authCodeModel.toJSON());
+          return
         })
         .catch(callback);
     },
 
     saveAuthCode: function saveAuthCode(authCode, client, expires, user, callback) {
-      AuthCode
+      return AuthCode
         .build({ expires })
         .set('app_id', client.id)
         .set('auth_code', authCode)
@@ -82,19 +86,19 @@ module.exports = require('oauth2-server')({
     },
 
     getUser: function getUser(username, password, callback) {
-      User
+      return User
         .findOne({
           where: { username },
           attributes: ['id', 'name', 'client_id', 'group_id', 'email_id', 'password'],
         })
         .then(function verifyPass(user) {
-          user.verifyPassword(password, callback);
+          return user.verifyPassword(password, callback);
         })
         .catch(callback);
     },
 
     saveRefreshToken: function saveRefreshToken(refreshToken, client, expires, user, callback) {
-      RefreshToken
+      return RefreshToken
         .build({ expires })
         .set('app_id', client.id)
         .set('refresh_token', refreshToken)
@@ -105,7 +109,7 @@ module.exports = require('oauth2-server')({
     },
 
     getRefreshToken: function getRefreshToken(refreshToken, callback) {
-      RefreshToken
+      return RefreshToken
         .findOne({
           where: { refresh_token: refreshToken },
           attributes: [['app_id', 'clientId'], ['user_id', 'userId'], 'expires'],
@@ -124,6 +128,7 @@ module.exports = require('oauth2-server')({
       }
 
       callback(null, false);
+      return
     },
   },
   grants: ['authorization_code', 'password', 'refresh_token'],
