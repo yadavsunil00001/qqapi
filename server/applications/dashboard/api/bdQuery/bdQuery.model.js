@@ -10,7 +10,8 @@ module.exports = function bdQueryModel(sequelize, DataTypes) {
       unique: true,
     },
     query: DataTypes.TEXT,
-    description: DataTypes.INTEGER
+    description: DataTypes.INTEGER,
+    target: DataTypes.DECIMAL
   }, {
     tableName: 'bd_queries',
     timestamps: false,

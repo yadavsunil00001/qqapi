@@ -76,11 +76,11 @@ export function me(req, res, next) {
       }),
 
       Client.findById(req.user.client_id, {
-        attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time' ]
+        attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time','eng_mgr_id' ]
       }),
       User.findById(req.user.id, {
-        attributes: ['id', 'name','email_id', 'is_active']
-      })
+        attributes: ['id', 'name','email_id', 'is_active'],
+      }),
     ])
     .then(promiseReturns => {
       const group = promiseReturns[0];
@@ -101,21 +101,30 @@ export function me(req, res, next) {
       if(client.termination_flag === 0 ){
         whatBlocked.push({ priority: 2,url:'terminated-message'})
       }
+      return db.UserTawktoToken.find({
+        attributes: ['id','access_token'],
+        where:{
+          user_id:client.eng_mgr_id
+        }
+      }).then(function(tawkToken){
+        const userme = _.assign(req.user, {
+          name: user.name,
+          tawk_token: tawkToken.access_token,
+          email_id: user.email_id,
+          user_type: group.name,
+          company_name: client.name,
+          percRevenueShare: client.dataValues.perc_revenue_share,
+          terminationFlag: client.dataValues.termination_flag,
+          consultantSurvey: client.dataValues.consultant_survey,
+          consultantSurveyTime: client.dataValues.consultant_survey_time,
+          isBlocked : is_blocked,
+          whatBlocked : whatBlocked
+        });
 
-      const userme = _.assign(req.user, {
-        name: user.name,
-        email_id: user.email_id,
-        user_type: group.name,
-        company_name: client.name,
-        percRevenueShare: client.dataValues.perc_revenue_share,
-        terminationFlag: client.dataValues.termination_flag,
-        consultantSurvey: client.dataValues.consultant_survey,
-        consultantSurveyTime: client.dataValues.consultant_survey_time,
-        isBlocked : is_blocked,
-        whatBlocked : whatBlocked
-      });
+        res.json(userme);
+      })
 
-      res.json(userme);
+
     })
     .catch(err => next(err));
 }

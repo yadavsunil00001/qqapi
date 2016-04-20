@@ -10,6 +10,7 @@ import path from 'path';
 export default function(app) {
 
   // Insert routes below
+  app.use('/api/userTawktoTokens', require('./api/userTawktoToken'));
   app.use('/api/screeningStates', require('./api/screeningState'));
   app.use('/api/applicantScreenings', require('./api/applicantScreening'));
   app.use('/api/applicantPreferenceTimes', require('./api/applicantPreferenceTime'));

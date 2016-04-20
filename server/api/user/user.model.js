@@ -148,6 +148,7 @@ export default function(sequelize, DataTypes) {
           foreignKey: 'client_id',
         });
 
+        User.hasMany(models.UserTawktoToken);
         //User.belongsTo(models.Group, {
         //  foreignKey: 'group_id',
         //});

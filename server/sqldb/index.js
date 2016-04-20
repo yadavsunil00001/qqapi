@@ -101,6 +101,7 @@ db.Region = db.sequelizeQuantum.import('../api/region/region.model');
 db.Scope = db.sequelizeQuantum.import('../api/scope/scope.model');
 db.Skill = db.sequelizeQuantum.import('../api/skill/skill.model');
 db.User = db.sequelizeQuantum.import('../api/user/user.model');
+db.UserTawktoToken = db.sequelizeQuantum.import('../api/userTawktoToken/userTawktoToken.model');
 
 // Dashboard App
 db.bdQuery = db.sequelizeQuarc.import('../applications/dashboard/api/bdQuery/bdQuery.model');
