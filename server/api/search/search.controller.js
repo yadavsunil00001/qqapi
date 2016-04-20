@@ -15,6 +15,7 @@ import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Provinc
   STAKEHOLDERS,BUCKETS,Sequelize} from '../../sqldb';
 
 function handleError(res, statusCode, err) {
+  console.log("Error:500",err)
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -47,7 +48,7 @@ function sequelizeSearchRegion(model, fieldName) {
   const field = fieldName || 'name';
   return function seqSearch(req, res) {
     const options = {
-      attributes: ['id', [Sequelize.fn('CONCAT_WS', ", ", Sequelize.col('region'), Sequelize.col('Province.name')), 'name']],//,'Province.name'
+      attributes: ['id','region', [Sequelize.col('Province.name'),'province'],[Sequelize.fn('CONCAT_WS', ", ", Sequelize.col('region'), Sequelize.col('Province.name')), 'alias']],//,'Province.name'
       where: {},
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
@@ -64,6 +65,7 @@ function sequelizeSearchRegion(model, fieldName) {
 
     model.findAll(options)
       .then(function searchDone(searchResults) {
+        // Todo: region attribute to be changed to name
         res.json(searchResults);
       })
       .catch(err => handleError(res,500,err));
@@ -126,7 +128,7 @@ function sequelizeClientSearch(model,whereOptions) {
   const field =  'name';
   return function seqSearch(req, res) {
     const options = {
-      attributes: ['id', [field, 'name']],
+      attributes: ['id', [field, 'name'],'username'],
       where: whereOptions,
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
@@ -270,11 +272,11 @@ function solrApplicantSearch(){
 
 function applicantStatusSolr(){
   return function(req,res){
-    const offset = req.query.offset || 0;
-    const limit = (req.query.limit > 20) ? 20 : req.query.limit || 1;
+    const offset =  req.body.offset || 0;
+    const limit = req.body.limit || 40;
     const fl = req.query.fl || [
         'id', 'name', 'mobile', 'updated_on', 'state_name', 'client_name', 'eng_mgr_name', 'interview_time',
-        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location'
+        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location','interview_time'
       ].join(',');
 
 
@@ -282,7 +284,8 @@ function applicantStatusSolr(){
       .q(req.body.q)
       .fl(fl)
       .start(offset)
-      .rows(20)
+      .rows(limit)
+
       //.matchFilter({state_id:("13")})
       .facet({'field':'state_id'})
       .facet({'field':'consultant_username_sf'})
@@ -306,18 +309,19 @@ function applicantStatusSolr(){
 
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res,500,err);
-
-      console.log(_.uniq(_.map(result.response.docs,'eng_mgr_name')).join())
-      //return res.json(result);
-      //if (!~fl.indexOf('_root_')) return res.json(result.response.docs);
       var applicants = result.response.docs
       if(!applicants.length) return res.status(204).json([])
       const solrInnerQuery = Solr
         .createQuery()
         .q(`id:(${applicants.map(a => a._root_).join(' OR ')}) AND type_s:job`)
         .fl([
-          'id', 'role', 'client_name', 'eng_mgr_name', 'recruiter_username', 'consultant_score', 'job_status'
+          'id', 'role', 'client_name', 'eng_mgr_name', 'recruiter_username', 'consultant_score','screening_score','client_score','job_status'
         ])
+        .rows(applicants.length)
+        .facet({'field':'client_name'})
+        .facet({'field':'eng_mgr_name_sf'})
+        .facet({'field':'role'})
+
 
 // Get job to attach to results
       Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, jobs) {
@@ -328,6 +332,7 @@ function applicantStatusSolr(){
             .filter(s => s.id === applicants[key]._root_)[0];
         });
         result.response.docs = applicants
+        result.job_facet_counts = jobs.facet_counts
         res.json(result);
       });
     });

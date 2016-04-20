@@ -42,6 +42,11 @@ module.exports = function RegionModel(sequelizeQuantum, DataTypes) {
     tableName: 'regions',
     timestamps: false,
     underscored: true,
+    getterMethods: {
+      name(){
+        return this.getDataValue('region')
+      }
+    },
 
     classMethods: {
       associate: function associate(models) {
