@@ -33,6 +33,7 @@ export function index(req,res){
       bdQuery.findById(req.query.id).then(re =>{
         var querySQL = re.query + (whereString ? " " +whereString: "")
         return db.sequelizeQuarc.query(querySQL, {type: db.Sequelize.QueryTypes.SELECT}).then(resultSet =>{
+          if(resultSet.length) resultSet.push(re)
           return res.json(resultSet)
         })
       })

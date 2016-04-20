@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {User, Group, Client, State, ActionableState} from '../../sqldb';
+import db,{User, Group, Client, State, ActionableState} from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -79,11 +79,10 @@ export function me(req, res, next) {
         attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time' ]
       }),
       User.findById(req.user.id, {
-        attributes: ['id', 'name', 'is_active']
+        attributes: ['id', 'name','email_id', 'is_active']
       })
     ])
     .then(promiseReturns => {
-      console.log(promiseReturns[1]);
       const group = promiseReturns[0];
       const client = promiseReturns[1];
       const user = promiseReturns[2];
@@ -105,6 +104,7 @@ export function me(req, res, next) {
 
       const userme = _.assign(req.user, {
         name: user.name,
+        email_id: user.email_id,
         user_type: group.name,
         company_name: client.name,
         percRevenueShare: client.dataValues.perc_revenue_share,
@@ -121,21 +121,18 @@ export function me(req, res, next) {
 }
 
 export function states(req, res, next) {
-  return State
+  db.State
     .findAll({
       attributes: ['id', 'name', 'parent_id', 'config'],
-      where: {
-        parent_id: null
-      },
       include: [
         {
-          model: State,
+          model: db.State,
           as: 'Childs',
           attributes: [['id', 'state_id']],
           required: false,
         },
         {
-          model: ActionableState,
+          model: db.ActionableState,
           as: 'Actions',
           where: {
             group_id: 2,
@@ -144,20 +141,20 @@ export function states(req, res, next) {
           required: false,
         },
       ],
-      order: [['id', 'ASC'], [{ model: ActionableState, as: 'Actions' }, 'id', 'ASC']],
+      order: [['id', 'ASC'], [{ model: db.ActionableState, as: 'Actions' }, 'id', 'ASC']],
     })
     .then(function buildStateConfig(states) {
       const result = [];
       states.forEach(function formatStates(stateModel) {
         const state = stateModel.toJSON();
-        //if (state.Childs.length === 0) state.Childs.push({ state_id: state.id });
+        if (state.Childs.length === 0) state.Childs.push({ state_id: state.id });
         state.config = JSON.parse(state.config); // Need to handle Parsing Error
         result[state.id] = _.pick(state, ['id', 'name', 'config', 'Childs', 'Actions']);
       });
 
-      return res.json(result);
+      res.json(result);
     })
-    .catch(err => next(err));
+    .catch(next);
 }
 
 // Gets a single User from the DB

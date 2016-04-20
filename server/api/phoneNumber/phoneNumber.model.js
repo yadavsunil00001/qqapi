@@ -12,9 +12,6 @@ module.exports = function PhoneNumberModel(sequelize, DataTypes) {
     number: {
       type: DataTypes.INTEGER(20),
       validate: {
-        isInt: {
-          msg: 'number field should be an integer',
-        },
         len: {
           args: [0, 20],
           msg: 'Maximum length for number field is 20',

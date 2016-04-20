@@ -60,7 +60,7 @@ function handleEntityNotFound(res) {
 }
 
 function handleError(res, statusCode,err) {
-  console.log("err",err)
+  console.log("handleError",err)
   statusCode = statusCode || 500;
     res.status(statusCode).send(err);
 }

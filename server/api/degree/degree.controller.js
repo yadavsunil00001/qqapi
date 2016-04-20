@@ -54,6 +54,7 @@ function handleEntityNotFound(res) {
 }
 
 function handleError(res, statusCode,err) {
+  console.log("handleError",err)
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -97,7 +98,6 @@ export function create(req, res) {
       // Todo: Response Middleware: Refactor Table Degree.degree to Degree.name
       err.data = _.pick(err.data, ['id', 'degree'])
       err.data.name = err.data.degree;
-      console.log("err.data",err.data)
       return err.data ? res.status(409).json(err.data) : handleError(res,400,err)
     });
 }

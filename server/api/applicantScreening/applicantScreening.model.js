@@ -50,9 +50,6 @@ export default function(sequelize, DataTypes) {
         var applicantScreenings = [];
         states.forEach(function(state){
           if(-1 === (Object.keys(map)).indexOf(state.state_id.toString())) {
-            console.log("state.state_id",state.state_id)
-            console.log("Object.keys(map)",Object.keys(map))
-            console.log("(Object.keys(map)).indexOf(state.state_id))",(Object.keys(map)).indexOf(state.state_id))
             return
           }
           var applicantScreening = {};
@@ -63,7 +60,6 @@ export default function(sequelize, DataTypes) {
           applicantScreening.comments = state.comments ? state.comments : '';
           applicantScreening.consultant_email_sent = 1;
           applicantScreening.recruiter_email_sent = 1;
-          console.log("applicantScreening",applicantScreening)
           applicantScreenings.push(applicantScreening)
         })
 

@@ -58,7 +58,7 @@ function handleEntityNotFound(res) {
 }
 
 function handleError(res, statusCode,err ) {
-  console.log(err)
+  console.log("handleError",err)
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -66,8 +66,43 @@ function handleError(res, statusCode,err ) {
 // Gets a list of Jobs
 export function index(req, res) {
   // Todo: ORM Impl: Writtern manual query becasue of currently sequelize don't have Multidatabase Join Support
-const query =req.query.query || "";
-  sequelizeQuarc.query(`
+  const query =req.query.query || "";
+
+  const rawStates = (req.query.status) ? req.query.status.split(',') : ['ALL'];
+  const bucket = { HIGH_PRIORITY:[1], OPEN:[2], HOLD:[3], CLOSED:[4], ALL: [ 1,2,3,4 ] };
+  const states = [];
+
+  rawStates.forEach(function boostStates(state, sIndex) {
+    // add weight to each state depending on positon in state array
+    if (isNaN(state) && bucket[state]) {
+      bucket[state].forEach((s, i) => states.push(s));
+    }
+
+    if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) {
+      states.push(state);
+    }
+  });
+
+
+  const countQueryPr = !req.query.meta || req.query.offset != 0 ? []: sequelizeQuarc.query(`
+    SELECT
+      COUNT(JobStatus.id) as jobStatusCount,
+      JobStatus.name AS jobStatusName
+    FROM gloryque_quarc.jobs AS Job LEFT JOIN gloryque_quarc.job_statuses AS JobStatus
+        ON (Job.job_status_id = JobStatus.id)
+      LEFT JOIN gloryque_quarc.job_allocations AS JobAllocation ON (Job.id = JobAllocation.job_id)
+      LEFT JOIN gloryque_quarc.consultant_responses AS ConsultantResponse
+        ON (ConsultantResponse.id = JobAllocation.consultant_response_id AND ConsultantResponse.user_id = '${req.user.id}')
+      INNER JOIN gloryque_quantum.users AS User ON (Job.user_id = User.id)
+    WHERE JobAllocation.user_id = ${req.user.id}
+          AND JobAllocation.status = '1'
+          AND ConsultantResponse.response_id = 1
+          AND Job.status = '1'
+          AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
+    GROUP BY JobStatus.id`,{type: Sequelize.QueryTypes.SELECT});
+
+
+  const queryPr = sequelizeQuarc.query(`
       SELECT
         Job.id,
         Job.user_id AS owner_id,
@@ -89,17 +124,20 @@ const query =req.query.query || "";
         INNER JOIN gloryque_quantum.users AS User ON (Job.user_id = User.id)
         LEFT JOIN  gloryque_quantum.clients AS Client ON  (User.client_id = Client.id)
       WHERE JobAllocation.user_id = ${req.user.id} AND JobAllocation.status = '1' AND ConsultantResponse.response_id = 1 AND
-            Job.status = '1' AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
+            Job.status = '1'
+            ${'AND JobStatus.id IN (' + states.join(' , ')  + ") "}
+            AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
       GROUP BY Job.id
       ORDER BY JobScore.consultant DESC
       LIMIT ${(req.query.limit > 20) ? 20 : req.query.limit || 10}
       OFFSET ${req.query.offset || 0}`,
       {type: Sequelize.QueryTypes.SELECT})
-      .then(jobs => {
-        return res.json(jobs)
+    return Promise.all([countQueryPr,queryPr])
+      .then(prRe => {
+        const jobsCount = CakeList(prRe[0],'jobStatusName','jobStatusCount')
+        const jobs = prRe[1]
+        return res.json({jobs,meta:{jobsCount}})
       }).catch(err => handleError(res,500,err))
-
-
 }
 
 // Gets a list of jobs depending on response id
@@ -405,7 +443,6 @@ export function show(req, res) {
       return getClient
         .then(clientModel => {
           const client = clientModel.toJSON();
-          console.log("client",client)
           const logo = new Buffer(client.Logo.logo).toString('base64');
           client.logo = `data:${client.Logo.mime};base64,${logo}`;
           job[0]._root_ = _.pick(client, clientAttr.concat(['logo']));
