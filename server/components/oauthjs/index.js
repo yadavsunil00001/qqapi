@@ -117,6 +117,7 @@ module.exports = require('oauth2-server')({
         .then(function sendRefreshToken(refreshTokenModel) {
           if (!refreshTokenModel) return callback(null, false);
           callback(null, refreshTokenModel.toJSON());
+          return
         })
         .catch(callback);
     },

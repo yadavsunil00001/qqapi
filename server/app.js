@@ -8,6 +8,7 @@ import express from 'express';
 import sqldb from './sqldb';
 import config from './config/environment';
 import http from 'http';
+import slack from './components/slack/index.js';
 
 // Populate databases with sample data
 //if (config.seedDB) { require('./config/seed'); }
@@ -21,6 +22,11 @@ require('./routes')(app);
 // Start server
 function startServer() {
   app.angularFullstack = server.listen(config.port, config.ip, function() {
+    var env = app.get('env');
+    if ('production' === env) {
+      // OAuth Authentication Middleware
+      slack("Server Restarted")
+    }
     console.log('Express server listening on %d, in %s mode', config.port, app.get('env'));
   });
 }

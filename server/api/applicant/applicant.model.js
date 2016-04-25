@@ -408,6 +408,7 @@ export default function (sequelize, DataTypes) {
                       return "Async Return"
 
                     }).catch(err => {
+                      slack("Quarc API: applicant create: Error while getting job for id" +jobId )
                       return console.log("Error while getting job for id", jobId, err)
                     })
 
@@ -441,8 +442,10 @@ export default function (sequelize, DataTypes) {
                             });
 
                             models.QueuedTask.create({jobType: 'Execute', group: 'conversion', data}).then(re => {
+                              slack("Quarc API: applicant create: "+applicant.id + ": Applicant Resume Conversion queued task created" )
                               console.log(applicant.id + ": Applicant Resume Conversion queued task created")
                             }).catch(err => {
+                              slack("Quarc API: applicant create: "+applicant.id + ":  Applicant Resume Conversion queued task creation error" + (err.message ?err.message:""))
                               console.log(applicant.id + ": Applicant Resume Conversion queued task creation error: ", err)
                             });
                             return re
@@ -458,12 +461,15 @@ export default function (sequelize, DataTypes) {
                       var applicant = promiseReturns[0];
                       // Async: Not returned
                       models.Applicant.sendWelcomeEmail(models, applicant.id).then(re => {
+                        slack("Quarc API: applicant create: "+applicant.id + ":  sendWelcomeEmailQueued Task created" )
                         console.log("sendWelcomeEmailQueued Task created", applicant.id)
                       }).catch(err => {
+                        slack("Quarc API: applicant create: "+applicant.id + ":  sendWelcomeEmail Email Queue Error" + (err.message ?err.message:""))
                         console.log(" sendWelcomeEmail Email Queue Error", applicant.id, err)
                       })
                       applicant.updateSolr(models, userId, jobId).then(re => {
-                        console.log("applicant indexed")
+                        slack("Quarc API: applicant create: uploaded by"+ userId + ":  sendWelcomeEmail Email Queue Error" + (err.message ?err.message:""))
+                        console.log("applicant: uploaded by "+userId+" indexed ")
                       }).catch(err => {
                         console.log("solr index failed", err)
                       })
@@ -560,7 +566,7 @@ export default function (sequelize, DataTypes) {
               }
 
               plainApplicant.User = typeof promiseReturns[4] == 'object' ? promiseReturns[4].toJSON() : {};
-              if (plainApplicant.JobApplications[0]) plainApplicant.JobApplications[0].Job.User = typeof promiseReturns[4] == 'object' ? promiseReturns[4].toJSON() : {};
+              if (plainApplicant.JobApplications[0]) plainApplicant.JobApplications[0].Job.User = typeof promiseReturns[5] == 'object' ? promiseReturns[5].toJSON() : {};
 
               var jobContentFilePath = plainApplicant.JobApplications[0].Job.JobContent.path ? config.QDMS_PATH + plainApplicant.JobApplications[0].Job.JobContent.path : null;
               var jobContentFileExt = jobContentFilePath ? jobContentFilePath.split(".") : null;
@@ -625,7 +631,8 @@ export default function (sequelize, DataTypes) {
                 msg += 'Client: ' + plainApplicant.JobApplications[0].Job.User.name + '<br>';
                 msg += 'Position: ' + plainApplicant.JobApplications[0].Job.role + '<br>';
                 msg += 'You can manage the applicants here <a href="' +
-                  (config.URLS.QUARC_UI_PARTNER || "https://partner.quezx.com") + 'applicants/' +
+                  "https://app.quezx.com/Applicants/view/"+
+                    //(config.URLS.QUARC_UI_PARTNER || "https://partner.quezx.com") + 'applicants/' +
                   id + '"> View Aplicant</a>';
 
                 var emailInternals = {

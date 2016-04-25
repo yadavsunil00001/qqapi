@@ -718,7 +718,7 @@ export function dashboard(req, res) {
                 // Fetching data from applicant using solr
                 const solrQuery = Solr.createQuery()
                   .q(`type_s:job`)
-                  .fl('id,role,min_sal,max_sal,job_location')
+                  .fl('id,role,min_sal,max_sal,job_location,client_name')
                   .matchFilter('id', `(${_.map(newProfiles,"job_id").join(' ')})`);
                 Solr.get('select', solrQuery, function solrCallback(err, allApplicantsJobs) {
                   if (err) return handleError(res, 500,err);

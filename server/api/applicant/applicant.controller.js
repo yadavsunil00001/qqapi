@@ -158,7 +158,24 @@ export function show(req, res) {
   Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return handleError(res, 500,err);
     if (result.response.docs.length === 0) return handleError(res, 404,new Error('Applicant Not Found'));
-    res.json(result.response.docs[0]);
+
+    if (!~fl.indexOf('_root_')) return res.json(result.response.docs[0]);
+    const applicant = result.response.docs[0]; console.log(result.response.docs)
+    const solrInnerQuery = db.Solr
+      .createQuery()
+      .q(`id:${applicant._root_} AND type_s:job`)
+      .fl(['role', 'id','client_name',])
+      .rows(1);
+
+    // Get job to attach to results
+    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
+
+      if(jobErr) return handleError(res,500,jobErr);
+      const job = result.response.docs[0];
+      if(!job) return res.json(applicant)
+      applicant._root_ = job
+      res.json(applicant);
+    });
   });
 };
 

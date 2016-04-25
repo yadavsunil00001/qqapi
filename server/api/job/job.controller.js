@@ -206,7 +206,7 @@ function CakeList(jsonArray,key,value){
 export function allocationStatusNew(req, res) {
   const query = req.query.q || '';
 
-  const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
+  const rawStates = (req.query.status) ? req.query.status.split(',') : ['ALL'];
   //
   //[{ id:0,name:'New'},{ id:1, name:'Accepted'},{id:2,name:'Hide'},{id:3,name:'Rejected'},{id:'all',name:'All'}]
   const bucket = {
@@ -215,13 +215,13 @@ export function allocationStatusNew(req, res) {
     HIDDEN:[2], // Proxy for HOLD
     HOLD:[2],
     REJECTED:[3],
-    ALL:[1,2,3]
+    ALL:[0,1,2,3]
   };
 
   const states = [];
 
   rawStates.forEach(function normalize(state) {
-    if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
+    if (isNaN(state)) if (bucket[state.toUpperCase()]) bucket[state].map(s => states.push(s));
 
     if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
   });
@@ -407,6 +407,8 @@ export function allocationStatusNewCount(req, res) {
 // Gets a single Job from the DB
 export function show(req, res) {
   // @todo refine and restructure flow
+
+
   const following = req.followingJobs ? ` OR id:(${req.followingJobs})` : '';
   const fl = req.query.fl || [
       'id', 'role', 'owner_id', 'max_sal', 'min_sal', 'job_code', 'min_exp', 'max_exp',
@@ -420,37 +422,61 @@ export function show(req, res) {
     .createQuery()
     .q(`id:${req.params.jobId} AND type_s:job `)//AND (owner_id:${req.user.id}${following})
     .fl(fl);
-  const clientAttr = [
-    'description', 'reg_address', 'min_emp', 'max_emp', 'website',
-    'apple_store_link', 'playstore_link', 'windows_store_link',
-  ];
-  let getClient;
 
-  if (~fl.indexOf('_root_')) {
-    getClient = db.Client.findById(req.user.client_id, {
-      attributes: clientAttr,
-      include: [db.Logo],
-    });
-  }
 
   db.Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return handleError(res,500,err);
     const job = result.response.docs;
-
+    const clientAttr = [
+      'id', 'description', 'reg_address', 'min_emp', 'max_emp', 'website',
+      'apple_store_link', 'playstore_link', 'windows_store_link'
+    ]
     // @todo handle error from components/error
     if (!job.length) return handleError(res,404,new Error('Job not found'));
     if (~fl.indexOf('_root_')) {
-      return getClient
-        .then(clientModel => {
-          const client = clientModel.toJSON();
-          const logo = new Buffer(client.Logo.logo).toString('base64');
-          client.logo = `data:${client.Logo.mime};base64,${logo}`;
-          job[0]._root_ = _.pick(client, clientAttr.concat(['logo']));
-          res.json(job[0]);
-        });
-    }
+      return db.User.findById(job[0].owner_id).then(hr => {
+        console.log("hr",hr.client_id)
+        return db.Client.findById(hr.client_id, {
+          attributes: clientAttr,
+          include: [db.Logo],
+        }).then(clientModel => {
+          console.log("finding clientpayments ",clientModel.id)
+          return ClientPayment.findAll({
+            attributes: ['id', 'client_id', 'isFixed'],
+            where: {
+              client_id: clientModel.id
+            },
+            raw: true
+          }).then(clientPayments => {
+            const client = clientModel.toJSON();
+            if (clientPayments) {
+              if (clientPayments.length > 0) {
+                if (clientPayments[0]['isFixed'] == 1) {
+                  client.payment = 'Fixed - Standard';
+                } else if (clientPayments[0]['isFixed'] == 2) {
+                  client.payment = 'Fixed - Customised';
+                } else if (clientPayments[0]['isFixed'] == 3) {
+                  client.payment = '1% EMI - Customised'; //'1% Module, No Replacement - Customised';
+                } else {
+                  client.payment = '1% EMI - Standard';  //'1% Module, No Replacement - Standard';
+                }
+              } else {
+                client.payment = '-';
+              }
+            }
 
-    res.json(job[0]);
+
+
+
+            const logo = new Buffer(client.Logo.logo).toString('base64');
+            client.logo = `data:${client.Logo.mime};base64,${logo}`;
+            job[0]._root_ = _.pick(client, clientAttr.concat(['logo','payment']));
+            res.json(job[0]);
+          })
+
+        });
+      })
+    }
   });
 }
 
@@ -513,3 +539,4 @@ export function consultantResponse(req, res) {
         }).catch(err => handleError(res,500,err));
     }).catch(err => handleError(res,500,err));
 }
+

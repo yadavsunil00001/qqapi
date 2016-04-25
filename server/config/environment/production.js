@@ -41,6 +41,7 @@ module.exports = {
   QUARC_PATH: process.env.QUARC_PATH,
 
   URLS: {
-    QUARC_UI_PARTNER: process.env.URLS_QUARC_UI_PARTNER
+    QUARC_UI_PARTNER: process.env.URLS_QUARC_UI_PARTNER,
+    SLACK: process.env.URLS_SLACK
   }
 };

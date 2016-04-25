@@ -109,7 +109,7 @@ export function me(req, res, next) {
       }).then(function(tawkToken){
         const userme = _.assign(req.user, {
           name: user.name,
-          tawk_token: tawkToken.access_token,
+          tawk_token: _.get(tawkToken,'access_token'),
           email_id: user.email_id,
           user_type: group.name,
           company_name: client.name,

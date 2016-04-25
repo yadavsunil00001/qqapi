@@ -37,8 +37,8 @@ export function refresh(req, res){
   const options = {
     url: `${config.OAUTH_SERVER}${config.OAUTH_ENDPOINT}`,
     auth: {
-      user: config.OAUTH_CLIENT_ID,
-      pass: config.OAUTH_CLIENT_SECRET,
+      user: config.MANAGE_CLIENT_ID,
+      pass: config.MANAGE_CLIENT_SECRET,
     },
     form: {
       grant_type: 'refresh_token',
@@ -56,8 +56,8 @@ export function logout(req, res){
   const options = {
     url: `${config.OAUTH_SERVER}${config.OAUTH_ENDPOINT}/${req.body.access_token}`,
     auth: {
-      user: config.OAUTH_CLIENT_ID,
-      pass: config.OAUTH_CLIENT_SECRET,
+      user: config.MANAGE_CLIENT_ID,
+      pass: config.MANAGE_CLIENT_SECRET,
     },
   };
 
