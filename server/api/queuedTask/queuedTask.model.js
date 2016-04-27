@@ -90,6 +90,24 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
 
       addJobFollowerNotify: function addJobFollowerNotify(options) {
         const data = php.serialize({
+          command: `${config.QUARC_PATH}/app/Console/cake`,
+          params: [
+            'state_change_action',
+            '-s', model.state_id,
+            '-a', model.applicant_id,
+            '-u', model.user_id,
+          ],
+        });
+
+        return this.create({
+          jobType: 'Execute',
+          group: 'high',
+          data,
+        });
+      },
+
+      addJobFollowerNotify: function addJobFollowerNotify(options) {
+        const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] You are following ${options.client.name} - ${options.job.role}`,
             to: options.user.email_id,
