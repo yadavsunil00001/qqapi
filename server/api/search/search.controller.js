@@ -74,6 +74,18 @@ function sequelizeSearchRegion(model, fieldName) {
 
 function applicantSearch(){
   return function(req,res){
+
+    var solrQueryPart = "";
+    switch(req.user.group_id){
+      case BUCKETS.GROUPS['CONSULTANTS']:
+        solrQueryPart = `owner_id:${req.user.id} AND `
+        break;
+      case BUCKETS.GROUPS['INTERNAL_TEAM']:
+            // nothing
+            break;
+      default:
+            break;
+    }
     // @todo more refactor Repeated Code
     if(!req.query.q) return res.json([])
     const offset = req.query.offset || 0;
@@ -86,7 +98,7 @@ function applicantSearch(){
 
     const solrQuery = Solr.createQuery()
       // Todo: Solr Mobile Number field currently not allow partial search
-      .q(`owner_id:${req.user.id} AND type_s:applicant AND ( name:*${req.query.q}*  ${!isNaN(req.query.q) ? 'OR mobile:'+req.query.q:''}  OR email:*${req.query.q}*  )`)
+      .q(`${solrQueryPart}type_s:applicant AND ( name:*${req.query.q}*  ${!isNaN(req.query.q) ? 'OR mobile:'+req.query.q:''}  OR email:*${req.query.q}*  )`)
       .fl(fl)
       .start(offset)
       .rows(limit);
@@ -276,7 +288,7 @@ function applicantStatusSolr(){
     const limit = req.body.limit || 40;
     const fl = req.query.fl || [
         'id', 'name', 'mobile', 'updated_on', 'state_name', 'client_name', 'eng_mgr_name', 'interview_time',
-        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location','interview_time'
+        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location','interview_time','updated_on'
       ].join(',');
 
 
@@ -305,7 +317,7 @@ function applicantStatusSolr(){
       }
     }
     //console.log(req.body.params.fq.state_id)
-    console.log(solrQuery)
+    //console.log(solrQuery)
 
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res,500,err);

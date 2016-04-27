@@ -100,10 +100,11 @@ export function index(req, res) {
       const jobs = result.response.docs;
       if(!jobs.length) res.json(result.response.docs)
       applicants.forEach(function attachJob(applicant, key) {
+
         applicants[key]._root_ = jobs
           .filter(s => s.id === applicants[key]._root_)[0];
       });
-
+      //console.log(applicants);
       res.json(applicants);
     });
   });
