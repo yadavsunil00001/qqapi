@@ -240,7 +240,8 @@ export function allocationStatusNew(req, res) {
     JobAllocation.id AS allocation_id,
     COALESCE(ConsultantResponse.response_id,0) AS response_id,
     Client.id AS client_id,
-    Client.name AS owner_company
+    Client.name AS owner_company,
+    DATE(JobAllocation.updated_on) AS updated_on
   FROM gloryque_quarc.job_allocations AS JobAllocation LEFT JOIN gloryque_quarc.jobs AS Job
       ON (JobAllocation.job_id = Job.id AND Job.status = '1')
     LEFT JOIN gloryque_quarc.consultant_responses AS ConsultantResponse
@@ -250,7 +251,10 @@ export function allocationStatusNew(req, res) {
     LEFT JOIN gloryque_quantum.clients AS Client
       ON ( Client.id = User.client_id)
   WHERE JobAllocation.user_id = ${req.user.id} AND Job.status = '1' AND JobAllocation.status = '1'
-  GROUP BY JobAllocation.job_id) AS TEMP ${ states.length ? 'WHERE (role LIKE "%'+query+'%" OR owner_company LIKE "%'+query+'%" ) AND response_id IN ('+ states.join()+ ')':'' }
+  GROUP BY JobAllocation.job_id
+  ORDER BY JobAllocation.updated_on DESC
+  ) AS TEMP ${ states.length ? 'WHERE (role LIKE "%'+query+'%" OR owner_company LIKE "%'+query+'%" ) AND response_id IN ('+ states.join()+ ')':'' }
+    ORDER BY  DATE(updated_on) DESC
   LIMIT ${ req.query.limit ? parseInt(req.query.limit) : 100 }
   OFFSET ${req.query.offset || 0} `;
 
@@ -407,8 +411,6 @@ export function allocationStatusNewCount(req, res) {
 // Gets a single Job from the DB
 export function show(req, res) {
   // @todo refine and restructure flow
-
-
   const following = req.followingJobs ? ` OR id:(${req.followingJobs})` : '';
   const fl = req.query.fl || [
       'id', 'role', 'owner_id', 'max_sal', 'min_sal', 'job_code', 'min_exp', 'max_exp',
@@ -464,9 +466,6 @@ export function show(req, res) {
                 client.payment = '-';
               }
             }
-
-
-
 
             const logo = new Buffer(client.Logo.logo).toString('base64');
             client.logo = `data:${client.Logo.mime};base64,${logo}`;
@@ -529,14 +528,14 @@ export function consultantResponse(req, res) {
   ConsultantResponse.create(consultantResponse)
     .then(function (savedConsultantResponse) {
       let genereatedResponseId = savedConsultantResponse.id;
-      JobAllocation.update({consultant_response_id: genereatedResponseId}, {
+      return JobAllocation.find({
         where: {
           job_id: req.params.jobId,
           user_id: req.user.id
         }
-      }).then(function (rows) {
-          res.json(rows);
-        }).catch(err => handleError(res,500,err));
+      }).then(jA => {
+        return jA.update({consultant_response_id: genereatedResponseId}).then(uJA => res.json(_.pick(uJA,['id'])))
+      })
     }).catch(err => handleError(res,500,err));
 }
 

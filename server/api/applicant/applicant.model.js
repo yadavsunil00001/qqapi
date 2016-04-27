@@ -6,6 +6,7 @@ import mkdirp from 'mkdirp-then';
 import path from 'path';
 import config from './../../config/environment';
 import phpSerialize from './../../components/php-serialize';
+import slack from  './../../components/slack';
 
 export default function (sequelize, DataTypes) {
   const Applicant = sequelize.define('Applicant', {
@@ -468,7 +469,7 @@ export default function (sequelize, DataTypes) {
                         console.log(" sendWelcomeEmail Email Queue Error", applicant.id, err)
                       })
                       applicant.updateSolr(models, userId, jobId).then(re => {
-                        slack("Quarc API: applicant create: uploaded by"+ userId + ":  sendWelcomeEmail Email Queue Error" + (err.message ?err.message:""))
+                        slack("applicant: uploaded by "+userId+" indexed ")
                         console.log("applicant: uploaded by "+userId+" indexed ")
                       }).catch(err => {
                         console.log("solr index failed", err)
@@ -730,7 +731,7 @@ export default function (sequelize, DataTypes) {
             {model: db.Resume, attributes: ['contents']},
             {model: db.Education, attributes: ['degree_id', 'institute_id']},
             {model: db.JobApplication, attributes: [], include: [{model: db.Job, attributes: []}]},
-            {model: db.ApplicantState, include: [{model: db.State, attributes: ['name']}], attributes: ['state_id']},
+            {model: db.ApplicantState, include: [{model: db.State, attributes: ['id','name']}], attributes: ['state_id']},
             {model: db.ApplicantSkill, attributes: ['skill_id']}
           ]
         }).then(function (applicant) {
@@ -792,13 +793,13 @@ export default function (sequelize, DataTypes) {
                 "owner_id": applicant.user_id || _this.user_id,
                 "mobile": _.get(applicant.PhoneNumbers[0], 'number'),
                 "verified": applicant.verified,
-                "applicant_score": applicant.score,
+                "applicant_score": applicant.applicant_score,
                 "expected_ctc": applicant.expected_ctc,
                 "state_name": applicant.ApplicantState.State.get('name'),
                 "created_on": applicant.created_on,
                 "name": applicant.name,
                 "id": applicant.id,
-                "state_id": applicant.applicant_state_id,
+                "state_id":  applicant.ApplicantState.State.get('id'),
                 "notice_period": applicant.notice_period,
                 "total_exp": applicant.total_exp,
                 "email": applicant.Emails.length ? applicant.Emails[0].email : '',
@@ -818,6 +819,7 @@ export default function (sequelize, DataTypes) {
                 "_root_": jobId
               };
 
+              console.log(solrRecord)
               return db.Solr.add(solrRecord, function solrJobAdd(err) {
                 if (err) return Promise.reject(err);
                 return db.Solr.softCommit();

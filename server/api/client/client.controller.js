@@ -189,18 +189,17 @@ export function makeUserActive(req, res) {
           data: queueData
         };
       // Creating entry in queued task Ends here
-      QueuedTask.create(task);
+      QueuedTask.create(task).catch(err => console.log("error queue email: user signup: " + req.user.id,err, queueData));
       // Updating user is_active flag and setting it to 1
-      return User.update({
-        is_active: 1
-      }, {
+      return User.find({
         where: {
           id : req.user.id
         }
-      }).then(function() {
-         return
+      }).then(function(user){
+        return user.update({
+          is_active: 1
         })
-        .catch(err => handleError(res,500,err));
+      })
     });
     return res.json(user);
   })
@@ -341,57 +340,39 @@ export function updatePreferences(req, res){
   var consultantSurveyTime = Date.now();
   var consultantSurvey = 0;
 
-  Client.update({
+  return Client.find( {
+    where: {
+      id : req.user.client_id
+    }
+  }).then(client => {
+    return client.update({
     min_ctc: minCTC,
     max_ctc: maxCTC,
     consultant_survey_time: consultantSurveyTime,
     consultant_survey: consultantSurvey
-  }, {
-    where: {
-      id : req.user.client_id
-    }
   }).then(function() {
 
-// Inserting Client Preferred Function
-      const PromiseClientPreferredFunction = ClientPreferredFunction.destroy({
-          where:{
-            client_id:req.user.client_id
-          }}
-        )
-        .then(affectedRows =>{
-          let functionListToSave = _.filter(req.body.functionList,{ selected:true }); // req.body.ctcRange
-          var clientPreferredFunctionData = functionListToSave.map(item => {return {client_id: req.user.client_id, func_id: item.id}});
-          return ClientPreferredFunction.bulkCreate(clientPreferredFunctionData)
-            .then(affectedRows => {
-              return affectedRows;
-            })
-            .catch(err => handleError(res, 500, err));
-        })
-        .catch(err => handleError(res, 500, err));
+      let functionListToSave = _.filter(req.body.functionList,{ selected:true });
+      var clientPreferredFunctionData = functionListToSave.map(item => {return {client_id: req.user.client_id, func_id: item.id}});
 
-      // Inserting Client Preferred Industry
-      const PromiseClientPreferredIndustry = ClientPreferredIndustry.destroy({
-          where:{
-            client_id: req.user.client_id
-          }}
-        )
-        .then(affectedRows =>{
-          let industryListToSave = _.filter(req.body.industryList,{ selected:true }); // req.body.ctcRange
-          var clientPreferredIndustryData = industryListToSave.map(item => {return {client_id: req.user.client_id, industry_id: item.id}});
-          return ClientPreferredIndustry.bulkCreate(clientPreferredIndustryData)
-            .then(affectedRows => {
-              return affectedRows;
-            })
-            .catch(err => handleError(res, 500, err));
-        })
-        .catch(err => handleError(res, 500, err));
+      let industryListToSave = _.filter(req.body.industryList,{ selected:true });
+      var clientPreferredIndustryData = industryListToSave.map(item => {return {client_id: req.user.client_id, industry_id: item.id}});
 
-      return Promise.all([PromiseClientPreferredFunction,PromiseClientPreferredIndustry])
+      return Promise.all([
+        (req.user.client_id ? ClientPreferredFunction.destroy({ where:{ client_id:req.user.client_id }}):[]),
+        (req.user.client_id ? ClientPreferredIndustry.destroy({ where:{ client_id: req.user.client_id }} ):[])
+      ])
         .then(promiseResult => {
-          return res.json("record updated");
+          return Promise.all([
+            // Inserting Client Preferred Function
+            ClientPreferredFunction.bulkCreate(clientPreferredFunctionData),
+            // Inserting Client Preferred Industry
+            ClientPreferredIndustry.bulkCreate(clientPreferredIndustryData)
+          ]).then(pR => {
+            res.json({message:"record updated"});
+          })
         })
-        .catch(err => handleError(res, 500, err));
-
+    })
   })
   .catch(err => handleError(res, 500, err));
 }
@@ -725,7 +706,7 @@ export function dashboard(req, res) {
                   var newProfileData =  allApplicantsJobs.response.docs;
 
                   newProfileData = newProfileData.map(data => {
-                    let profile = {id:data.id,jobLocation:data.job_location,role:data.role}
+                    let profile = {id:data.id,jobLocation:data.job_location,role:data.role,client_name:data.client_name}
                     if(typeof data.max_sal !== undefined && typeof data.min_sal !== undefined ) {
                       if(data.max_sal) profile.salaryRange = data.min_sal + "-" + data.max_sal + " Lakhs"
                     }

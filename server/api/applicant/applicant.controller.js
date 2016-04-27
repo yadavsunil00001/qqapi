@@ -279,35 +279,106 @@ export function downloadResume(req, res) {
     .catch(err => handleError(res,500,err));
 };
 
-// Change State For Applicant
-export function changeState(req, res){
+exports.changeState = function changeState(req, res, next) {
   // @todo Need to check eligibility of entity sending this post request
   // @todo Need to add applicant state id in applicant table
-  ApplicantState
+  db.ApplicantState
     .build(req.body)
     .set('user_id', req.user.id)
-    .set('applicant_id', req.params.id)
+    .set('applicant_id', req.params.applicantId)
     .save()
-    .then((model) => {
+    .then(model => {
+      res.status(204).end();
 
-      const data = phpSerialize.serialize({
-        command: `${config.QUARC_PATH}app/Console/cake`,
-        params: [
-          'state_change_action',
-          '-s', model.state_id,
-          '-a', model.applicant_id,
-          '-u', model.user_id,
-        ],
-      });
-      const task = {
-        jobType: 'Execute',
-        group: 'high',
-        data,
-      };
+      // update applicant table
+      db.Applicant.find({
+        where: { id: model.applicant_id },
+      }).then(function(applicant){
+        applicant.update({ applicant_state_id: model.id });
+      })
 
-      QueuedTask.create(task);
-      res.status(201).end();
+      // @todo applicant comment uses same logic => refactor
+      Promise.all([
+
+          // j[0] => jobApplicant
+          db.JobApplication.findOne({
+            where: { applicant_id: model.applicant_id },
+            attributes: ['job_id'],
+            include: [
+              {
+                model: db.Applicant,
+                attributes: ['name', 'user_id'],
+              },
+              {
+                model: db.Job,
+                attributes: ['role', 'user_id'],
+              },
+            ],
+          }),
+
+          // j[0] => state.name
+          db.State.findById(model.state_id, { attributes: ['name'] }),
+        ])
+        .then(j => {
+          // j => jobApplication
+          // Update solr indexes
+          db.ApplicantState.updateSolr(db.Solr, {
+            job: { id: j[0].job_id }, applicant: { id: model.applicant_id },
+            state: _.assign({ state_name: j[1].name }, model.toJSON()),
+          });
+
+          db.User.findAll({
+
+              // get applicant and job related fields
+              where: { id: [j[0].Applicant.user_id, j[0].Job.user_id] },
+              attributes: ['id', 'name'],
+              include: [
+                {
+                  // Get Consultant and Recruiter Clients
+                  model: db.Client,
+                  attributes: ['name'],
+                  include: [
+                    {
+                      // Get engagement manager emails
+                      model: db.User,
+                      as: 'EngagementManager',
+                      attributes: ['email_id'],
+                    },
+                  ],
+                },
+              ],
+            })
+            .then(user => {
+              const server = 'app.quezx.com';
+              const state = { name: j[1].name, comment: model.comment };
+              const job = {
+                id: j[0].job_id,
+                role: j[0].Job.role,
+                creator: user.find(u => u.id === j[0].Job.user_id),
+              };
+              const applicant = {
+                id: model.applicant_id, name: j[0].Applicant.name,
+                creator: user.find(u => u.id === j[0].Applicant.user_id),
+              };
+
+              // add notification for user
+              user.map(u => {
+                db.Notification
+                  .build({ user_id: u.id })
+                  .changeStateNotify({ state, applicant, job, server });
+              });
+
+              // Notify job recruiter EM
+              db.QueuedTask.changeStateNotify({
+                state, applicant, job, server,
+                email: job.creator.Client.EngagementManager.email_id,
+              });
+            })
+            .catch(logger.error);
+        });
+
+      db.QueuedTask.postChangeStateActions(model);
     })
     .catch(err => handleError(res,500,err));
-}
+};
 

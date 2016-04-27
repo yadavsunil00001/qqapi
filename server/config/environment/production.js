@@ -13,6 +13,8 @@ module.exports = {
           process.env.PORT ||
           8080,
 
+  DOMAIN: process.env.DOMAIN,
+
   quarc: {
     username: process.env.QUARC_MYSQL_USER,
     password: process.env.QUARC_MYSQL_PASS,

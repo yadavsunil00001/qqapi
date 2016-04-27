@@ -112,13 +112,8 @@ export function accept(req, res) {
         .then(status => {
           if (status.email === true || status.number === true) {
             var approval_status = 3;
-            return Reference
-              .update({approval_status: approval_status}, {where: {id: referenceId}})
-              .then(reference => {
-                return Reference.findById(referenceId).then(reference => {
-                  return res.json({approval_status: reference.approval_status, message: 'Duplicate'})
-                })
-              });
+            return reference.update({approval_status: approval_status})
+              .then(reference => res.json({approval_status: reference.approval_status, message: 'Duplicate'}));
           }
           const userId = reference.con_id || req.user.id
           let file = {
@@ -155,22 +150,13 @@ export function accept(req, res) {
             return Applicant.saveApplicant(db, applicant, file, userId, jobId, stateId)
               .then(function (applicant) {
                 var approval_status = 1;
-                if (stateId == 27) {
-                  return Reference.update({approval_status: approval_status}, {where: {id: referenceId}})
-                    .then(reference => {
-                      return Reference.findById(referenceId).then(reference => {
-                        return res.json({approval_status: reference.approval_status, message: 'Approved', id: applicant.id})
-                      })
-                    });
-                } else if (stateId == 37) {
-                  approval_status = 2;
-                  return Reference.update({approval_status: approval_status}, {where: {id: referenceId}})
-                    .then(reference => {
-                      return Reference.findById(referenceId).then(reference => {
-                        return res.json({approval_status: reference.approval_status, message: 'Reject', id: applicant.id})
-                      })
-                    });
-                }
+                if (stateId == 27) { approval_status = 1; }
+                if (stateId == 37) { approval_status = 2; }
+                return  reference.update({approval_status: approval_status})
+                .then(reference => res.json({
+                  approval_status: reference.approval_status,
+                  message: (approval_status==1) ? 'Approved': 'Reject',
+                  id: applicant.id}));
               })
           })
         })

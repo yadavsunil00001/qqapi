@@ -4,6 +4,7 @@
 // ==================================
 module.exports = {
 
+  DOMAIN: process.env.DOMAIN,
   // Sequelize connection opions
   quarc: {
     username: process.env.QUARC_MYSQL_USER,

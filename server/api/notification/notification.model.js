@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = function NotificationModel(sequelize, DataTypes) {
   const Notification = sequelize.define('Notification', {
     id: {
@@ -9,15 +7,7 @@ module.exports = function NotificationModel(sequelize, DataTypes) {
       allowNull: false,
       unique: true,
     },
-    message: {
-      type: DataTypes.STRING(255),
-      validate: {
-        len: {
-          args: [0, 255],
-          msg: 'Maximum length for message field is 255',
-        },
-      },
-    },
+    message: { type: DataTypes.STRING(10000) },
     redirect: {
       type: DataTypes.STRING(255),
       validate: {
@@ -108,6 +98,48 @@ module.exports = function NotificationModel(sequelize, DataTypes) {
         Notification.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });
+      },
+    },
+
+    instanceMethods: {
+
+      /**
+       * Notify user for Applicant State Change
+       * This methods requires user_id field to be set before calling
+       * @param  {Object}   notify                   Email config and data
+       * @param  {Object}   notify.applicant         Applicant details
+       * @param  {Number}   notify.applicant.id      Applicant id
+       * @param  {String}   notify.applicant.name    Applicant name
+       * @param  {Object}   notify.applicant.creator Applicant Creator
+       * @param  {Object}   notify.state             State Object
+       * @param  {String}   notify.state.name        State name
+       * @param  {String}   notify.state.comment     State change comment
+       * @param  {Object}   notify.job               Job Profile
+       * @param  {String}   notify.job.role          Job position name
+       * @param  {Object}   notify.job.creator Job Creator
+       * @return {Promise.<number>} Return promise for inseration of row in QueuedTask
+       */
+      changeStateNotify: function changeStateNotify(notify) {
+        const _this = this;
+        _this
+          .set('message',
+            `Candidate Name :
+              <a href="//${notify.server}/Applicants/view/${notify.applicant.id}">
+                ${notify.applicant.name}
+              </a>
+            Position : ${notify.job.role}
+            Company : ${notify.job.creator.Client.name}
+            Status : ${notify.state.name}
+            Comment By ${notify.job.creator.Client.name} : ${notify.state.comment}`
+              .replace(/ {2,}/g, ' ')
+          )
+          .set('applicant_id', notify.applicant.id)
+          .set('job_id', notify.job.id)
+          .set('status', 1)
+          .set('state_id', notify.state.id)
+          .set('redirect', `/Applicants/view/${notify.applicant.id}`)
+          .set('updated_by', notify.job.creator.id)
+          .save();
       },
     },
   });
