@@ -54,17 +54,27 @@ export function index(req, res) {
           comments.forEach(function attachUser(comment, index) {
             const user = userModels
               .filter(u => u.id === comment.user_id)[0];
+                switch(req.user.group_id){
+                  case BUCKETS.GROUPS['CONSULTANTS']:
+                    switch (user.group_id) {
+                      case 2: // if comment is from consultant then show his details
+                      case 5: // if comment is from client then show client details
+                        user.name = user.name;
+                        break;
+                      default: // any other case considered as Quezx Users
+                        user.name = 'QuezX';
+                        break;
+                    }
+                    break;
+                  case BUCKETS.GROUPS['INTERNAL_TEAM']:
+                    user.name = user.name;
+                    break;
+                  default:
+                    break;
+                }
 
             // Customized commenter naming to be viewed by recruiters
-            switch (user.group_id) {
-              case 2: // if comment is from consultant then show his details
-              case 5: // if comment is from client then show client details
-                user.name = user.name;
-                break;
-              default: // any other case considered as Quezx Users
-                user.name = 'QuezX';
-                break;
-            }
+
 
             comments[index].user = _.pick(user, ['id', 'name']);
           });
