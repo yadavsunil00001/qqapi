@@ -19,6 +19,7 @@ import db,{Client,Applicant, Job, JobApplication, ApplicantState, State, Func, S
   Industry, ClientPreferredFunction, ClientPreferredIndustry, Sequelize, QueuedTask} from '../../sqldb';
 import config from './../../config/environment';
 import phpSerialize from './../../components/php-serialize';
+import mkdirp from 'mkdirp-then';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
@@ -161,45 +162,47 @@ export function makeUserActive(req, res) {
         // call template as a function, passing in your data as the context
         var outputString = template(client_data);
         // TODO GENERATE HTML FOR FRONTEND
-        wkhtmltopdf(outputString, options)
-          .pipe(fs.createWriteStream(config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf'));
-        // Sending mail to user with attachement of file using queue
-        const queueData = phpSerialize.serialize({
-          settings: {
-            subject: 'QuezX.com | Acceptance of Terms & Conditions',
-            to: user.dataValues.email_id,
-            bcc: 'agreement@quetzal.in',
-            from: ['notifications@quezx.com', 'QuezX.com'],
-            domain: 'Quezx.com',
-            emailFormat: 'html',
-            template: ['SignupConsultantEmail'],
-            attachments : [
-              {
-                'terms_and_condition.pdf' : config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf',
-              }
-            ]
-          },
-          vars: {
-            consultantName: user.dataValues.Client.name
-          }
-        });
-        const task = {
-          jobType: 'Email',
-          group: 'low',
-          data: queueData
-        };
-      // Creating entry in queued task Ends here
-      QueuedTask.create(task).catch(err => console.log("error queue email: user signup: " + req.user.id,err, queueData));
-      // Updating user is_active flag and setting it to 1
-      return User.find({
-        where: {
-          id : req.user.id
-        }
-      }).then(function(user){
-        return user.update({
-          is_active: 1
+        return mkdirp(config.QDMS_PATH+'SignUps').then(function () {
+          wkhtmltopdf(outputString, options)
+            .pipe(fs.createWriteStream(config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf'));
+          // Sending mail to user with attachement of file using queue
+          const queueData = phpSerialize.serialize({
+            settings: {
+              subject: 'QuezX.com | Acceptance of Terms & Conditions',
+              to: user.dataValues.email_id,
+              bcc: 'agreement@quetzal.in',
+              from: ['notifications@quezx.com', 'QuezX.com'],
+              domain: 'Quezx.com',
+              emailFormat: 'html',
+              template: ['SignupConsultantEmail'],
+              attachments : [
+                {
+                  'terms_and_condition.pdf' : config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf',
+                }
+              ]
+            },
+            vars: {
+              consultantName: user.dataValues.Client.name
+            }
+          });
+          const task = {
+            jobType: 'Email',
+            group: 'low',
+            data: queueData
+          };
+          // Creating entry in queued task Ends here
+          QueuedTask.create(task).catch(err => console.log("error queue email: user signup: " + req.user.id,err, queueData));
+          // Updating user is_active flag and setting it to 1
+          return User.find({
+            where: {
+              id : req.user.id
+            }
+          }).then(function(user){
+            return user.update({
+              is_active: 1
+            })
+          })
         })
-      })
     });
     return res.json(user);
   })
@@ -338,7 +341,7 @@ export function updatePreferences(req, res){
   var minCTC = ctcRange[0].min;
   var maxCTC = ctcRange[ctcRange.length-1].max;
   var consultantSurveyTime = Date.now();
-  var consultantSurvey = 0;
+  var consultantSurvey = 1;
 
   return Client.find( {
     where: {

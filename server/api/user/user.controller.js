@@ -92,14 +92,17 @@ export function me(req, res, next) {
 
       if(user.is_active === 0 ){
         whatBlocked.push({ priority: 0,url:'terms-and-conditions'});
+        is_blocked = true;
       }
 
       if(client.consultant_survey === 0 ){
-        whatBlocked.push({ priority: 1 ,url:'preferences'})
+        whatBlocked.push({ priority: 1 ,url:'preferences'});
+        is_blocked = true;
       }
 
-      if(client.termination_flag === 0 ){
+      if(client.toJSON().termination_flag === 1 ){
         whatBlocked.push({ priority: 2,url:'terminated-message'})
+        is_blocked = true;
       }
       return db.UserTawktoToken.find({
         attributes: ['id','access_token'],
