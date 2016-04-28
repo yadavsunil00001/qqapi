@@ -135,13 +135,13 @@ function sequelizeConsultantSearch(model,whereOptions) {
   };
 };
 
-function sequelizeClientSearch(model,whereOptions) {
-  const where = whereOptions || {}
+function sequelizeClientSearch(model) {
+  const where = {};
   const field =  'name';
   return function seqSearch(req, res) {
     const options = {
-      attributes: ['id', [field, 'name'],'username'],
-      where: whereOptions,
+      attributes: ['id', 'name'],
+      where: where,
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
     };
@@ -234,7 +234,7 @@ function sequelizeClientwiseJobSearch(){
 
       const options = {
         attributes: ['id',[field,'name']],
-        where:{id: userIds},
+        where:{user_id: userIds},
         raw: true,
         limit: Number(req.query.limit) || 10,
         offset: Number(req.query.offset) || 0,
@@ -288,7 +288,7 @@ function applicantStatusSolr(){
     const limit = req.body.limit || 40;
     const fl = req.query.fl || [
         'id', 'name', 'mobile', 'updated_on', 'state_name', 'client_name', 'eng_mgr_name', 'interview_time',
-        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location','interview_time','updated_on'
+        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location','interview_time','updated_on','created_on'
       ].join(',');
 
 
@@ -387,9 +387,10 @@ export function index(req, res) {
         sequelizeSearch(State)(req,res);
         break;
       case 'clients':
-        const where = {group_id:5};
+        //const where = {group_id:5};
         //sequelizeSearch(Client)(req,res);
-        sequelizeClientSearch(User,where)(req,res);
+        //sequelizeClientSearch(User,where)(req,res);
+        sequelizeClientSearch(Client)(req,res);
         break;
       case 'consultants':
         const wheres = {group_id:2};
