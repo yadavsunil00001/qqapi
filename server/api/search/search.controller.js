@@ -10,7 +10,7 @@
 'use strict';
 
 import _ from 'lodash';
-import {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Province,Solr,Client,
+import db, {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Province,Solr,Client,
   State, User, Job,
   STAKEHOLDERS,BUCKETS,Sequelize} from '../../sqldb';
 
@@ -272,7 +272,7 @@ function solrApplicantSearch(){
       .start(offset)
       .rows(500);
 
-    console.log(solrQuery)
+
     Solr.get('select', solrQuery, function solrCallback(err, result) {
       if (err) return handleError(res,500,err);
 
@@ -337,7 +337,7 @@ function applicantStatusSolr(){
 
 // Get job to attach to results
       Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, jobs) {
-        console.log(jobErr)
+
         if (jobErr) return res.status(500).json(err);
         applicants.forEach(function attachJob(applicant, key) {
           applicants[key]._root_ = jobs.response.docs
@@ -351,6 +351,100 @@ function applicantStatusSolr(){
 
   }
 }
+
+
+
+function currentConsultantAllocJobClients() {
+  return function (req, res) {
+    db.JobAllocation.findAll({
+      attributes:['id'],
+      where: {
+        user_id: req.user.id, // consultant_id
+        status:1
+      },
+      include:[{
+        model:db.Job,
+        attributes:['user_id','role'],
+        where:{status:1},
+        include:[{
+          attributes:[],
+          model:db.JobStatus,
+        }]
+      },{
+        model:db.ConsultantResponse,
+        attributes:[],
+        where: {
+          user_id: req.user.id, // consultant_id
+          response_id:1
+        },
+      }]
+    }).then(jobOwners => {
+      var owners = jobOwners.map(function(jobOwner){
+        return jobOwner.Job.user_id
+      })
+
+      return db.Client.findAll({
+        attributes:['id','name'],
+        include:[{
+          model:db.User,
+          attributes:[],
+          where: {
+            id: owners,
+          },
+        }]
+      }).then(clients => {
+        return res.json(clients)
+      })
+    }).catch(err => handleError(res, 500, err))
+  }
+}
+
+function currentConsultantAllocJobsByClient(clientIds) {
+var field ='role';
+  return function (req, res) {
+    return db.User.findAll({
+      where:{
+        client_id:clientIds
+      }
+    }).then(clientUsers => {
+
+      var clientUsersIds = clientUsers.map(user => user.id)
+      return db.JobAllocation.findAll({
+          attributes:['id'],
+          where: {
+            user_id: req.user.id, // consultant_id
+            status:1
+          },
+          include:[{
+            model:db.Job,
+            attributes:['id',[field,'name']],
+            where:{status:1,user_id:clientUsersIds},
+            include:[{
+              attributes:[],
+              model:db.JobStatus,
+            }]
+          },{
+            model:db.ConsultantResponse,
+            attributes:[],
+            where: {
+              user_id: req.user.id, // consultant_id
+              response_id:1
+            },
+          }]
+        }).then(jobAllocations => {
+        var jobs = jobAllocations.map(function(jobAllocation){
+          return jobAllocation.Job
+        })
+
+        return res.json(jobs)
+      }).catch(err => handleError(res, 500, err))
+    })
+
+  }
+}
+
+
+
 
 // Gets a list of SearchsFunc
 export function index(req, res) {
@@ -386,6 +480,9 @@ export function index(req, res) {
       case 'states':
         sequelizeSearch(State)(req,res);
         break;
+      case 'current_consultant_alloc_job_clients':
+        currentConsultantAllocJobClients(Client)(req,res);
+        break;
       case 'clients':
         //const where = {group_id:5};
         //sequelizeSearch(Client)(req,res);
@@ -410,6 +507,9 @@ export function index(req, res) {
         break
       case 'applicantStatusSolr':
         applicantStatusSolr()(req,res)
+        break;
+      case 'current_consultant_alloc_jobs_by_client':
+        currentConsultantAllocJobsByClient(req.query.id)(req,res)
         break;
       default:
         break;

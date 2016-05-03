@@ -8,10 +8,10 @@ export default function(text){
     form: JSON.stringify({ text: text || "Black Message" })
   };
   request.post(options, function(error, response, body){
-    if (!error && response.statusCode == 200) {
+    if (!error ) {
 
     } else {
-      console.log('Error: Slack Notification ', response.statusCode , body);
+      console.log('Error: Slack Notification ', response , body);
     }
   });
 }

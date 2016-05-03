@@ -163,3 +163,83 @@ export function create(req, res) {
       .catch(err => handleError(res,500,err));
   });
 }
+
+// Creates a new Reference in the DB
+export function create(req, res) {
+  Reference.create(req.body)
+    .then(respondWithResult(res, 201))
+    .catch(err => handleErr(res, 500, err));
+}
+
+export function reapply(req, res) {
+  var jobId = req.params.jobId;
+  var applicantId = req.body.applicant_id;
+
+  Applicant.findById(applicantId,{
+    include:[db.Resume,db.Email,db.PhoneNumber,db.Education]
+  })
+
+    .then(function (applicant) {
+      return db.Applicant.alreadyApplied(db, jobId, applicant.Emails[0].email, applicant.PhoneNumbers[0].number)
+        .then(status => {
+          if (status.email === true || status.number === true) {
+            return res.status(409).json({ message: 'Already applied'})
+          }
+          const userId = req.user.id
+          let file = {
+            name: applicant.Resumes[0].path.split('/').pop(),
+            path: config.QDMS_PATH +  applicant.Resumes[0].path
+          };
+
+          const experiancePromise = db.Experience.find({
+            where: {applicant_id: applicant.id},
+            raw: true
+          }).then(experiance => {
+            var experiancePromises = [
+              db.Region.findById(experiance.region_id),
+              db.Employer.findById(experiance.employer_id),
+              db.Designation.findById(experiance.designation_id)
+            ]
+
+            return Promise.all(experiancePromises).then(resolvedPromise => {
+              const region = resolvedPromise[0] || {};
+              const employer = resolvedPromise[1] || {};
+              const designation = resolvedPromise[2] || {};
+              experiance.region = region.region
+              experiance.employer = employer.name
+              experiance.designation = designation.name
+              return experiance
+            })
+          });
+
+          return Promise.all([experiancePromise]).then(prRe => {
+            var experience = prRe[0];
+            let applicantToSave = {
+              name: applicant.name,
+              expected_ctc: applicant.expected_ctc,
+              salary: experience.salary,
+              notice_period: applicant.notice_period,
+              total_exp: applicant.total_exp,
+              number: applicant.PhoneNumbers[0].number,
+              email_id: applicant.Emails[0].email,
+              employer_id: experience.employer_id, // TODO: Table restructure
+              designation_id: experience.designation_id,
+              region_id: experience.region_id,
+              degree_id: applicant.Education[0].degree_id,
+            };
+
+            return Applicant.saveApplicant(db, applicantToSave, file, userId, jobId)
+              .then(function (applicant) {
+                return   res.status(201).json({
+                  message:  'Approved',
+                  id: applicant.id});
+              })
+          })
+
+          })
+          return res.json(applicant)
+          //console.log(region)
+
+        })
+    .catch(err => handleError(res, 500, err));
+}
