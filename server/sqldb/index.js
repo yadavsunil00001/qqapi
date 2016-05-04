@@ -9,6 +9,7 @@ import path from 'path';
 import config from '../config/environment';
 import Sequelize from 'sequelize';
 import solrClient from 'solr-client';
+import Bluebird from 'bluebird';
 import BUCKETS from './../config/buckets';
 import STAKEHOLDERS from './../config/stakeholders';
 
@@ -76,6 +77,9 @@ db.ConsultantResponse = db.sequelizeQuarc.import('../api/consultantResponse/cons
 db.Response = db.sequelizeQuarc.import('../api/response/response.model');
 db.Log = db.sequelizeQuarc.import('../api/log/log.model');
 db.ClientPayment = db.sequelizeQuarc.import('../api/clientPayment/clientPayment.model');
+db.ClientPaymentMap = db.sequelizeQuarc.import('../api/clientPaymentMap/clientPaymentMap.model');
+db.ClientPaymentDesignation = db.sequelizeQuarc.import('../api/clientPaymentDesignation/clientPaymentDesignation.model');
+db.Agreement = db.sequelizeQuarc.import('../api/agreement/agreement.model');
 db.ApplicantPreferenceTime = db.sequelizeQuarc.import('../api/applicantPreferenceTime/applicantPreferenceTime.model');
 db.ApplicantScreening = db.sequelizeQuarc.import('../api/applicantScreening/applicantScreening.model');
 db.ScreeningState = db.sequelizeQuarc.import('../api/screeningState/screeningState.model');
@@ -114,5 +118,7 @@ Object.keys(db).forEach(function model(modelName) {
 
 // Proxy
 db.Welcome = db.Reference;
+
+Bluebird.promisifyAll(Object.getPrototypeOf(db.Solr));
 
 export default db;

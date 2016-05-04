@@ -10,6 +10,7 @@ router.get('/search', controller.search);
 router.get('/allocationStatusNew', controller.allocationStatusNew);
 router.get('/allocationStatusNewCount', controller.allocationStatusNewCount);
 router.get('/:jobId', controller.show);
+router.get('/:jobId/clientPayments', controller.clientPayments);
 router.post('/:jobId/consultantResponse', controller.consultantResponse);
 //router.post('/', controller.create);
 //router.put('/:id', controller.update);

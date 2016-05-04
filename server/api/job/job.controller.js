@@ -437,34 +437,38 @@ export function show(req, res) {
     if (!job.length) return handleError(res,404,new Error('Job not found'));
     if (~fl.indexOf('_root_')) {
       return db.User.findById(job[0].owner_id).then(hr => {
-        console.log("hr",hr.client_id)
         return db.Client.findById(hr.client_id, {
           attributes: clientAttr,
           include: [db.Logo],
         }).then(clientModel => {
-          console.log("finding clientpayments ",clientModel.id)
-          return ClientPayment.findAll({
-            attributes: ['id', 'client_id', 'isFixed'],
-            where: {
-              client_id: clientModel.id
-            },
-            raw: true
-          }).then(clientPayments => {
+          return Promise.all([
+            clientModel.getClientPayments({ attributes: ['isFixed','end_range']}),
+            clientModel.getClientPaymentDesignations({ attributes: ['isFixed','designation']})
+          ]).then(prRe => {
+            var clientPaymentsAll = prRe[0].concat(prRe[1]);
+            var clientPayments = clientPaymentsAll[0];
+
             const client = clientModel.toJSON();
             if (clientPayments) {
-              if (clientPayments.length > 0) {
-                if (clientPayments[0]['isFixed'] == 1) {
-                  client.payment = 'Fixed - Standard';
-                } else if (clientPayments[0]['isFixed'] == 2) {
-                  client.payment = 'Fixed - Customised';
-                } else if (clientPayments[0]['isFixed'] == 3) {
-                  client.payment = '1% EMI - Customised'; //'1% Module, No Replacement - Customised';
-                } else {
-                  client.payment = '1% EMI - Standard';  //'1% Module, No Replacement - Standard';
+                if( clientPayments.end_range !='NA' ) { // from db.ClientPayment
+                  if (clientPayments.isFixed == 1 ) {
+                     client.payment = 'Fixed Module - Standard';
+                  } else  if (clientPayments.isFixed == 2) {
+                     client.payment = 'Fixed Module - Customised';
+                  } else  if (clientPayments.isFixed == 3) {
+                     client.payment = '1% Module, No Replacement - Customised';
+                  } else { // isFixed 0
+                     client.payment = '1% Module, No Replacement - Standard';
+                  }
+                } else if(clientPayments.end_range=='NA'){
+                  if(clientPayments.isFixed == 4){ // from db.ClientPaymentDesignation
+                     client.payment = 'Designation wise Module - Fixed';
+                  } else{
+                     client.payment = 'Designation wise Module - EMI';
+                  }
+                } else{
+                   client.payment = 'NA';
                 }
-              } else {
-                client.payment = '-';
-              }
             }
 
             const logo = new Buffer(client.Logo.logo).toString('base64');
@@ -477,6 +481,15 @@ export function show(req, res) {
       })
     }
   });
+}
+
+export function clientPayments(req, res){
+  db.Job.viewJobData(db,req.params.jobId).then(jobDetails => {
+    //return res.json({jobDetails});
+    return db.ClientPayment.retrieveJobPayment(db,jobDetails).then(function(resultData){
+      return res.json(resultData);
+    })
+  }).catch(err => handleError(res, 500, err))
 }
 
 // Creates a new Job in the DB

@@ -37,7 +37,7 @@ export function index(req, res) {
       'state_name', 'applicant_score', 'created_on'
     ].join(',');
 
-  const rawStates = (req.query.state_id) ? req.query.state_id.split(',') : ['ALL'];
+  const rawStates = (req.query.status) ? req.query.status.split(',') : ['ALL'];
   const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]];
   const states = [];
   rawStates.forEach(function boostStates(state, sIndex) {
@@ -59,19 +59,34 @@ export function index(req, res) {
   //var solrQuery = solr.createQuery().q('({!child of="type_s:job"}owner_id:' + clientId +
 //      ') AND type_s:applicant AND ' + stateParam).fl(fl).sort({_root_: 'DESC', type_s: 'DESC'}).start(start).rows(rows);
 
-  const solrQuery = Solr.createQuery()
-    .q(`state_id:(${states.map(s => s).join(' ')})`)
-    .matchFilter(
-      encodeURIComponent('type_s'),
-      `applicant AND (owner_id:${req.user.id})`
-    )
-    //.q('(owner_id:' + req.user.id +') AND type_s:applicant ')
-    //// {!child of="type_s:job"}
-    //.sort({_root_: 'DESC', type_s: 'DESC'})
-    //.matchFilter('state_id', `(${states.join(' OR ')})`)
-    .fl(fl)
+  var solrQuery;
+  console.log(req.query.q)
+  if(!req.query.q) {
+
+    console.log("not")
+    solrQuery = Solr.createQuery()
+      .q(`state_id:(${states.map(s => s).join(' ')})`)
+      .matchFilter(
+        encodeURIComponent('type_s'),
+        `applicant AND (owner_id:${req.user.id})`
+      )
+      //.q('(owner_id:' + req.user.id +') AND type_s:applicant ')
+      //// {!child of="type_s:job"}
+      //.sort({_root_: 'DESC', type_s: 'DESC'})
+      //.matchFilter('state_id', `(${states.join(' OR ')})`)
+
+  } else {
+    console.log(req.query.q)
+    solrQuery = Solr.createQuery()
+      .q(`{!child of="type_s:job"}type_s:job AND (client_name:*${req.query.q}* OR role:*${req.query.q}* OR type_s:job)`) //${req.query.q}
+      .matchFilter(encodeURIComponent('owner_id'),`${req.user.id} `)
+  }
+
+  solrQuery.fl(fl)
     .start(offset)
     .rows(limit);
+
+
 
   if (req.query.interview_time) {
     solrQuery.rangeFilter([
@@ -82,31 +97,54 @@ export function index(req, res) {
       }
     ]);
   }
+
+  console.log(solrQuery)
+
   Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return res.status(500).json(err);
     var applicants = result.response.docs
     if(!applicants.length) return res.json(applicants)
     if (!~fl.indexOf('_root_')) return res.json(applicants);
 
-    const solrInnerQuery = db.Solr
-      .createQuery()
-      .q(`id:(${(_.uniq(applicants.map(a => a._root_))).join(' OR ')}) AND type_s:job`)
-      .fl(['role', 'id','client_name',])
-      .rows(applicants.length);
+    var unionApplicantsPr
+    if(!req.query.q){
+      unionApplicantsPr =[]
+    } else {
+      var solrApplicantsUnionQuery = Solr.createQuery()
+        .q(`type_s:applicant AND owner_id:${req.user.id} AND (name:*${req.query.q}* OR state_name:*${req.query.q}*)`) //${req.query.q}
 
-    // Get job to attach to results
-    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
-      if(jobErr) return handleError(res,500,job);
-      const jobs = result.response.docs;
-      if(!jobs.length) res.json(result.response.docs)
-      applicants.forEach(function attachJob(applicant, key) {
+      unionApplicantsPr = db.Solr
+        .getAsync('select', solrApplicantsUnionQuery)
+    }
+    Promise.all([unionApplicantsPr]).then(function(prRe){
+      result = prRe[0]
+      if(result.response){
+        console.log(applicants.length)
+        var temp = result.response.docs
+        applicants = temp.concat(applicants)
+        console.log(applicants.length)
+      }
 
-        applicants[key]._root_ = jobs
-          .filter(s => s.id === applicants[key]._root_)[0];
+      const solrInnerQuery = db.Solr
+        .createQuery()
+        .q(`id:(${(_.uniq(applicants.map(a => a._root_))).join(' OR ')}) AND type_s:job`)
+        .fl(['role', 'id','client_name','job_status'])
+        .rows(applicants.length);
+
+      // Get job to attach to results
+      db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
+        if(jobErr) return handleError(res,500,job);
+        const jobs = result.response.docs;
+        if(!jobs.length) res.json(result.response.docs)
+        applicants.forEach(function attachJob(applicant, key) {
+
+          applicants[key]._root_ = jobs
+            .filter(s => s.id === applicants[key]._root_)[0];
+        });
+        //console.log(applicants);
+        res.json(applicants);
       });
-      //console.log(applicants);
-      res.json(applicants);
-    });
+    }).catch(err => handleError(res,500,err));
   });
 }
 

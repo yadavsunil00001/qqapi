@@ -287,6 +287,8 @@ module.exports = function ClientModel(sequelize, DataTypes) {
       },
       associate: function associate(models) {
         Client.hasMany(models.User);
+        Client.hasMany(models.ClientPayment);
+        Client.hasMany(models.ClientPaymentDesignation);
         Client.hasMany(models.ClientPreferredFunction);
         Client.hasMany(models.ClientPreferredIndustry);
         Client.hasMany(models.Follower);

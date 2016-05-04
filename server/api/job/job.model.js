@@ -271,6 +271,7 @@ export default function (sequelize, DataTypes) {
       },
       defaultValue: 0,
     },
+    client_payment_designation_id: DataTypes.INTEGER
   }, {
     tableName: 'jobs',
     timestamps: false,
@@ -369,6 +370,93 @@ export default function (sequelize, DataTypes) {
           },
         });
       },
+      viewJobData(models,id){
+        if(!models) return Promise.reject({code: 500, desc: "viewJobData: arguement models undefined"})
+        if(!id) return Promise.reject({code: 500, desc: "viewJobData: arguement id undefined"})
+        return models.Job.find({
+          where: {id:id},
+          include: [
+            {
+              model: models.JobSkill,
+              attributes: ['id', 'skill_id', 'isRequired'],
+
+              // omitting it can leads to not returning job due to inner join.
+              // Whenever there is INCLUDE.Where its set to true
+              required: false, // (INNER JOIN) True if include.where is set, false otherwise.
+            },
+            {
+              model: models.JobsDegree,
+              attributes: ['id', 'degree_id'],
+            },
+            {
+              model: models.JobsInstitute,
+              attributes: ['id', 'institute_id'],
+            },
+            {
+              model: models.JobsIndustry,
+              attributes: ['id', 'industry_id'],
+            },
+            {
+              model: models.JobsEmployer,
+              attributes: ['id', 'employer_id'],
+            },
+          ],
+        }).then(function(_this){
+          const quantumData = [
+
+            // Handle undefined _this.JobSkills etc.
+            (_this.JobSkills || []).map(s => s.skill_id),
+            (_this.JobsDegrees || []).map(s => s.degree_id),
+            (_this.JobsInstitutes || []).map(s => s.institute_id),
+            (_this.JobsIndustries || []).map(s => s.industry_id),
+            (_this.JobsEmployers || []).map(s => s.employer_id),
+          ];
+
+          const promises = [];
+          ['Skill', 'Degree', 'Institute', 'Industry', 'Employer']
+            .forEach(function getData(model, index) {
+              return promises.push(models[model].findAll({
+                where: {
+                  id: {$in: quantumData[index]},
+                  system_defined: 1,
+                },
+              }));
+            });
+
+          promises.push(
+            models.User.findById(_this.user_id, {
+              attributes: ['id', 'client_id'],
+              include: [models.Client],
+            })
+          );
+
+          promises.push(
+            models.Region.findById(_this.region_id, {
+              attributes: ['id', 'region'],
+            })
+          );
+
+          return Promise.all(promises).then(function getJobData(result) {
+            _this.skills = result[0].map(s => s.name);
+            _this.degrees = result[1].map(s => s.degree);
+            _this.institutes = result[2].map(s => s.name);
+            _this.industries = result[3].map(s => s.name);
+            _this.employers = result[4].map(s => s.name);
+            _this.employers = result[4].map(s => s.name);
+            _this.owner_id = result[5].id;
+            _this.User = result[5]
+            _this.client_name = result[5].Client.name;
+            _this.total_applicants = 0;
+            _this.recruiter_username = result[5].username;
+            _this.job_location = result[6].region;
+            _this.type_s = 'job';
+            _this.job_status = 'Open';
+
+
+            return _this;
+          });
+        })
+      }
     },
 
     instanceMethods: {
