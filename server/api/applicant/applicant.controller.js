@@ -27,6 +27,28 @@ function handleError(res, statusCode, err) {
   res.status(statusCode).send(err);
 }
 
+function wildSearch(collection, keywords) {
+  if (!keywords) {
+    return collection;
+  } else {
+    keywords = keywords.toUpperCase().split(" ");
+    _.each(keywords, function (keyWord) {
+      collection = _.filter(collection, function (item) {
+        for (var key in item) {
+          if (item.hasOwnProperty(key) && !(key.indexOf('$$hashKey') > -1)) {
+            if (typeof item[key] === 'string' && item[key].toUpperCase().indexOf(keyWord) > -1) {
+              return true;
+            }
+          }
+        }
+
+      });
+    });
+
+    return collection;
+  }
+}
+
 // Gets a list of UserJobApplicants
 export function index(req, res) {
   const offset = req.query.offset || 0;
@@ -51,42 +73,24 @@ export function index(req, res) {
       states.push(`${state}^=${bucketLength - sIndex}`);
     }
   });
-  //rawStates.forEach(function normalize(state) {
-  //  if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
-  //
-  //  if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
-  //});
-  //var solrQuery = solr.createQuery().q('({!child of="type_s:job"}owner_id:' + clientId +
-//      ') AND type_s:applicant AND ' + stateParam).fl(fl).sort({_root_: 'DESC', type_s: 'DESC'}).start(start).rows(rows);
 
-  var solrQuery;
-  console.log(req.query.q)
+  var solrQuery = Solr.createQuery()
+    .q(`state_id:(${states.map(s => s).join(' ')})`)
+    .matchFilter(
+      encodeURIComponent('type_s'),
+      `applicant AND (owner_id:${req.user.id})`
+    )
+
   if(!req.query.q) {
-
-    console.log("not")
-    solrQuery = Solr.createQuery()
-      .q(`state_id:(${states.map(s => s).join(' ')})`)
-      .matchFilter(
-        encodeURIComponent('type_s'),
-        `applicant AND (owner_id:${req.user.id})`
-      )
-      //.q('(owner_id:' + req.user.id +') AND type_s:applicant ')
-      //// {!child of="type_s:job"}
-      //.sort({_root_: 'DESC', type_s: 'DESC'})
-      //.matchFilter('state_id', `(${states.join(' OR ')})`)
-
+    solrQuery.start(offset)
+      .rows(limit);
   } else {
-    console.log(req.query.q)
-    solrQuery = Solr.createQuery()
-      .q(`{!child of="type_s:job"}type_s:job AND (client_name:*${req.query.q}* OR role:*${req.query.q}* OR type_s:job)`) //${req.query.q}
-      .matchFilter(encodeURIComponent('owner_id'),`${req.user.id} `)
+    // Todo: Research and correct overall collection search,
+    solrQuery.start(0)
+      .rows(5000);
   }
 
   solrQuery.fl(fl)
-    .start(offset)
-    .rows(limit);
-
-
 
   if (req.query.interview_time) {
     solrQuery.rangeFilter([
@@ -97,54 +101,38 @@ export function index(req, res) {
       }
     ]);
   }
-
-  console.log(solrQuery)
-
   Solr.get('select', solrQuery, function solrCallback(err, result) {
     if (err) return res.status(500).json(err);
     var applicants = result.response.docs
     if(!applicants.length) return res.json(applicants)
     if (!~fl.indexOf('_root_')) return res.json(applicants);
 
-    var unionApplicantsPr
-    if(!req.query.q){
-      unionApplicantsPr =[]
-    } else {
-      var solrApplicantsUnionQuery = Solr.createQuery()
-        .q(`type_s:applicant AND owner_id:${req.user.id} AND (name:*${req.query.q}* OR state_name:*${req.query.q}*)`) //${req.query.q}
+    const solrInnerQuery = db.Solr
+      .createQuery()
+      .q(`id:(${(_.uniq(applicants.map(a => a._root_))).join(' OR ')}) AND type_s:job`)
+      .fl(['role', 'id','client_name','job_status'])
+      .rows(applicants.length);
 
-      unionApplicantsPr = db.Solr
-        .getAsync('select', solrApplicantsUnionQuery)
-    }
-    Promise.all([unionApplicantsPr]).then(function(prRe){
-      result = prRe[0]
-      if(result.response){
-        console.log(applicants.length)
-        var temp = result.response.docs
-        applicants = temp.concat(applicants)
-        console.log(applicants.length)
-      }
-
-      const solrInnerQuery = db.Solr
-        .createQuery()
-        .q(`id:(${(_.uniq(applicants.map(a => a._root_))).join(' OR ')}) AND type_s:job`)
-        .fl(['role', 'id','client_name','job_status'])
-        .rows(applicants.length);
-
-      // Get job to attach to results
-      db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
-        if(jobErr) return handleError(res,500,job);
-        const jobs = result.response.docs;
-        if(!jobs.length) res.json(result.response.docs)
-        applicants.forEach(function attachJob(applicant, key) {
-
-          applicants[key]._root_ = jobs
-            .filter(s => s.id === applicants[key]._root_)[0];
-        });
-        //console.log(applicants);
-        res.json(applicants);
+    // Get job to attach to results
+    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
+      if(jobErr) return handleError(res,500,job);
+      const jobs = result.response.docs;
+      if(!jobs.length) res.json(result.response.docs)
+      applicants.forEach(function attachJob(applicant, key) {
+        applicants[key]._root_ = jobs
+          .filter(s => s.id === applicants[key]._root_)[0];
       });
-    }).catch(err => handleError(res,500,err));
+      //console.log(applicants);
+      if(!!req.query.q){
+        applicants.forEach(function attachJob(applicant, key) {
+          applicants[key].client_name = applicants[key]._root_.client_name
+          applicants[key].role = applicants[key]._root_.role
+
+        });
+        applicants = wildSearch(applicants,req.query.q)
+      }
+      res.json(applicants);
+    });
   });
 }
 
@@ -324,7 +312,7 @@ exports.changeState = function changeState(req, res, next) {
   db.ApplicantState
     .build(req.body)
     .set('user_id', req.user.id)
-    .set('applicant_id', req.params.applicantId)
+    .set('applicant_id', req.params.id)
     .save()
     .then(model => {
       res.status(204).end();
