@@ -291,6 +291,60 @@ export default function (sequelize, DataTypes) {
           }
         });
       },
+
+
+      getFullDetails(db,applicantId){
+        return db.Applicant.findById(applicantId,{include: [ {model: db.PhoneNumber, attributes: ['id','number']},
+          {model: db.Email, attributes: ['id','email']},
+          {model: db.Resume, attributes: ['path','id','contents']},
+          {model: db.Education, attributes: ['id','degree_id', 'institute_id']},
+          {model: db.Job, attributes: ['id','role']},
+          {model: db.JobApplication, attributes: ['id','job_id']},
+
+        ]}).then(applicant => {
+
+          const experiancePromise = db.Experience.find({
+            where: {applicant_id: applicant.id},
+            raw: true
+          }).then(experiance => {
+            var experiancePromises = [
+              db.Region.findById(experiance.region_id),
+              db.Employer.findById(experiance.employer_id),
+              db.Designation.findById(experiance.designation_id)
+            ]
+
+            return Promise.all(experiancePromises).then(resolvedPromise => {
+              const region = resolvedPromise[0] || {};
+              const employer = resolvedPromise[1] || {};
+              const designation = resolvedPromise[2] || {};
+              experiance.region = region.region
+              experiance.employer = employer.name
+              experiance.designation = designation.name
+              return experiance
+            })
+          })
+          /* EXP */
+
+          var promises = [
+            (applicant.Education.length ? db.Degree.findById(applicant.Education[0].degree_id) : []),
+            (applicant.Education.length ? db.Institute.findById(applicant.Education[0].institute_id) : []),
+            experiancePromise,
+
+          ];
+
+          return Promise.all(promises).then(resolvedPromise => {
+            applicant = applicant.toJSON();
+            applicant.Degree = resolvedPromise[0];
+            applicant.Institute = resolvedPromise[1];
+            applicant.Experience = resolvedPromise[2];
+
+            return applicant
+
+          })
+        })
+      },
+
+
       validateEmailId(models, jobId, email) {
         if (!models) return Promise.reject({code: 500, desc: "validateEmailId: models not found"})
         if (!jobId) return Promise.reject({code: 500, desc: "validateEmailId: jobId not found"})
@@ -336,6 +390,31 @@ export default function (sequelize, DataTypes) {
           .then(validationResultArray => {
             return {email: validationResultArray[0], number: validationResultArray[1]}
           })
+      },
+      uploadFile(models,source, folder, currentId, ext, id){
+        var SourcePath = folder + currentId+"."+ext;
+        return fsp.readFile(source).then(function (fileStream) {
+          return mkdirp(folder).then(function () {
+            return fsp.writeFile(SourcePath, fileStream).then(function () {
+              const data = phpSerialize.serialize({
+                command: `${config.QUARC_PATH}app/Console/cake`,
+                params: [
+                  'beautify_file',
+                  '-t', 'a',
+                  '-i', id,
+                ],
+              });
+              models.QueuedTask.create({jobType: 'Execute', group: 'conversion', data}).then(re => {
+                slack("Quarc API: applicant create: "+id + ": Applicant Resume Conversion queued task created" )
+                console.log(id + ": Applicant Resume Conversion queued task created")
+              }).catch(err => {
+                slack("Quarc API: applicant create: "+id + ":  Applicant Resume Conversion queued task creation error" + (err.message ?err.message:""))
+                console.log(id + ": Applicant Resume Conversion queued task creation error: ", err)
+              });
+              return 0
+            });
+          });
+        });
       },
       saveApplicant(models, applicantToSave, file, userId, jobId, stateId) {
         if (!models) return Promise.reject({code: 500, desc: "saveApplicant: models not found"})
