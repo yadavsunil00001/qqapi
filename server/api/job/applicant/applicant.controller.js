@@ -163,21 +163,13 @@ export function create(req, res) {
       .catch(err => handleError(res,500,err));
   });
 }
-
-// Creates a new Reference in the DB
-export function create(req, res) {
-  Reference.create(req.body)
-    .then(respondWithResult(res, 201))
-    .catch(err => handleErr(res, 500, err));
-}
-
 export function reapply(req, res) {
   var jobId = req.params.jobId;
   var applicantId = req.body.applicant_id;
 
   Applicant.findById(applicantId,{
-    include:[db.Resume,db.Email,db.PhoneNumber,db.Education]
-  })
+      include:[db.Resume,db.Email,db.PhoneNumber,db.Education]
+    })
 
     .then(function (applicant) {
       return db.Applicant.alreadyApplied(db, jobId, applicant.Emails[0].email, applicant.PhoneNumbers[0].number)
@@ -236,10 +228,157 @@ export function reapply(req, res) {
               })
           })
 
-          })
-          return res.json(applicant)
-          //console.log(region)
-
         })
+      return res.json(applicant)
+      //console.log(region)
+
+    })
     .catch(err => handleError(res, 500, err));
+}
+export function show(req, res) {
+
+  db.Applicant.getFullDetails(db, req.params.applicantId).then(applicant =>{
+    function getExperienceMonth(input){
+      if(typeof input === 'number') input = input.toString()
+      if(!input) return input
+      var split = (input + "").split(".")
+      if(split.length == 2){
+        var m = split[1];
+        return parseInt(m[0] == "0" ? m[1]:m);
+      } else { return ""}
+    }
+    console.log(_.get(applicant,'expected_ctc'))
+    var expected_ctc_m =[1]
+    var resApplicant = {
+      id: applicant.id,
+      name: applicant.name,
+      email_id: _.get(applicant.Emails[0],'email'),
+      number: _.get(applicant.PhoneNumbers[0],'number'),
+      expected_ctc :  _.get(applicant,'expected_ctc'),
+      employer_id: _.get(applicant.Experience,'employer_id'),
+      designation_id: _.get(applicant.Experience,'designation_id'),
+      degree_id: _.get(applicant.Education[0],'degree_id'),
+      salary: _.get(applicant.Experience,'salary'),
+      notice_period: _.get(applicant,'notice_period'),
+      region_id: _.get(applicant.Experience,'region_id'),
+      total_exp:   _.get(applicant,'total_exp'),
+
+      // Derived Fields
+      region: _.get(applicant.Experience,'region'),
+      designation_name: _.get(applicant.Experience,'designation'),
+      employer_name: _.get(applicant.Experience,'employer'),
+      degree_name: _.get(applicant.Degree,'degree'),
+      total_exp_y: Math.round(_.get(applicant,'total_exp')),
+      total_exp_m: getExperienceMonth(_.get(applicant,'total_exp')),
+        //
+    }
+
+    return res.json(resApplicant)
+  }).catch(err => handleError(res,500,err))
+}
+
+export function update(req,res) {
+  //slack("Quarc API: applicant create: jobId" + req.params.jobId + ", applicant id:" )
+  //// parse a file upload Todo: file upload limit, extension
+  db.Applicant.getFullDetails(db,req.params.applicantId).then(existingApplicant => {
+    var promises = [];
+
+    var reqPr = new Promise(
+      function (resolve, reject) { // (A)
+        var form = new formidable.IncomingForm();
+        form.parse(req,function (err,fields,files) {
+          if(err) return reject(err)
+          return resolve({fields,files})
+        })
+      })
+
+    return reqPr.then(function(applicantData){
+      var files = applicantData.files
+      var fields = applicantData.fields
+
+      let editedApplicant = JSON.parse(fields.payload);
+      if(editedApplicant.id){
+        delete editedApplicant.id
+      }
+
+      var promises = [];
+
+      let applicantId = req.params.applicantId;
+      var file = files.fileUpload;
+      let fileExtension = file.name.split(".").pop(); // Extension
+      console.log("fileExtension",fileExtension)
+      let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+      if (allowedExtType.indexOf(fileExtension.toLowerCase()) === -1) {
+        return res.json({code: "400 Bad Request", message: "File Type Not Allowed"});
+      }
+
+      var resumePr = db.Resume.find({
+        attributes: [
+          'id',
+          'applicant_id',
+          'path'
+        ],
+        where: {
+          applicant_id: applicantId
+        }
+      }).then(resume=> {
+        if(!resume) return  {message:'Resume not found'}
+        let existsingFilename = resume.path.split("/").pop();
+        let newupdateIdArray = existsingFilename.split('.');
+        let newID = parseInt(newupdateIdArray[0]) + 1;
+        const applicantIdLowerRoundOff = (applicantId - (applicantId % 10000)).toString();
+
+        let folder = path.join(config.QDMS_PATH, 'Applicants', applicantIdLowerRoundOff, applicantId.toString()) + "/";
+        var resumePathToUpdateInDB =  folder + newID  + "."+fileExtension
+        return db.Applicant.uploadFile(db, files.fileUpload.path, folder, newID, fileExtension, applicantId).then(converted => {
+          const processApplicantCharactersticksPr = db.Applicant.processApplicantCharactersticks(db, applicantId, req.params.jobId).then(re => {
+            console.log("Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates", applicantId, req.params.jobId)
+          }).catch(err => {
+            console.log("Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates", applicantId, req.params.jobId, err)
+          });
+          return resume.update({path:resumePathToUpdateInDB})
+        });
+      });
+
+
+      promises.push(resumePr)
+
+      promises.push(db.Applicant.findById(existingApplicant.id).then(appl => appl.update(_.pick(editedApplicant,'name','expected_ctc','notice_period','total_exp'))))
+
+      if(!!editedApplicant.email_id && _.get(existingApplicant.Emails[0],'email') !== editedApplicant.email_id ){
+        promises.push(db.Email.findById(_.get(existingApplicant.Emails[0],'id')).then(email => email.update({email:editedApplicant.email_id})))
+      }
+
+      if(!!editedApplicant.number && _.get(existingApplicant.PhoneNumbers[0],'number') !== editedApplicant.number ){
+        promises.push(db.PhoneNumber.findById(_.get(existingApplicant.PhoneNumbers[0],'id')).then(number => number.update({number:editedApplicant.number})))
+      }
+
+      if(!!editedApplicant.degree_id  && _.get(existingApplicant.Education[0],'id') !== editedApplicant.degree_id ){
+        promises.push(db.Education.findById(_.get(existingApplicant.Education[0],'id')).then(education => education.update({degree_id:editedApplicant.degree_id})))
+      }
+
+
+      var experienceToSave = {}
+
+
+      if(!!editedApplicant.salary && _.get(existingApplicant.Experience,'salary') != editedApplicant.salary) experienceToSave.salary = editedApplicant.salary
+      if(!!editedApplicant.region_id && _.get(existingApplicant.Experience,'region_id') != editedApplicant.region_id ) experienceToSave.region_id = editedApplicant.region_id
+      if(!!editedApplicant.employer_id && _.get(existingApplicant.Experience,'employer_id') != editedApplicant.employer_id ) experienceToSave.employer_id = editedApplicant.employer_id
+      if(!!editedApplicant.designation_id && _.get(existingApplicant.Experience,'designation_id') != editedApplicant.designation_id) experienceToSave.designation_id = editedApplicant.designation_id
+
+      if(Object.keys(experienceToSave).length){
+        promises.push(db.Experience.findById(_.get(existingApplicant.Experience,'id'))
+          .then(exp => exp.update(experienceToSave)))
+      }
+
+      return Promise.all(promises).then(prRe => {
+        return res.json(prRe)
+      })
+
+    }).catch(err => handleError(res,500,err))
+
+
+
+
+  }).catch(err => handleError(res,500,err))
 }
