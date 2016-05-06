@@ -278,72 +278,79 @@ export function show(req, res) {
 }
 
 export function update(req,res) {
+
   //slack("Quarc API: applicant create: jobId" + req.params.jobId + ", applicant id:" )
   //// parse a file upload Todo: file upload limit, extension
   db.Applicant.getFullDetails(db,req.params.applicantId).then(existingApplicant => {
     var promises = [];
 
-    var reqPr = new Promise(
-      function (resolve, reject) { // (A)
-        var form = new formidable.IncomingForm();
-        form.parse(req,function (err,fields,files) {
-          if(err) return reject(err)
-          return resolve({fields,files})
+    var reqPr = [];
+    if(-1 == req.get('Content-Type').search('json')) {
+      // Multipart
+      reqPr = new Promise(
+        function (resolve, reject) { // (A)
+          var form = new formidable.IncomingForm();
+          form.parse(req,function (err,fields,files) {
+            if(err) return reject(err)
+            return resolve({body:JSON.parse(fields.payload),files:files})
+          })
         })
-      })
+    } else  if(-1 == req.get('Content-Type').search('multipart')){
+      // application/json
+      reqPr = Promise.resolve({body:req.body})
+    } else {
+      return res.json({})
+    }
 
-    return reqPr.then(function(applicantData){
+    return Promise.all([reqPr]).then(function(bodyPrRe){
+
+      var applicantData  = bodyPrRe[0]
       var files = applicantData.files
-      var fields = applicantData.fields
-
-      let editedApplicant = JSON.parse(fields.payload);
+      let editedApplicant = applicantData.body
       if(editedApplicant.id){
         delete editedApplicant.id
       }
 
-      var promises = [];
-
       let applicantId = req.params.applicantId;
-      var file = files.fileUpload;
-      let fileExtension = file.name.split(".").pop(); // Extension
-      console.log("fileExtension",fileExtension)
-      let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
-      if (allowedExtType.indexOf(fileExtension.toLowerCase()) === -1) {
-        return res.json({code: "400 Bad Request", message: "File Type Not Allowed"});
-      }
-
-      var resumePr = db.Resume.find({
-        attributes: [
-          'id',
-          'applicant_id',
-          'path'
-        ],
-        where: {
-          applicant_id: applicantId
-        }
-      }).then(resume=> {
-        if(!resume) return  {message:'Resume not found'}
-        let existsingFilename = resume.path.split("/").pop();
-        let newupdateIdArray = existsingFilename.split('.');
-        let newID = parseInt(newupdateIdArray[0]) + 1;
-        const applicantIdLowerRoundOff = (applicantId - (applicantId % 10000)).toString();
-
-        let folder = path.join(config.QDMS_PATH, 'Applicants', applicantIdLowerRoundOff, applicantId.toString()) + "/";
-        var resumePathToUpdateInDB =  folder + newID  + "."+fileExtension
-        return db.Applicant.uploadFile(db, files.fileUpload.path, folder, newID, fileExtension, applicantId).then(converted => {
-          const processApplicantCharactersticksPr = db.Applicant.processApplicantCharactersticks(db, applicantId, req.params.jobId).then(re => {
-            console.log("Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates", applicantId, req.params.jobId)
-          }).catch(err => {
-            console.log("Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates", applicantId, req.params.jobId, err)
-          });
-          return resume.update({path:resumePathToUpdateInDB})
-        });
-      });
-
-
-      promises.push(resumePr)
-
+      var promises = [];
       promises.push(db.Applicant.findById(existingApplicant.id).then(appl => appl.update(_.pick(editedApplicant,'name','expected_ctc','notice_period','total_exp'))))
+      if(files){
+        var file = files.fileUpload;
+        let fileExtension = file.name.split(".").pop(); // Extension
+        let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+        if (allowedExtType.indexOf(fileExtension.toLowerCase()) === -1) {
+          return res.json({code: "400 Bad Request", message: "File Type Not Allowed"});
+        }
+
+        var resumePr = db.Resume.find({
+          attributes: [
+            'id',
+            'applicant_id',
+            'path'
+          ],
+          where: {
+            applicant_id: applicantId
+          }
+        }).then(resume=> {
+          if(!resume) return  {message:'Resume not found'}
+          let existsingFilename = resume.path.split("/").pop();
+          let newupdateIdArray = existsingFilename.split('.');
+          let newID = parseInt(newupdateIdArray[0]) + 1;
+          const applicantIdLowerRoundOff = (applicantId - (applicantId % 10000)).toString();
+
+          let folder = path.join(config.QDMS_PATH, 'Applicants', applicantIdLowerRoundOff, applicantId.toString()) + "/";
+          var resumePathToUpdateInDB =  folder + newID  + "."+fileExtension
+          return db.Applicant.uploadFile(db, files.fileUpload.path, folder, newID, fileExtension, applicantId).then(converted => {
+            const processApplicantCharactersticksPr = db.Applicant.processApplicantCharactersticks(db, applicantId, req.params.jobId).then(re => {
+              console.log("Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates", applicantId, req.params.jobId)
+            }).catch(err => {
+              console.log("Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates", applicantId, req.params.jobId, err)
+            });
+            return resume.update({path:resumePathToUpdateInDB})
+          });
+        });
+        promises.push(resumePr)
+      }
 
       if(!!editedApplicant.email_id && _.get(existingApplicant.Emails[0],'email') !== editedApplicant.email_id ){
         promises.push(db.Email.findById(_.get(existingApplicant.Emails[0],'id')).then(email => email.update({email:editedApplicant.email_id})))
@@ -372,13 +379,9 @@ export function update(req,res) {
       }
 
       return Promise.all(promises).then(prRe => {
-        return res.json(prRe)
+        return res.json({id:existingApplicant.id})
       })
 
-    }).catch(err => handleError(res,500,err))
-
-
-
-
+    })
   }).catch(err => handleError(res,500,err))
 }
