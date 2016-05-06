@@ -33,7 +33,14 @@ module.exports = function (grunt) {
       // configurable paths
       client: require('./bower.json').appPath || 'client',
       server: 'server',
-      dist: 'dist'
+      dist: 'dist',
+    },
+    eslint: {
+      options: {
+        configFile: '.eslintrc',
+        //rulePaths: ['conf/rules']
+      },
+      target: ['server/**/*.controller.js', '<%= yeoman.server %>/**/!(*.spec|*.model|*.event|*.integration).js'],
     },
     express: {
       options: {
@@ -694,6 +701,8 @@ module.exports = function (grunt) {
     this.async();
   });
 
+  grunt.registerTask('xlint',['eslint']);
+
   grunt.registerTask('serve', function (target) {
     if (target === 'dist') {
       return grunt.task.run(['build', 'env:all', 'env:prod', 'express:prod', 'wait', 'open', 'express-keepalive']);
@@ -732,9 +741,6 @@ module.exports = function (grunt) {
     grunt.task.run(['serve']);
   });
 
-  grunt.registerTask('test', function(target, option) {
-    return
-  })
 
   grunt.registerTask('test-deprecated', function(target, option) {
     if (target === 'server') {
