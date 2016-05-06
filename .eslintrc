@@ -1,0 +1,16 @@
+{
+
+  "extends": [
+    "airbnb/base"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": { "modules": true }
+  },
+  "rules": {
+    "new-cap": [2, {"capIsNewExceptions": [
+      "express.Router"
+    ]}]
+  }
+}

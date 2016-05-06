@@ -5,7 +5,6 @@
 'use strict';
 
 import express from 'express';
-//import favicon from 'serve-favicon';
 import morgan from 'morgan';
 import compression from 'compression';
 import bodyParser from 'body-parser';
@@ -14,17 +13,16 @@ import cookieParser from 'cookie-parser';
 import errorHandler from 'errorhandler';
 import path from 'path';
 import cors from 'cors';
-import oAuthComponent from  './../components/oauthjs';
+import oAuthComponent from './../components/oauthjs';
 import config from './environment';
-import sqldb from '../sqldb';
 import 'express-zip';
 
-export default function(app) {
-  var env = app.get('env');
+export default function (app) {
+  const env = app.get('env');
 
   app.use(cors());
   app.use(compression());
-  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.urlencoded({extended: false}));
   app.use(bodyParser.json());
   app.use(methodOverride());
   app.use(cookieParser());
@@ -42,13 +40,14 @@ export default function(app) {
   app.all('/oauth/token', app.oauth.grant());
 
   // Todo: Security Risk
-  if ('production' === env) {
+  if (env === 'production') {
     // OAuth Authentication Middleware
     app.use(app.oauth.authorise());
   } else {
     // OAuth Proxy - Set your user id, group_id, client_id
-    app.use(function(req, res, next){
-      req.user = config.USER;
+    app.use(function (req, res, next) {
+      const request = req
+      request.user = config.USER;
       return next();
     });
   }
@@ -58,9 +57,7 @@ export default function(app) {
   app.use('/api/authorise', require('./../api/authorise'));
   app.use(app.oauth.errorHandler());
 
-  if ('production' === env) {
-    //app.use(favicon(path.join(config.root, 'client', 'favicon.ico')));
-    //app.use(express.static(app.get('appPath')));
+  if (env === 'production') {
     app.use(morgan('dev'));
   }
 

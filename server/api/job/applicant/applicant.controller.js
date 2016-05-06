@@ -164,11 +164,36 @@ export function create(req, res) {
   });
 }
 
-// Creates a new Reference in the DB
+// Creates a new Applicant in the DB
 export function create(req, res) {
-  Reference.create(req.body)
-    .then(respondWithResult(res, 201))
-    .catch(err => handleErr(res, 500, err));
+  slack("Quarc API: applicant create: jobId" + req.params.jobId + ", applicant id:" )
+  // parse a file upload Todo: file upload limit, extension
+  var form = new formidable.IncomingForm();
+  form.parse(req, function (err, fields, files) {
+    if(err) return handleError(res,500,err);
+    let applicant = JSON.parse(fields.payload);
+    return Applicant.alreadyApplied(db, req.params.jobId, applicant.email_id, applicant.number)
+      .then(status => {
+        if (status.email === true || status.number === true) {
+          slack("Quarc API: applicant create: jobId" + req.params.jobId + ", applicant name:"+applicant.name+", uploading by:" + req.user.id +", Already candidate uploaded with this Phone or Email")
+          return res.status(409).json(_.extend({
+            code: 409, message: "Already candidate uploaded with this Phone or Email"}, status))
+
+        }
+        var file = files.fileUpload;
+        let fileExtension = file.name.split(".").pop(); // Extension
+        let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+
+        if (allowedExtType.indexOf(fileExtension.toLowerCase()) === -1) {
+          slack("Quarc API: applicant create: jobId" + req.params.jobId + ", applicant name:"+applicant.name+", uploading by:" + req.user.id +", File Type Not Allowed")
+          return res.status(400).json({code: "400 Bad Request", message: "File Type Not Allowed"});
+        }
+        slack("Quarc API: applicant create: jobId" + req.params.jobId + ", applicant name:"+applicant.name+", uploading by:" + req.user.id )
+        return Applicant.saveApplicant(db,applicant, file, req.user.id, req.params.jobId)
+          .then(savedApplicant => res.json( _.pick(savedApplicant,['id'])))
+      })
+      .catch(err => handleError(res,500,err));
+  });
 }
 
 export function reapply(req, res) {

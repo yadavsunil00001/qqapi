@@ -15,7 +15,7 @@ import db, {Degree,Region,Institute,Industry,Employer,Skill,Func,Designation,Pro
   STAKEHOLDERS,BUCKETS,Sequelize} from '../../sqldb';
 
 function handleError(res, statusCode, err) {
-  console.log("Error:500",err)
+  console.log("Error:500", err)
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -31,7 +31,7 @@ function sequelizeSearch(model, fieldName) {
       offset: Number(req.query.offset) || 0,
     };
 
-    options.where[field] = { $like: `${req.query.q}%` };
+    options.where[field] = {$like: `${req.query.q}%`};
 
     // some tables may not have system_defined field
     if (model.attributes.system_defined) options.where.system_defined = 1;
@@ -40,7 +40,7 @@ function sequelizeSearch(model, fieldName) {
       .then(function searchDone(searchResults) {
         res.json(searchResults);
       })
-      .catch(err => handleError(res,500,err));
+      .catch(err => handleError(res, 500, err));
   };
 };
 
@@ -48,7 +48,7 @@ function sequelizeSearchRegion(model, fieldName) {
   const field = fieldName || 'name';
   return function seqSearch(req, res) {
     const options = {
-      attributes: ['id','region', [Sequelize.col('Province.name'),'province'],[Sequelize.fn('CONCAT_WS', ", ", Sequelize.col('region'), Sequelize.col('Province.name')), 'alias']],//,'Province.name'
+      attributes: ['id', 'region', [Sequelize.col('Province.name'), 'province'], [Sequelize.fn('CONCAT_WS', ", ", Sequelize.col('region'), Sequelize.col('Province.name')), 'alias']],//,'Province.name'
       where: {},
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
@@ -58,7 +58,7 @@ function sequelizeSearchRegion(model, fieldName) {
       }
     };
 
-    options.where[field] = { $like: `${req.query.q}%` };
+    options.where[field] = {$like: `${req.query.q}%`};
 
     // some tables may not have system_defined field
     if (model.attributes.verified) options.where.verified = 2;
@@ -68,52 +68,52 @@ function sequelizeSearchRegion(model, fieldName) {
         // Todo: region attribute to be changed to name
         res.json(searchResults);
       })
-      .catch(err => handleError(res,500,err));
+      .catch(err => handleError(res, 500, err));
   };
 };
 
-function applicantSearch(){
-  return function(req,res){
+function applicantSearch() {
+  return function (req, res) {
 
     var solrQueryPart = "";
-    switch(req.user.group_id){
+    switch (req.user.group_id) {
       case BUCKETS.GROUPS['CONSULTANTS']:
         solrQueryPart = `owner_id:${req.user.id} AND `
         break;
       case BUCKETS.GROUPS['INTERNAL_TEAM']:
-            // nothing
-            break;
+        // nothing
+        break;
       default:
-            break;
+        break;
     }
     // @todo more refactor Repeated Code
-    if(!req.query.q) return res.json([])
+    if (!req.query.q) return res.json([])
     const offset = req.query.offset || 0;
     const limit = (req.query.limit > 20) ? 20 : req.query.limit || 10;
     const fl = req.query.fl || [
         'id', 'name', 'exp_designation', 'edu_degree', 'exp_salary',
         'exp_employer', 'total_exp', 'exp_location', 'state_id',
-        'state_name', 'applicant_score', 'created_on', '_root_','email','mobile'
+        'state_name', 'applicant_score', 'created_on', '_root_', 'email', 'mobile'
       ].join(',');
 
     const solrQuery = Solr.createQuery()
       // Todo: Solr Mobile Number field currently not allow partial search
-      .q(`${solrQueryPart}type_s:applicant AND ( name:*${req.query.q}*  ${!isNaN(req.query.q) ? 'OR mobile:'+req.query.q:''}  OR email:*${req.query.q}*  )`)
+      .q(`${solrQueryPart}type_s:applicant AND ( name:*${req.query.q}*  ${!isNaN(req.query.q) ? 'OR mobile:' + req.query.q : ''}  OR email:*${req.query.q}*  )`)
       .fl(fl)
       .start(offset)
       .rows(limit);
 
 
     Solr.get('select', solrQuery, function solrCallback(err, result) {
-      if (err) return handleError(res,400,err);
+      if (err) return handleError(res, 400, err);
       return res.json(result.response.docs);
     });
   }
 }
 
-function sequelizeConsultantSearch(model,whereOptions) {
+function sequelizeConsultantSearch(model, whereOptions) {
   const where = whereOptions || {}
-  const field =  'name';
+  const field = 'name';
   return function seqSearch(req, res) {
     const options = {
       attributes: ['id', [field, 'name']],
@@ -122,7 +122,7 @@ function sequelizeConsultantSearch(model,whereOptions) {
       offset: Number(req.query.offset) || 0,
     };
 
-    options.where[field] = { $like: `${req.query.q}%` };
+    options.where[field] = {$like: `${req.query.q}%`};
 
     // some tables may not have system_defined field
     if (model.attributes.system_defined) options.where.system_defined = 1;
@@ -131,13 +131,13 @@ function sequelizeConsultantSearch(model,whereOptions) {
       .then(function searchDone(searchResults) {
         res.json(searchResults);
       })
-      .catch(err => handleError(res,500,err));
+      .catch(err => handleError(res, 500, err));
   };
 };
 
 function sequelizeClientSearch(model) {
   const where = {};
-  const field =  'name';
+  const field = 'name';
   return function seqSearch(req, res) {
     const options = {
       attributes: ['id', 'name'],
@@ -146,7 +146,7 @@ function sequelizeClientSearch(model) {
       offset: Number(req.query.offset) || 0,
     };
 
-    options.where[field] = { $like: `${req.query.q}%` };
+    options.where[field] = {$like: `${req.query.q}%`};
 
     // some tables may not have system_defined field
     if (model.attributes.system_defined) options.where.system_defined = 1;
@@ -155,140 +155,138 @@ function sequelizeClientSearch(model) {
       .then(function searchDone(searchResults) {
         res.json(searchResults);
       })
-      .catch(err => handleError(res,500,err));
+      .catch(err => handleError(res, 500, err));
   };
 };
 
-function sequelizeClientEMSearch(){
-  const field =  'name';
-  return function(req,res){
+function sequelizeClientEMSearch() {
+  const field = 'name';
+  return function (req, res) {
     return Client.findAll({
-      where:{
-        group_id:5,
+      where: {
+        group_id: 5,
       },
-      attributes: ['id','eng_mgr_id'],
-      raw:true
+      attributes: ['id', 'eng_mgr_id'],
+      raw: true
     }).then(clients => {
-      const engMgrIds = _.map(clients,'eng_mgr_id');
+      const engMgrIds = _.map(clients, 'eng_mgr_id');
 
       const options = {
-        attributes: ['id',[field,'name']],
-        where:{id: engMgrIds},
+        attributes: ['id', [field, 'name']],
+        where: {id: engMgrIds},
         raw: true,
         limit: Number(req.query.limit) || 10,
         offset: Number(req.query.offset) || 0,
       };
 
-      options.where[field] = { $like: `${req.query.q}%` };
+      options.where[field] = {$like: `${req.query.q}%`};
 
       return User.findAll(options).then(users => {
         return res.json(users)
       })
 
-    }).catch(err => handleError(res,500, err))
+    }).catch(err => handleError(res, 500, err))
   }
 }
 
-function sequelizeConsultantEMSearch(){
-  const field =  'name';
-  return function(req,res){
+function sequelizeConsultantEMSearch() {
+  const field = 'name';
+  return function (req, res) {
     return Client.findAll({
-      where:{
-        group_id:2,
+      where: {
+        group_id: 2,
       },
-      attributes: ['id','eng_mgr_id'],
-      raw:true
+      attributes: ['id', 'eng_mgr_id'],
+      raw: true
     }).then(clients => {
-      const engMgrIds = _.map(clients,'eng_mgr_id');
+      const engMgrIds = _.map(clients, 'eng_mgr_id');
 
       const options = {
-        attributes: ['id',[field,'name']],
-        where:{id: engMgrIds},
+        attributes: ['id', [field, 'name']],
+        where: {id: engMgrIds},
         raw: true,
         limit: Number(req.query.limit) || 10,
         offset: Number(req.query.offset) || 0,
       };
 
-      options.where[field] = { $like: `${req.query.q}%` };
+      options.where[field] = {$like: `${req.query.q}%`};
 
       return User.findAll(options).then(users => {
 
         return res.json(users)
       })
 
-    }).catch(err => handleError(res,500, err))
+    }).catch(err => handleError(res, 500, err))
   }
 }
 
-function sequelizeClientwiseJobSearch(){
-  const field =  'role';
-  return function(req,res){
+function sequelizeClientwiseJobSearch() {
+  const field = 'role';
+  return function (req, res) {
     return User.findAll({
-      where:{
-        client_id:req.query.ids ,
+      where: {
+        client_id: req.query.ids,
       },
       attributes: ['id'],
-      raw:true
+      raw: true
     }).then(users => {
-      const userIds = _.map(users,'id');
+      const userIds = _.map(users, 'id');
 
       const options = {
-        attributes: ['id',[field,'name']],
-        where:{user_id: userIds},
+        attributes: ['id', [field, 'name']],
+        where: {user_id: userIds},
         raw: true,
         limit: Number(req.query.limit) || 10,
         offset: Number(req.query.offset) || 0,
       };
 
-      if(req.query.q) options.where[field] = { $like: `${req.query.q}%` };
+      if (req.query.q) options.where[field] = {$like: `${req.query.q}%`};
 
       return Job.findAll(options).then(jobs => {
 
         return res.json(jobs)
       })
 
-    }).catch(err => handleError(res,500, err))
+    }).catch(err => handleError(res, 500, err))
   }
 }
 
-function solrApplicantSearch(){
+function solrApplicantSearch() {
 //console.log("hii");
-  return function(req,res){
+  return function (req, res) {
     const offset = req.query.offset || 0;
     const limit = (req.query.limit > 20) ? 20 : req.query.limit || 1;
     const fl = req.query.fl || [
-        'eng_mgr_name','applicant_score','state_name'
+        'eng_mgr_name', 'applicant_score', 'state_name'
         //'id', 'owner_id','name', 'exp_designation', 'edu_degree', 'exp_salary','client_name',
         //'exp_employer', 'total_exp', 'exp_location', 'state_id',
         //'state_name', 'applicant_score', 'created_on'
       ].join(',');
 
 
-
-
     const solrQuery = Solr.createQuery()
-      .q('state_name:("' + req.query.status.split(',').join('" "') +'") AND client_name:("' + req.query.consultants.split(',').join('" "') +'") AND eng_mgr_name:("' + req.query.consultantems.split(',').join('" "') +'") AND exp_location:("' + req.query.location.split(',').join('" "') +'") AND applicant_score:{'+req.query.cvscoreFrom+' TO '+req.query.cvscoreTo+'} AND  type_s:applicant')
+      .q('state_name:("' + req.query.status.split(',').join('" "') + '") AND client_name:("' + req.query.consultants.split(',').join('" "') + '") AND eng_mgr_name:("' + req.query.consultantems.split(',').join('" "') + '") AND exp_location:("' + req.query.location.split(',').join('" "') + '") AND applicant_score:{' + req.query.cvscoreFrom + ' TO ' + req.query.cvscoreTo + '} AND  type_s:applicant')
       .fl(fl)
       .start(offset)
       .rows(500);
 
 
     Solr.get('select', solrQuery, function solrCallback(err, result) {
-      if (err) return handleError(res,500,err);
+      if (err) return handleError(res, 500, err);
 
-      console.log(_.uniq(_.map(result.response.docs,'eng_mgr_name')).join())
+      console.log(_.uniq(_.map(result.response.docs, 'eng_mgr_name')).join())
       return res.json(result.response.docs);
     });
   }
 }
 
-function applicantStatusSolr(){
-  return function(req,res){
-    const offset =  req.body.offset || 0;
+function applicantStatusSolr() {
+  return function (req, res) {
+    const offset = req.body.offset || 0;
     const limit = req.body.limit || 40;
     const fl = req.query.fl || [
         'id', 'name', 'mobile', 'updated_on', 'state_name', 'client_name', 'eng_mgr_name', 'interview_time',
-        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment','exp_location','interview_time','updated_on','created_on'
+        '_root_', 'applicant_score', 'consultant_username', 'mobile', 'latest_comment', 'exp_location', 'interview_time', 'updated_on', 'created_on'
       ].join(',');
 
 
@@ -299,13 +297,13 @@ function applicantStatusSolr(){
       .rows(limit)
 
       //.matchFilter({state_id:("13")})
-      .facet({'field':'state_id'})
-      .facet({'field':'consultant_username_sf'})
-      .facet({'field':'client_name_sf'})
-      .facet({'field':'eng_mgr_name_sf'})
-      .facet({'field':'exp_location'})
+      .facet({'field': 'state_id'})
+      .facet({'field': 'consultant_username_sf'})
+      .facet({'field': 'client_name_sf'})
+      .facet({'field': 'eng_mgr_name_sf'})
+      .facet({'field': 'exp_location'})
 
-    if(req.body.params) {
+    if (req.body.params) {
 
       if (req.body.params.fq != "" && typeof req.body.params.fq !== "undefined") {
         solrQuery.parameters.push(encodeURI("fq=" + req.body.params.fq))
@@ -320,19 +318,19 @@ function applicantStatusSolr(){
     //console.log(solrQuery)
 
     Solr.get('select', solrQuery, function solrCallback(err, result) {
-      if (err) return handleError(res,500,err);
+      if (err) return handleError(res, 500, err);
       var applicants = result.response.docs
-      if(!applicants.length) return res.status(204).json([])
+      if (!applicants.length) return res.status(204).json([])
       const solrInnerQuery = Solr
         .createQuery()
         .q(`id:(${applicants.map(a => a._root_).join(' OR ')}) AND type_s:job`)
         .fl([
-          'id', 'role', 'client_name', 'eng_mgr_name', 'recruiter_username', 'consultant_score','screening_score','client_score','job_status'
+          'id', 'role', 'client_name', 'eng_mgr_name', 'recruiter_username', 'consultant_score', 'screening_score', 'client_score', 'job_status'
         ])
         .rows(applicants.length)
-        .facet({'field':'client_name'})
-        .facet({'field':'eng_mgr_name_sf'})
-        .facet({'field':'role'})
+        .facet({'field': 'client_name'})
+        .facet({'field': 'eng_mgr_name_sf'})
+        .facet({'field': 'role'})
 
 
 // Get job to attach to results
@@ -352,42 +350,40 @@ function applicantStatusSolr(){
   }
 }
 
-
-
 function currentConsultantAllocJobClients() {
   return function (req, res) {
     db.JobAllocation.findAll({
-      attributes:['id'],
+      attributes: ['id'],
       where: {
         user_id: req.user.id, // consultant_id
-        status:1
+        status: 1
       },
-      include:[{
-        model:db.Job,
-        attributes:['user_id','role'],
-        where:{status:1},
-        include:[{
-          attributes:[],
-          model:db.JobStatus,
+      include: [{
+        model: db.Job,
+        attributes: ['user_id', 'role'],
+        where: {status: 1},
+        include: [{
+          attributes: [],
+          model: db.JobStatus,
         }]
-      },{
-        model:db.ConsultantResponse,
-        attributes:[],
+      }, {
+        model: db.ConsultantResponse,
+        attributes: [],
         where: {
           user_id: req.user.id, // consultant_id
-          response_id:1
+          response_id: 1
         },
       }]
     }).then(jobOwners => {
-      var owners = jobOwners.map(function(jobOwner){
+      var owners = jobOwners.map(function (jobOwner) {
         return jobOwner.Job.user_id
       })
 
       return db.Client.findAll({
-        attributes:['id','name'],
-        include:[{
-          model:db.User,
-          attributes:[],
+        attributes: ['id', 'name'],
+        include: [{
+          model: db.User,
+          attributes: [],
           where: {
             id: owners,
           },
@@ -400,39 +396,39 @@ function currentConsultantAllocJobClients() {
 }
 
 function currentConsultantAllocJobsByClient(clientIds) {
-var field ='role';
+  var field = 'role';
   return function (req, res) {
     return db.User.findAll({
-      where:{
-        client_id:clientIds
+      where: {
+        client_id: clientIds
       }
     }).then(clientUsers => {
 
       var clientUsersIds = clientUsers.map(user => user.id)
       return db.JobAllocation.findAll({
-          attributes:['id'],
+        attributes: ['id'],
+        where: {
+          user_id: req.user.id, // consultant_id
+          status: 1
+        },
+        include: [{
+          model: db.Job,
+          attributes: ['id', [field, 'name']],
+          where: {status: 1, user_id: clientUsersIds},
+          include: [{
+            attributes: [],
+            model: db.JobStatus,
+          }]
+        }, {
+          model: db.ConsultantResponse,
+          attributes: [],
           where: {
             user_id: req.user.id, // consultant_id
-            status:1
+            response_id: 1
           },
-          include:[{
-            model:db.Job,
-            attributes:['id',[field,'name']],
-            where:{status:1,user_id:clientUsersIds},
-            include:[{
-              attributes:[],
-              model:db.JobStatus,
-            }]
-          },{
-            model:db.ConsultantResponse,
-            attributes:[],
-            where: {
-              user_id: req.user.id, // consultant_id
-              response_id:1
-            },
-          }]
-        }).then(jobAllocations => {
-        var jobs = jobAllocations.map(function(jobAllocation){
+        }]
+      }).then(jobAllocations => {
+        var jobs = jobAllocations.map(function (jobAllocation) {
           return jobAllocation.Job
         })
 
@@ -444,72 +440,70 @@ var field ='role';
 }
 
 
-
-
 // Gets a list of SearchsFunc
 export function index(req, res) {
-  if(req.query.type){
-    switch(req.query.type){
+  if (req.query.type) {
+    switch (req.query.type) {
       case 'applicants':
-        applicantSearch()(req,res)
+        applicantSearch()(req, res)
         break;
       case 'degrees':
-        sequelizeSearch(Degree, 'degree')(req,res)
+        sequelizeSearch(Degree, 'degree')(req, res)
         break;
       case 'regions':
-        sequelizeSearchRegion(Region, 'region')(req,res)
+        sequelizeSearchRegion(Region, 'region')(req, res)
         break;
       case 'institutes':
-        sequelizeSearch(Institute)(req,res)
+        sequelizeSearch(Institute)(req, res)
         break;
       case 'industries':
-        sequelizeSearch(Industry)(req,res)
+        sequelizeSearch(Industry)(req, res)
         break;
       case 'employers':
-        sequelizeSearch(Employer)(req,res)
+        sequelizeSearch(Employer)(req, res)
         break;
       case 'skills':
-        sequelizeSearch(Skill)(req,res)
+        sequelizeSearch(Skill)(req, res)
         break;
       case 'funcs':
-        sequelizeSearch(Func)(req,res)
+        sequelizeSearch(Func)(req, res)
         break;
       case 'designations':
-        sequelizeSearch(Designation)(req,res)
+        sequelizeSearch(Designation)(req, res)
         break;
       case 'states':
-        sequelizeSearch(State)(req,res);
+        sequelizeSearch(State)(req, res);
         break;
       case 'current_consultant_alloc_job_clients':
-        currentConsultantAllocJobClients(Client)(req,res);
+        currentConsultantAllocJobClients(Client)(req, res);
         break;
       case 'clients':
         //const where = {group_id:5};
         //sequelizeSearch(Client)(req,res);
         //sequelizeClientSearch(User,where)(req,res);
-        sequelizeClientSearch(Client)(req,res);
+        sequelizeClientSearch(Client)(req, res);
         break;
       case 'consultants':
-        const wheres = {group_id:2};
-        sequelizeConsultantSearch(User,wheres)(req,res);
+        const wheres = {group_id: 2};
+        sequelizeConsultantSearch(User, wheres)(req, res);
         break;
       case 'client-eng-mgrs':
-        sequelizeClientEMSearch()(req,res);
+        sequelizeClientEMSearch()(req, res);
         break;
       case 'consultant-eng-mgrs':
-        sequelizeConsultantEMSearch()(req,res);
+        sequelizeConsultantEMSearch()(req, res);
         break
       case 'jobs':
-        sequelizeClientwiseJobSearch(Job)(req,res);
+        sequelizeClientwiseJobSearch(Job)(req, res);
         break
       case 'advanced':
-        solrApplicantSearch()(req,res);
+        solrApplicantSearch()(req, res);
         break
       case 'applicantStatusSolr':
-        applicantStatusSolr()(req,res)
+        applicantStatusSolr()(req, res)
         break;
       case 'current_consultant_alloc_jobs_by_client':
-        currentConsultantAllocJobsByClient(req.query.id)(req,res)
+        currentConsultantAllocJobsByClient(req.query.id)(req, res)
         break;
       default:
         break;
