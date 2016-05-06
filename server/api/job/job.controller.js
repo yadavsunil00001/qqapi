@@ -215,7 +215,7 @@ export function allocationStatusNew(req, res) {
     HIDDEN:[2], // Proxy for HOLD
     HOLD:[2],
     REJECTED:[3],
-    ALL:[0,1,2,3]
+    ALL: [0, 1, 2, 3],
   };
 
   const states = [];
