@@ -1,4 +1,3 @@
-'use strict';
 
 module.exports = function ApplicantDownloadModel(sequelize, DataTypes) {
   const ApplicantDownload = sequelize.define('ApplicantDownload', {
@@ -33,7 +32,7 @@ module.exports = function ApplicantDownloadModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ApplicantDownload.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

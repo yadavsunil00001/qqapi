@@ -1,4 +1,4 @@
-'use strict';
+
 
 var express = require('express');
 var controller = require('./experience.controller');

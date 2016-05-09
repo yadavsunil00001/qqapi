@@ -2,7 +2,7 @@
  * ApplicantState model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantState = require('../../sqldb').ApplicantState;

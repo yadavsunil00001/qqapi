@@ -7,7 +7,7 @@
  * DELETE  /api/partners/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Partner } from '../../sqldb';

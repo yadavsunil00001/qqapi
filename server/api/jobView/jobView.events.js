@@ -2,7 +2,7 @@
  * JobView model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobView = require('../../sqldb').JobView;

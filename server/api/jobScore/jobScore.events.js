@@ -2,7 +2,7 @@
  * JobScore model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobScore = require('../../sqldb').JobScore;

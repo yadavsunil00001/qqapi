@@ -2,7 +2,7 @@
  * ConsultantResponse model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ConsultantResponse = require('../../sqldb').ConsultantResponse;

@@ -1,4 +1,4 @@
-'use strict';
+
 module.exports = function JobScoreModel(sequelize, DataTypes) {
   const JobScore = sequelize.define('JobScore', {
     id: {
@@ -113,7 +113,7 @@ module.exports = function JobScoreModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobScore.hasMany(models.Job);
       },
     },

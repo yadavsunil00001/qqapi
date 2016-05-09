@@ -2,7 +2,7 @@
  * Logo model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Logo = require('../../sqldb').Logo;

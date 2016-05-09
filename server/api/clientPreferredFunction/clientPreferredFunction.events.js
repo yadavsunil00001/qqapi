@@ -2,7 +2,7 @@
  * ClientPreferredFunction model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ClientPreferredFunction = require('../../sqldb').ClientPreferredFunction;

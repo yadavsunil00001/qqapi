@@ -7,7 +7,7 @@
  * DELETE  /api/clientPaymentDesignations/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ClientPaymentDesignation } from '../../sqldb';

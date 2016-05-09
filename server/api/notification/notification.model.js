@@ -82,7 +82,7 @@ module.exports = function NotificationModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Notification.belongsTo(models.User, {
           foreignKey: 'user_id',
         });

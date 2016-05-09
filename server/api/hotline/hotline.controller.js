@@ -7,7 +7,7 @@
  * DELETE  /api/hotlines/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Hotline } from '../../sqldb';

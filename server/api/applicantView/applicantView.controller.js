@@ -7,7 +7,7 @@
  * DELETE  /api/applicantViews/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ApplicantView } from '../../sqldb';

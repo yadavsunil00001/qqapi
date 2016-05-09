@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ResumeModel(sequelize, DataTypes) {
   const Resume = sequelize.define('Resume', {
@@ -57,7 +57,7 @@ module.exports = function ResumeModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Resume.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function PaymentMethodModel(sequelize, DataTypes) {
   const PaymentMethod = sequelize.define('PaymentMethod', {
@@ -33,7 +33,7 @@ module.exports = function PaymentMethodModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         PaymentMethod.hasMany(models.Client);
       },
     },

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function FollowerModel(sequelize, DataTypes) {
   const Follower = sequelize.define('Follower', {
@@ -67,7 +67,7 @@ module.exports = function FollowerModel(sequelize, DataTypes) {
       },
 
       classMethods: {
-        associate: function associate(models) {
+        associate(models) {
           Follower.belongsTo(models.User, {
             schema: 'gloryque_quantum',
             foreignKey: 'user_id',

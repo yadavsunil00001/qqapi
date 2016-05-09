@@ -7,7 +7,7 @@
  * DELETE  /api/industries/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Industry } from '../../sqldb';

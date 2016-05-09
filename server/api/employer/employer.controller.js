@@ -7,7 +7,7 @@
  * DELETE  /api/employers/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Employer } from '../../sqldb';

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ItemScopeModel(sequelize, DataTypes) {
   const ItemScope = sequelize.define('ItemScope', {

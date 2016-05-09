@@ -1,4 +1,3 @@
-'use strict';
 
 module.exports = function ApplicantScoreLogModel(sequelize, DataTypes) {
   const ApplicantScoreLog = sequelize.define('ApplicantScoreLog', {
@@ -33,7 +32,7 @@ module.exports = function ApplicantScoreLogModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ApplicantScoreLog.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

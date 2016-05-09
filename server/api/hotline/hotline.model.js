@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function HotlineModel(sequelize, DataTypes) {
   const Hotline = sequelize.define('Hotline', {

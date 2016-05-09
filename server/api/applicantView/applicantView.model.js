@@ -1,4 +1,3 @@
-'use strict';
 
 module.exports = function ApplicantViewModel(sequelize, DataTypes) {
   const ApplicantView = sequelize.define('ApplicantView', {
@@ -32,7 +31,7 @@ module.exports = function ApplicantViewModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ApplicantView.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

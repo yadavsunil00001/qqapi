@@ -1,4 +1,3 @@
-'use strict';
 
 export default function (sequelize, DataTypes) {
   const Comment = sequelize.define('Comment', {
@@ -71,7 +70,7 @@ export default function (sequelize, DataTypes) {
     },
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Comment.belongsTo(models.User, {
           foreignKey: 'user_id',
         });

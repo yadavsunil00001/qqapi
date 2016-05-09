@@ -2,7 +2,7 @@
  * AuthCode model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var AuthCode = require('../../sqldb').AuthCode;

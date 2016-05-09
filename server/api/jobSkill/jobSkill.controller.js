@@ -7,7 +7,7 @@
  * DELETE  /api/jobSkills/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobSkill } from '../../sqldb';

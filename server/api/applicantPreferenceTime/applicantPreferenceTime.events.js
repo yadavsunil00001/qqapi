@@ -2,7 +2,7 @@
  * ApplicantPreferenceTime model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantPreferenceTime = require('../../sqldb').ApplicantPreferenceTime;

@@ -1,8 +1,7 @@
-'use strict';
-const _ = require('lodash');
+
+import _ from 'lodash';
 
 export default function (sequelize, DataTypes) {
-
   const Job = sequelize.define('Job', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -278,7 +277,7 @@ export default function (sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Job.belongsTo(models.User, {
           foreignKey: 'user_id',
         });
@@ -371,10 +370,12 @@ export default function (sequelize, DataTypes) {
         });
       },
       viewJobData(models, id) {
-        if (!models) return Promise.reject({ code: 500, desc: 'viewJobData: arguement models undefined' });
-        if (!id) return Promise.reject({ code: 500, desc: 'viewJobData: arguement id undefined' });
+        if (!models) {
+          return Promise.reject({ desc: 'viewJobData: arguement models undefined' });
+        }
+        if (!id) return Promise.reject({ desc: 'viewJobData: arguement id undefined' });
         return models.Job.find({
-          where: { id:id },
+          where: { id },
           include: [
             {
               model: models.JobSkill,
@@ -401,7 +402,8 @@ export default function (sequelize, DataTypes) {
               attributes: ['id', 'employer_id'],
             },
           ],
-        }).then(function (_this) {
+        }).then(_that => {
+          const _this = _that;
           const quantumData = [
 
             // Handle undefined _this.JobSkills etc.
@@ -414,14 +416,12 @@ export default function (sequelize, DataTypes) {
 
           const promises = [];
           ['Skill', 'Degree', 'Institute', 'Industry', 'Employer']
-            .forEach(function getData(model, index) {
-              return promises.push(models[model].findAll({
-                where: {
-                  id: { $in: quantumData[index] },
-                  system_defined: 1,
-                },
-              }));
-            });
+            .forEach((model, index) => promises.push(models[model].findAll({
+              where: {
+                id: { $in: quantumData[index] },
+                system_defined: 1,
+              },
+            })));
 
           promises.push(
             models.User.findById(_this.user_id, {
@@ -436,7 +436,7 @@ export default function (sequelize, DataTypes) {
             })
           );
 
-          return Promise.all(promises).then(function getJobData(result) {
+          return Promise.all(promises).then((result) => {
             _this.skills = result[0].map(s => s.name);
             _this.degrees = result[1].map(s => s.degree);
             _this.institutes = result[2].map(s => s.name);
@@ -451,7 +451,6 @@ export default function (sequelize, DataTypes) {
             _this.job_location = result[6].region;
             _this.type_s = 'job';
             _this.job_status = 'Open';
-
 
             return _this;
           });
@@ -474,7 +473,7 @@ export default function (sequelize, DataTypes) {
 
         const promises = [];
         ['Skill', 'Degree', 'Institute', 'Industry', 'Employer']
-          .forEach(function getData(model, index) {
+          .forEach((model, index) => {
             promises.push(models[model].findAll({
               where: {
                 id: { $in: quantumData[index] },
@@ -496,7 +495,7 @@ export default function (sequelize, DataTypes) {
           })
         );
 
-        Promise.all(promises).then(function getJobData(result) {
+        Promise.all(promises).then((result) => {
           _this.skills = result[0].map(s => s.name);
           _this.degrees = result[1].map(s => s.degree);
           _this.institutes = result[2].map(s => s.name);
@@ -518,9 +517,9 @@ export default function (sequelize, DataTypes) {
             'interview_place_direction', 'skills', 'degrees', 'institutes', 'industries',
             'employers', 'owner_id', 'client_name', 'total_applicants', 'recruiter_username',
             'job_location', 'type_s', 'job_status',
-          ]), function solrJobAdd(err) {
+          ]), err => {
             if (err) return new Error(err);
-            models.Solr.softCommit();
+            return models.Solr.softCommit();
           });
         });
       },

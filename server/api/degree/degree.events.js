@@ -2,7 +2,7 @@
  * Degree model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Degree = require('../../sqldb').Degree;

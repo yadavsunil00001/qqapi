@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function FollowerTypeModel(sequelize, DataTypes) {
   const FollowerType = sequelize.define('FollowerType', {
@@ -30,7 +30,7 @@ module.exports = function FollowerTypeModel(sequelize, DataTypes) {
       timestamps: false,
       underscored: true,
       classMethods: {
-        associate: function associate(models) {
+        associate(models) {
           FollowerType.hasMany(models.Follower);
         },
       },

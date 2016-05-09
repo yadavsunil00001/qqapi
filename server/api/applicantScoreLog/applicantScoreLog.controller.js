@@ -7,7 +7,7 @@
  * DELETE  /api/applicantScoreLogs/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ApplicantScoreLog } from '../../sqldb';

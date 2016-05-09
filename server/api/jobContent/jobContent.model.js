@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobContentModel(sequelize, DataTypes) {
   const JobContent = sequelize.define('JobContent', {
@@ -43,7 +43,7 @@ module.exports = function JobContentModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobContent.hasMany(models.Job, {
           foreignKey: 'job_content_id',
         });

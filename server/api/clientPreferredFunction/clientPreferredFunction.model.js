@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ClientPreferredFunctionModel(sequelize, DataTypes) {
   const ClientPreferredFunction = sequelize.define('ClientPreferredFunction', {
@@ -20,15 +20,15 @@ module.exports = function ClientPreferredFunctionModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getClientPreferredFunctionList  : function getClientPreferredFunctionList(db, client_id) {
+      getClientPreferredFunctionList(db, clientId) {
         return db.ClientPreferredFunction.findAll({
           where: {
-            client_id: client_id,
+            client_id: clientId,
           },
           attributes: ['id', 'func_id'],
         });
       },
-      associate: function associate(models) {
+      associate(models) {
         ClientPreferredFunction.belongsTo(models.Func, {
           foreignKey: 'func_id',
         });

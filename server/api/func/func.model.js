@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function FuncModel(sequelize, DataTypes) {
   const Func = sequelize.define('Func', {
@@ -43,7 +43,7 @@ module.exports = function FuncModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getFunctionList : function getFunctionList(db) {
+      getFunctionList(db) {
         return db.Func.findAll({
           where: {
             system_defined: 1,
@@ -52,7 +52,7 @@ module.exports = function FuncModel(sequelize, DataTypes) {
           order: '"name" ASC',
         });
       },
-      associate: function associate(models) {
+      associate(models) {
         Func.hasMany(models.Job);
         Func.hasMany(models.ClientPreferredFunction);
       },

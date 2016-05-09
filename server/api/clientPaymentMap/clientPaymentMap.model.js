@@ -1,7 +1,6 @@
-'use strict';
 
 export default function (sequelize, DataTypes) {
-  var ClientPaymentMap = sequelize.define('ClientPaymentMap', {
+  const ClientPaymentMap = sequelize.define('ClientPaymentMap', {
     id: {
       type: DataTypes.INTEGER(11),
       autoIncrement: true,
@@ -9,8 +8,8 @@ export default function (sequelize, DataTypes) {
       allowNull: false,
       unique: true,
     },
-    client_id:  DataTypes.INTEGER(11),
-    type:  DataTypes.INTEGER(11),
+    client_id: DataTypes.INTEGER(11),
+    type: DataTypes.INTEGER(11),
     start_time: DataTypes.DATE,
     end_time: DataTypes.DATE,
   }, {
@@ -18,7 +17,7 @@ export default function (sequelize, DataTypes) {
     timestamps: false,
     underscored: true,
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ClientPaymentMap.belongsTo(models.Client, {
           foreignKey: 'client_id',
         });

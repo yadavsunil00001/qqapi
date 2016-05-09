@@ -2,7 +2,7 @@
  * AccessToken model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var AccessToken = require('../../sqldb').AccessToken;

@@ -2,7 +2,7 @@
  * Welcome model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Welcome = require('../../sqldb').Welcome;

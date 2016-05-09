@@ -7,7 +7,7 @@
  * DELETE  /api/itemScopes/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ItemScope } from '../../sqldb';

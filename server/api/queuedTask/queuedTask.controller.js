@@ -7,7 +7,7 @@
  * DELETE  /api/queuedTasks/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { QueuedTask } from '../../sqldb';

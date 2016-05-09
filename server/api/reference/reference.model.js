@@ -1,4 +1,4 @@
-'use strict';
+
 
 export default function (sequelize, DataTypes) {
   const Reference = sequelize.define('Reference', {
@@ -27,7 +27,7 @@ export default function (sequelize, DataTypes) {
     current_salary: DataTypes.DECIMAL(15, 2),
     expected_salary: DataTypes.DECIMAL(15, 2),
     total_exp: {
-      type : DataTypes.INTEGER(60),
+      type: DataTypes.INTEGER(60),
       allowNull: false,
     },
     higest_qualification: {
@@ -35,7 +35,7 @@ export default function (sequelize, DataTypes) {
       allowNull: false,
     },
     notice_period: {
-      type : DataTypes.INTEGER(65),
+      type: DataTypes.INTEGER(65),
       allowNull: false,
     },
     email: {
@@ -75,14 +75,14 @@ export default function (sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: true,
       defaultValue: 1,
-      get: function (index) {
+      get() {
         // Approval Status
         // 0 -> Action Required
         // 1 -> Approved
         // 2 -> Reject
         // 3 -> Duplicate
         // Todo: Need to move to sql Insert
-        var tempApprovalStatus = this.getDataValue('approval_status');
+        let tempApprovalStatus = this.getDataValue('approval_status');
         tempApprovalStatus = (tempApprovalStatus === 0) ? 'Action Required' : tempApprovalStatus;
         tempApprovalStatus = (tempApprovalStatus === 1) ? 'Approved' : tempApprovalStatus;
         tempApprovalStatus = (tempApprovalStatus === 2) ? 'Reject' : tempApprovalStatus;
@@ -96,34 +96,33 @@ export default function (sequelize, DataTypes) {
     timestamps: false,
     underscored: true,
     getterMethods: {
-      expected_ctc: function () {
+      expected_ctc() {
         return this.getDataValue('expected_salary');
       },
-      employer_id: function () {
+      employer_id() {
         return this.getDataValue('employer');
       },
-      designation_id: function () {
+      designation_id() {
         return this.getDataValue('designation');
       },
-      region_id: function () {
+      region_id() {
         return this.getDataValue('location');
       },
-      degree_id: function () {
+      degree_id() {
         return this.getDataValue('higest_qualification');
       },
-      salary: function () {
+      salary() {
         return this.getDataValue('current_salary');
       },
-      user_id: function () {
+      user_id() {
         return this.getDataValue('con_id');
       },
-      number: function () {
+      number() {
         return this.getDataValue('phone');
       },
-      email_id: function () {
+      email_id() {
         return this.getDataValue('email');
       },
-
     },
   });
   return Reference;

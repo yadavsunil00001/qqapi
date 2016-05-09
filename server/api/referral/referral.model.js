@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ReferralModel(sequelize, DataTypes) {
   const Referral = sequelize.define('Referral', {
@@ -81,7 +81,7 @@ module.exports = function ReferralModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Referral.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

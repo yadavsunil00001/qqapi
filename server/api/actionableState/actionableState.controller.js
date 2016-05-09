@@ -7,7 +7,7 @@
  * DELETE  /api/actionableStates/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ActionableState } from '../../sqldb';

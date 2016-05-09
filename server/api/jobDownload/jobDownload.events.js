@@ -2,7 +2,7 @@
  * JobDownload model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobDownload = require('../../sqldb').JobDownload;

@@ -7,7 +7,7 @@
  * DELETE  /api/institutes/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Institute } from '../../sqldb';

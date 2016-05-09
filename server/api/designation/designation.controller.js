@@ -7,7 +7,7 @@
  * DELETE  /api/designations/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Designation } from '../../sqldb';

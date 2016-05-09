@@ -1,4 +1,3 @@
-'use strict';
 
 import _ from 'lodash';
 import fsp from 'fs-promise';
@@ -6,7 +5,7 @@ import mkdirp from 'mkdirp-then';
 import path from 'path';
 import config from './../../config/environment';
 import phpSerialize from './../../components/php-serialize';
-import slack from './../../components/slack';
+import logger from './../../components/logger';
 
 export default function (sequelize, DataTypes) {
   const Applicant = sequelize.define('Applicant', {
@@ -177,7 +176,7 @@ export default function (sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Applicant.belongsTo(models.User, {
           foreignKey: 'user_id',
         });
@@ -294,61 +293,67 @@ export default function (sequelize, DataTypes) {
 
 
       getFullDetails(db, applicantId) {
-        return db.Applicant.findById(applicantId, { include: [{ model: db.PhoneNumber, attributes: ['id', 'number'] },
+        return db.Applicant.findById(applicantId, { include: [
+          { model: db.PhoneNumber, attributes: ['id', 'number'] },
           { model: db.Email, attributes: ['id', 'email'] },
           { model: db.Resume, attributes: ['path', 'id', 'contents'] },
           { model: db.Education, attributes: ['id', 'degree_id', 'institute_id'] },
           { model: db.Job, attributes: ['id', 'role'] },
           { model: db.JobApplication, attributes: ['id', 'job_id'] },
-
         ] }).then(applicant => {
-
           const experiancePromise = db.Experience.find({
             where: { applicant_id: applicant.id },
             raw: true,
-          }).then(experiance => {
-            var experiancePromises = [
-              db.Region.findById(experiance.region_id),
-              db.Employer.findById(experiance.employer_id),
-              db.Designation.findById(experiance.designation_id),
+          }).then(experience => {
+            const experiancePromises = [
+              db.Region.findById(experience.region_id),
+              db.Employer.findById(experience.employer_id),
+              db.Designation.findById(experience.designation_id),
             ];
 
             return Promise.all(experiancePromises).then(resolvedPromise => {
+              const experienceTemp = experience;
               const region = resolvedPromise[0] || {};
               const employer = resolvedPromise[1] || {};
               const designation = resolvedPromise[2] || {};
-              experiance.region = region.region;
-              experiance.employer = employer.name;
-              experiance.designation = designation.name;
-              return experiance;
+              experienceTemp.region = region.region;
+              experienceTemp.employer = employer.name;
+              experienceTemp.designation = designation.name;
+              return experienceTemp;
             });
           });
           /* EXP */
 
-          var promises = [
-            (applicant.Education.length ? db.Degree.findById(applicant.Education[0].degree_id) : []),
-            (applicant.Education.length ? db.Institute.findById(applicant.Education[0].institute_id) : []),
+          const promises = [
+            (applicant.Education.length ?
+              db.Degree.findById(applicant.Education[0].degree_id) : []),
+            (applicant.Education.length ?
+              db.Institute.findById(applicant.Education[0].institute_id) : []),
             experiancePromise,
 
           ];
 
           return Promise.all(promises).then(resolvedPromise => {
-            applicant = applicant.toJSON();
-            applicant.Degree = resolvedPromise[0];
-            applicant.Institute = resolvedPromise[1];
-            applicant.Experience = resolvedPromise[2];
-
-            return applicant;
-
+            const applicantTemp = applicant.toJSON();
+            applicantTemp.Degree = resolvedPromise[0];
+            applicantTemp.Institute = resolvedPromise[1];
+            applicantTemp.Experience = resolvedPromise[2];
+            return applicantTemp;
           });
         });
       },
 
 
       validateEmailId(models, jobId, email) {
-        if (!models) return Promise.reject({ code: 500, desc: 'validateEmailId: models not found' });
-        if (!jobId) return Promise.reject({ code: 500, desc: 'validateEmailId: jobId not found' });
-        if (!email) return Promise.reject({ code: 500, desc: 'validateEmailId: email not found' });
+        if (!models) {
+          return Promise.reject({ code: 500, desc: 'validateEmailId: models not found' });
+        }
+        if (!jobId) {
+          return Promise.reject({ code: 500, desc: 'validateEmailId: jobId not found' });
+        }
+        if (!email) {
+          return Promise.reject({ code: 500, desc: 'validateEmailId: email not found' });
+        }
 
         return models.JobApplication.findAll({
           attributes: ['id'],
@@ -356,7 +361,10 @@ export default function (sequelize, DataTypes) {
           include: [{
             model: models.Applicant,
             attributes: ['id'],
-            include: [{ model: models.Email, attributes: ['id'], where: { email: email, status: 1 } }],
+            include: [{
+              model: models.Email, attributes: ['id'],
+              where: { email, status: 1 },
+            }],
           }],
         }).then(rows => {
           if (rows.length > 0) return Promise.resolve(true);
@@ -364,16 +372,27 @@ export default function (sequelize, DataTypes) {
         });
       },
       validatePhoneNumber(models, jobId, number) {
-        if (!models) return Promise.reject({ code: 500, desc: 'validatePhoneNumber: models not found' });
-        if (!jobId) return Promise.reject({ code: 500, desc: 'validatePhoneNumber: jobId not found' });
-        if (!number) return Promise.reject({ code: 500, desc: 'validatePhoneNumber: number not found' });
+        if (!models) {
+          return Promise.reject({ code: 500, desc: 'validatePhoneNumber: models not found' });
+        }
+        if (!jobId) {
+          return Promise.reject({ code: 500, desc: 'validatePhoneNumber: jobId not found' });
+        }
+        if (!number) {
+          return Promise.reject({ code: 500, desc: 'validatePhoneNumber: number not found' });
+        }
+
         return models.JobApplication.findAll({
           attributes: ['id'],
           where: { job_id: jobId },
           include: [{
             model: models.Applicant,
             attributes: ['id'],
-            include: [{ model: models.PhoneNumber, attributes: ['id'], where: { number: number, status: 1 } }],
+            include: [{
+              model: models.PhoneNumber,
+              attributes: ['id'],
+              where: { number, status: 1 },
+            }],
           }],
         }).then(rows => {
           if (rows.length > 0) return Promise.resolve(true);
@@ -384,17 +403,20 @@ export default function (sequelize, DataTypes) {
         // TODO Validatio for email id and phone number for same job
 
         return Promise.all([
-          emailId ? models.Applicant.validateEmailId(models, jobId, emailId) : Promise.resolve(false),
-          number ? models.Applicant.validatePhoneNumber(models, jobId, number) : Promise.resolve(false),
+          emailId ? models.Applicant.validateEmailId(models, jobId, emailId)
+            : Promise.resolve(false),
+          number ? models.Applicant.validatePhoneNumber(models, jobId, number)
+            : Promise.resolve(false),
         ])
           .then(validationResultArray => {
-            return { email: validationResultArray[0], number: validationResultArray[1] };
+            const temp = { email: validationResultArray[0], number: validationResultArray[1] };
+            return temp;
           });
       },
       validateEmailIdWithApplicantId(models, jobId, email, applicantId) {
-        if (!models) return Promise.reject({ code: 500, desc: 'validateEmailId: models not found' });
-        if (!jobId) return Promise.reject({ code: 500, desc: 'validateEmailId: jobId not found' });
-        if (!email) return Promise.reject({ code: 500, desc: 'validateEmailId: email not found' });
+        if (!models) return Promise.reject({ desc: 'validateEmailId: models not found' });
+        if (!jobId) return Promise.reject({ desc: 'validateEmailId: jobId not found' });
+        if (!email) return Promise.reject({ desc: 'validateEmailId: email not found' });
 
         return models.JobApplication.count({
           attributes: ['id'],
@@ -402,7 +424,10 @@ export default function (sequelize, DataTypes) {
           include: [{
             model: models.Applicant,
             attributes: ['id'],
-            include: [{ model: models.Email, attributes: ['id'], where: { email: email, status: 1 } }],
+            include: [{
+              model: models.Email,
+              attributes: ['id'],
+              where: { email, status: 1 } }],
           }],
         }).then(count => {
           if (count) return Promise.resolve(true);
@@ -410,16 +435,19 @@ export default function (sequelize, DataTypes) {
         });
       },
       validatePhoneNumberWithApplicantId(models, jobId, number, applicantId) {
-        if (!models) return Promise.reject({ code: 500, desc: 'validatePhoneNumber: models not found' });
-        if (!jobId) return Promise.reject({ code: 500, desc: 'validatePhoneNumber: jobId not found' });
-        if (!number) return Promise.reject({ code: 500, desc: 'validatePhoneNumber: number not found' });
+        if (!models) return Promise.reject({ desc: 'validatePhoneNumber: models not found' });
+        if (!jobId) return Promise.reject({ desc: 'validatePhoneNumber: jobId not found' });
+        if (!number) return Promise.reject({ desc: 'validatePhoneNumber: number not found' });
         return models.JobApplication.count({
           attributes: ['id'],
           where: { job_id: jobId, applicant_id: { $ne: applicantId } },
           include: [{
             model: models.Applicant,
             attributes: ['id'],
-            include: [{ model: models.PhoneNumber, attributes: ['id'], where: { number: number, status: 1 } }],
+            include: [{
+              model: models.PhoneNumber,
+              attributes: ['id'],
+              where: { number, status: 1 } }],
           }],
         }).then(count => {
           if (count) return Promise.resolve(true);
@@ -429,63 +457,72 @@ export default function (sequelize, DataTypes) {
       alreadyAppliedWithApplicantId(models, jobId, emailId, number, applicantId) {
         // TODO Validatio for email id and phone number for same job
         return Promise.all([
-          emailId ? models.Applicant.validateEmailIdWithApplicantId(models, jobId, emailId, applicantId) : Promise.resolve(false),
-          number ? models.Applicant.validatePhoneNumberWithApplicantId(models, jobId, number, applicantId) : Promise.resolve(false),
+          emailId ? models.Applicant
+            .validateEmailIdWithApplicantId(models, jobId, emailId, applicantId) :
+            Promise.resolve(false),
+          number ? models.Applicant
+            .validatePhoneNumberWithApplicantId(models, jobId, number, applicantId) :
+            Promise.resolve(false),
         ])
           .then(validationResultArray => {
-            return { email: validationResultArray[0], number: validationResultArray[1] };
+            const temp = { email: validationResultArray[0], number: validationResultArray[1] };
+            return temp;
           });
       },
       uploadFile(models, source, folder, currentId, ext, id) {
-        var SourcePath = folder + currentId + '.' + ext;
-        return fsp.readFile(source).then(function (fileStream) {
-          return mkdirp(folder).then(function () {
-            return fsp.writeFile(SourcePath, fileStream).then(function () {
-              const data = phpSerialize.serialize({
-                command: `${config.QUARC_PATH}app/Console/cake`,
-                params: [
-                  'beautify_file',
-                  '-t', 'a',
-                  '-i', id,
-                ],
-              });
-              models.QueuedTask.create({ jobType: 'Execute', group: 'conversion', data }).then(re => {
-                slack('Quarc API: applicant create: ' + id + ': Applicant Resume Conversion queued task created');
-                console.log(id + ': Applicant Resume Conversion queued task created');
-              }).catch(err => {
-                slack('Quarc API: applicant create: ' + id + ':  Applicant Resume Conversion queued task creation error' + (err.message ? err.message : ''));
-                console.log(id + ': Applicant Resume Conversion queued task creation error: ', err);
-              });
-              return 0;
+        const SourcePath = `${folder}${currentId}.}${ext}`;
+        return fsp.readFile(source).then(fileStream => mkdirp(folder)
+          .then(() => fsp.writeFile(SourcePath, fileStream).then(() => {
+            const data = phpSerialize.serialize({
+              command: `${config.QUARC_PATH}app/Console/cake`,
+              params: [
+                'beautify_file',
+                '-t', 'a',
+                '-i', id,
+              ],
             });
-          });
-        });
+            models.QueuedTask
+              .create({ jobType: 'Execute', group: 'conversion', data })
+              .catch(logger);
+            return 0;
+          })));
       },
-      saveApplicant(models, applicantToSave, file, userId, jobId, stateId) {
-        if (!models) return Promise.reject({ code: 500, desc: 'saveApplicant: models not found' });
-        if (!applicantToSave) return Promise.reject({ code: 500, desc: 'saveApplicant: Applicant details' });
-        if (!userId) return Promise.reject({ code: 500, desc: 'saveApplicant: userId not found' });
-        if (!jobId) return Promise.reject({ code: 500, desc: 'saveApplicant:  jobId not found' });
-        if (!file) return Promise.reject({ code: 500, desc: 'saveApplicant: file not found' });
-        stateId = stateId || 27; // Screening Pending
-        applicantToSave.institute_id = applicantToSave.institute_id || 1; //
+      saveApplicant(models, argApplicantToSave, file, userId, jobId, argStateId) {
+        if (!models) return Promise.reject({ desc: 'saveApplicant: models not found' });
+        if (!argApplicantToSave) return Promise.reject({ desc: 'applicant not found' });
+        if (!userId) return Promise.reject({ desc: 'saveApplicant: userId not found' });
+        if (!jobId) return Promise.reject({ desc: 'saveApplicant:  jobId not found' });
+        if (!file) return Promise.reject({ desc: 'saveApplicant: file not found' });
+        const stateId = argStateId || 27; // Screening Pending
+        const applicantToSave = argApplicantToSave;
+        applicantToSave.institute_id = applicantToSave.institute_id || 1;
 
-        return models.Applicant.alreadyApplied(models, jobId, applicantToSave.email_id, applicantToSave.number)
+        return models.Applicant
+          .alreadyApplied(models, jobId, applicantToSave.email_id, applicantToSave.number)
           .then(status => {
-            if (status.email === true || status.number === true) return Promise.reject(_.extend({
-              code: 409,
-              message: 'phone or email conflict',
-            }, status));
-            return models.Applicant.build(_.pick(applicantToSave, ['name', 'expected_ctc', 'salary', 'notice_period', 'total_exp']), {
-              include: [models.PhoneNumber, models.Email, models.Education, models.JobApplication,
-                  models.ApplicantState, models.Experience, models.Resume], // Resume added to retrive
-            })
+            if (status.email === true || status.number === true) {
+              return Promise.reject(_.extend({
+                code: 409,
+                message: 'phone or email conflict',
+              }, status));
+            }
+
+            return models.Applicant.build(_.pick(applicantToSave,
+                ['name', 'expected_ctc', 'salary', 'notice_period', 'total_exp']), {
+                  include: [
+                    models.PhoneNumber, models.Email, models.Education,
+                    models.JobApplication, models.ApplicantState, models.Experience, models.Resume,
+                  ],
+                })
               .set('user_id', userId)
               // .set('created_at',)
               .set('created_by', userId)
               .set('updated_by', userId)
               .set('Emails', { email: applicantToSave.email_id })
-              .set('Education', { degree_id: applicantToSave.degree_id, institute_id: applicantToSave.institute_id })
+              .set('Education', {
+                degree_id: applicantToSave.degree_id,
+                institute_id: applicantToSave.institute_id,
+              })
               .set('PhoneNumbers', { number: applicantToSave.number })
               .set('JobApplications', { job_id: jobId })
               .set('Experiences', {
@@ -495,18 +532,19 @@ export default function (sequelize, DataTypes) {
                 salary: applicantToSave.salary,
               })
               .save()
-              .then(function (applicant) {
-                const applicantStateToSave = { state_id: stateId, user_id: userId, applicant_id: applicant.id };
+              .then(applicant => {
+                const applicantStateToSave = {
+                  state_id: stateId,
+                  user_id: userId,
+                  applicant_id: applicant.id,
+                };
                 return models.ApplicantState
                   .create(applicantStateToSave)
                   .then(applicantState => {
-                    models.ApplicantScreening.legacyMap(models, [applicantStateToSave], userId).then(re => {
-                      console.log(`User: ${userId}, legacyMap for applicant:${applicant.id} - done`);
-                    }).catch(err => {
-                      console.log(`User: ${userId}, legacyMap for applicant:${JSON.stringify(applicantStateToSave)} - Error`);
-                    });
+                    models.ApplicantScreening.legacyMap(models, [applicantStateToSave], userId)
+                      .catch(logger);
                     models.Job.findById(jobId).then(job => {
-                      if (job.direct_line_up == 1) {
+                      if (job.direct_line_up === 1) {
                         const awf = {
                           state_id: 1,
                           user_id: 1,
@@ -525,38 +563,34 @@ export default function (sequelize, DataTypes) {
                         };
                         models.ApplicantState.updateState(models, cvs, userId);
                       }
-                      const processApplicantCharactersticksPr = models.Applicant.processApplicantCharactersticks(models, applicant.id, job.id).then(re => {
-                        console.log('Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates', applicant.id, job.id);
-                      }).catch(err => {
-                        console.log('Success:processApplicantCharactersticks,extractApplicant, updateScore, updateStates', applicant.id, job.id, err);
-                      });
+                      models
+                        .Applicant.processApplicantCharactersticks(models, applicant.id, job.id)
+                        .catch(logger);
                       return 'Async Return';
+                    }).catch(logger);
 
-                    }).catch(err => {
-                      slack('Quarc API: applicant create: Error while getting job for id' + jobId);
-                      return console.log('Error while getting job for id', jobId, err);
-                    });
+                    const rangeFolder = (applicant.id - (applicant.id % 10000)).toString();
+                    const absFolderPathToSave = `${path.join(config.QDMS_PATH, 'Applicants',
+                        rangeFolder, applicant.id.toString())}/`;
 
-
-                    const applicantIdLowerRoundOff = (applicant.id - (applicant.id % 10000)).toString();
-                    let absoluteFolderPathToSave = path.join(config.QDMS_PATH, 'Applicants', applicantIdLowerRoundOff, applicant.id.toString()) + '/';
-                    let fileName = file.name;
+                    const fileName = file.name;
 
                     // Todo: Copy is better than read and write
-                    const resumePromise = fsp.readFile(file.path).then(function (fileStream) {
-                      return mkdirp(absoluteFolderPathToSave).then(function () {
-                        let fileExtension = fileName.split('.').pop(); // Extension
-                        let allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
-                        if (allowedExtType.indexOf(fileExtension.toLowerCase()) === -1) {
+                    const resumePromise = fsp.readFile(file.path).then(fileStream => {
+                      const fileExt = fileName.split('.').pop().toLowerCase(); // Extension
+                      const allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
+                      return mkdirp(absFolderPathToSave).then(() => {
+                        if (allowedExtType.indexOf(fileExt) === -1) {
                           return Promise.reject({ code: 500, desc: 'File Type Not Allowed' });
                         }
-                        let absoluteFilePath = absoluteFolderPathToSave + applicant.id + '.' + fileExtension;
-                        return fsp.writeFile(absoluteFilePath, fileStream).then(function () {
-                          return models.Resume.create({
+                        const absFilePath = `${absFolderPathToSave}${applicant.id}.${fileExt}`;
+                        return fsp.writeFile(absFilePath, fileStream)
+                          .then(() => models.Resume.create({
                             applicant_id: applicant.id,
                             contents: 'Please wait the file is under processing',
-                            path: path.join('Applicants/', applicantIdLowerRoundOff, applicant.id.toString(), [applicant.id, fileExtension].join('.')),
-                          }).then(re => {
+                            path: path.join('Applicants/', rangeFolder, applicant.id.toString(),
+                              [applicant.id, fileExt].join('.')),
+                          }).then(resume => {
                             const data = phpSerialize.serialize({
                               command: `${config.QUARC_PATH}app/Console/cake`,
                               params: [
@@ -566,38 +600,29 @@ export default function (sequelize, DataTypes) {
                               ],
                             });
 
-                            models.QueuedTask.create({ jobType: 'Execute', group: 'conversion', data }).then(re => {
-                              slack('Quarc API: applicant create: ' + applicant.id + ': Applicant Resume Conversion queued task created');
-                              console.log(applicant.id + ': Applicant Resume Conversion queued task created');
-                            }).catch(err => {
-                              slack('Quarc API: applicant create: ' + applicant.id + ':  Applicant Resume Conversion queued task creation error' + (err.message ? err.message : ''));
-                              console.log(applicant.id + ': Applicant Resume Conversion queued task creation error: ', err);
-                            });
-                            return re;
-                          });
-                        });
+                            models.QueuedTask.create({
+                              jobType: 'Execute',
+                              group: 'conversion',
+                              data,
+                            }).catch(logger);
+
+                            return resume;
+                          }));
                       });
                     });
 
                     return Promise.all([
                       applicant.update({ applicant_state_id: applicantState.id }),
                       resumePromise,
-                    ]).then(function (promiseReturns) {
-                      var applicant = promiseReturns[0];
+                    ]).then((promiseReturns) => {
+                      const updatedApplicant = promiseReturns[0];
                       // Async: Not returned
-                      models.Applicant.sendWelcomeEmail(models, applicant.id).then(re => {
-                        slack('Quarc API: applicant create: ' + applicant.id + ':  sendWelcomeEmailQueued Task created');
-                        console.log('sendWelcomeEmailQueued Task created', applicant.id);
-                      }).catch(err => {
-                        slack('Quarc API: applicant create: ' + applicant.id + ':  sendWelcomeEmail Email Queue Error' + (err.message ? err.message : ''));
-                        console.log(' sendWelcomeEmail Email Queue Error', applicant.id, err);
-                      });
-                      applicant.updateSolr(models, userId, jobId).then(re => {
-                        slack('applicant: uploaded by ' + userId + ' indexed ');
-                        console.log('applicant: uploaded by ' + userId + ' indexed ');
-                      }).catch(err => {
-                        console.log('solr index failed', err);
-                      });
+                      models.Applicant.sendWelcomeEmail(models, updatedApplicant.id)
+                        .catch(logger);
+
+                      applicant.updateSolr(models, userId, jobId)
+                        .catch(logger);
+
                       return applicant;
                     });
                   });
@@ -605,205 +630,230 @@ export default function (sequelize, DataTypes) {
           });
       },
       getPreferredPath(fpath) {
-        var folder = path.dirname(fpath) + '/';
-        var file = folder + 'concat.pdf';
+        const folder = `${path.dirname(fpath)}/`;
+        const file = `${folder}concat.pdf`;
         if (fsp.existsSync(config.QDMS_PATH + file)) {
           return file;
         }
         return fpath;
       },
-      sendWelcomeEmail: function (models, id) {
-        var datetime = {
+      sendWelcomeEmail(models, id) {
+        const datetime = {
           applicant_id: id,
           hash: this.generatehash(50),
         };
-        return models.ApplicantPreferenceTime.build(datetime).save().then(applicantPreferenceTime => {
-          return models.Applicant.findOne({
-            attributes: ['id', 'name', 'expected_ctc', 'total_exp', 'user_id', 'notice_period'],
-            where: {
-              id: id,
-            },
-            include: [
-              {
-                model: models.Experience,
-                attributes: ['employer_id', 'designation_id', 'region_id', 'salary'],
-                include: [
-                  // {model: models.Employer, attributes: ['name']}, // Quantum
-                  // {model: models.Designation, attributes: ['name']}, // Quantum
-                  // {model: models.Region, attributes: ['region']} // Qunatum
-                ],
-              },
-              { model: models.Email, attributes: ['email'] },
-              { model: models.PhoneNumber, attributes: ['number'] },
-              {
-                model: models.Education, attributes: ['degree_id'],
-                // , include: [{model: models.Degree, attributes: ['degree']}] // Quantum
-              },
-              {
-                model: models.JobApplication, attributes: ['id'],
-                required: false,
-                include: [{
-                  model: models.Job, attributes: ['role', 'job_content_id', 'user_id', 'id'],
+        return models.ApplicantPreferenceTime
+          .build(datetime)
+          .save()
+          .then(() => {
+            const attrib = ['id', 'name', 'expected_ctc', 'total_exp', 'user_id', 'notice_period'];
+            return models.Applicant.findOne({
+              attributes: attrib,
+              where: { id },
+              include: [
+                {
+                  model: models.Experience,
+                  attributes: ['employer_id', 'designation_id', 'region_id', 'salary'],
                   include: [
-                    { model: models.JobContent, attributes: ['path'] },
+                    // {model: models.Employer, attributes: ['name']}, // Quantum
+                    // {model: models.Designation, attributes: ['name']}, // Quantum
+                    // {model: models.Region, attributes: ['region']} // Qunatum
                   ],
-                }],
-              },
-              { model: models.Resume, attributes: ['path'] },
-              { model: models.ApplicantPreferenceTime },
-            ],
-          }).then(applicant => {
-            return Promise.all([
-              (applicant.Education[0] ? models.Degree.find({
-                attributes: ['degree'],
-                where: { id: _.get(applicant.Education[0], 'degree_id') },
-              }) : []),
-              (applicant.Experiences[0] ? models.Employer.find({
-                attributes: ['name'],
-                where: { id: _.get(applicant.Experiences[0], 'employer_id') },
-              }) : []),
-              (applicant.Experiences[0] ? models.Designation.find({
-                attributes: ['name'],
-                where: { id: _.get(applicant.Experiences[0], 'designation_id') },
-              }) : []),
-              (applicant.Experiences[0] ? models.Region.find({
-                where: { id: _.get(applicant.Experiences[0], 'region_id') },
-                include: [models.Province],
-                attributes: ['region'],
-              }) : []),
-              // Applicant Owner - Consultant
-              models.User.find({
-                attributes: ['id', 'name', 'username'], where: { id: applicant.user_id },
-                include: [{ attributes: ['id', 'name', 'eng_mgr_id'], model: models.Client }],
-              }),
-              // Job Owner - Company
-              models.User.find({
-                attributes: ['name', 'username'],
-                where: { id: applicant.JobApplications[0].Job.user_id },
-              }),
-            ]).then(promiseReturns => {
-              var plainApplicant = applicant.toJSON();
-              if (plainApplicant.Education[0]) plainApplicant.Education[0].Degree = typeof promiseReturns[0] == 'object' ? promiseReturns[0].toJSON() : {};
-              if (plainApplicant.Experiences[0]) {
-                plainApplicant.Experiences[0].Employer = typeof promiseReturns[1] == 'object' ? promiseReturns[1].toJSON() : {};
-                plainApplicant.Experiences[0].Designation = typeof promiseReturns[2] == 'object' ? promiseReturns[2].toJSON() : {};
-                plainApplicant.Experiences[0].Region = typeof promiseReturns[3] == 'object' ? promiseReturns[3].toJSON() : {};
-              }
-
-              plainApplicant.User = typeof promiseReturns[4] == 'object' ? promiseReturns[4].toJSON() : {};
-              if (plainApplicant.JobApplications[0]) plainApplicant.JobApplications[0].Job.User = typeof promiseReturns[5] == 'object' ? promiseReturns[5].toJSON() : {};
-
-              var jobContentFilePath = plainApplicant.JobApplications[0].Job.JobContent.path ? config.QDMS_PATH + plainApplicant.JobApplications[0].Job.JobContent.path : null;
-              var jobContentFileExt = jobContentFilePath ? jobContentFilePath.split('.') : null;
-
-              var resumeFilePath = applicant.Resumes[0] ? (applicant.Resumes[0].path ? (config.QDMS_PATH + applicant.Resumes[0].path) : '') : null;
-              var resumeExt = resumeFilePath ? resumeFilePath.split('.') : null;
-
-              var file1 = jobContentFileExt.length ? 'Job_Description.' + jobContentFileExt[1] : '';
-              var file2 = resumeExt.length ? 'Your_Resume.' + resumeExt[1] : '';
-
-              var attachments = [{}];
-              if (file1) {
-                attachments[0][file1] = jobContentFilePath;
-              }
-              if (file2) {
-                attachments[0][file2] = resumeFilePath;
-              }
-
-              // Mail to Applicant
-              var subject = 'QuezX.com - Application for ' + plainApplicant.JobApplications[0].Job.User.name + ' - ' + plainApplicant.JobApplications[0].Job.role;
-
-              var emailData = {
-                settings: {
-                  subject: subject,
-                  to: _.get(plainApplicant.Emails[0], 'email'),
-                  bcc: 'quezx@quetzal.in',
-                  replyTo: 'candidate-upload@quezx.com',
-                  from: ['notifications@quezx.com', 'QuezX.com'],
-                  domain: 'Quezx.com',
-                  attachments: attachments,
-                  template: ['email_candidate'],
                 },
-                'vars': {
-                  'details': {
-                    'Applicant': _.pick(plainApplicant, ['name', 'expected_ctc', 'total_exp', 'user_id', 'notice_period', 'id']),
-                    'User': _.pick(plainApplicant.User, ['name', 'username']),
-                    'ApplicantPreferenceTime': plainApplicant.ApplicantPreferenceTime,
-                    'Education': plainApplicant.Education,
-                    'Email': plainApplicant.Emails,
-                    'Experience': plainApplicant.Experiences,
-                    'JobApplication': plainApplicant.JobApplications,
-                    'PhoneNumber': plainApplicant.PhoneNumbers,
-                    'Resume': plainApplicant.Resumes,
-                  },
-                  'appid': id,
+                { model: models.Email, attributes: ['email'] },
+                { model: models.PhoneNumber, attributes: ['number'] },
+                {
+                  model: models.Education, attributes: ['degree_id'],
+                  // , include: [{model: models.Degree, attributes: ['degree']}] // Quantum
                 },
-              };
-
-              const data = phpSerialize.serialize(emailData);
-
-              const task = {
-                jobType: 'Email',
-                group: 'high',
-                data,
-              };
-
-              const sendMailToCandidatePromise = models.QueuedTask.create(task);
-
-              const sendMailToConsultantEMPromise = models.User.find({ where: { id: plainApplicant.User.Client.eng_mgr_id } }).then(consultantEm => {
-                var msg = plainApplicant.User.username + ' has uploaded a CV <br>';
-                msg += 'Name: ' + plainApplicant.name + '<br>';
-                msg += 'Client: ' + plainApplicant.JobApplications[0].Job.User.name + '<br>';
-                msg += 'Position: ' + plainApplicant.JobApplications[0].Job.role + '<br>';
-                msg += 'You can manage the applicants here <a href="' +
-                  'https://app.quezx.com/Applicants/view/' +
-                    // (config.URLS.QUARC_UI_PARTNER || "https://partner.quezx.com") + 'applicants/' +
-                  id + '"> View Aplicant</a>';
-
-                var emailInternals = {
-                  'settings': {
-                    'subject': 'New Candidate Upload',
-                    'to': consultantEm.email_id,
-                    'bcc': 'quezx@quetzal.in',
-                    'emailFormat': 'html',
-                    'from': ['notifications@quezx.com', 'Candidate Upload'],
-                    'domain': 'Quezx.com',
-                  },
-                  'vars': {
-                    'content': msg,
-                  },
-                };
-
-                var internalData = phpSerialize.serialize(emailInternals);
-                const internalTask = {
-                  jobType: 'Email',
-                  group: 'email',
-                  data: internalData,
-                };
-                return models.QueuedTask.create(internalTask);
-              });
-
+                {
+                  model: models.JobApplication, attributes: ['id'],
+                  required: false,
+                  include: [{
+                    model: models.Job, attributes: ['role', 'job_content_id', 'user_id', 'id'],
+                    include: [
+                      { model: models.JobContent, attributes: ['path'] },
+                    ],
+                  }],
+                },
+                { model: models.Resume, attributes: ['path'] },
+                { model: models.ApplicantPreferenceTime },
+              ],
+            }).then(applicant => {
+              const att = ['degree'];
               return Promise.all([
-                sendMailToCandidatePromise,
-                sendMailToConsultantEMPromise,
-              ]);
+                (applicant.Education[0] ? models.Degree.find({
+                  attributes: att,
+                  where: { id: _.get(applicant.Education[0], 'degree_id') },
+                }) : []),
+                (applicant.Experiences[0] ? models.Employer.find({
+                  attributes: ['name'],
+                  where: { id: _.get(applicant.Experiences[0], 'employer_id') },
+                }) : []),
+                (applicant.Experiences[0] ? models.Designation.find({
+                  attributes: ['name'],
+                  where: { id: _.get(applicant.Experiences[0], 'designation_id') },
+                }) : []),
+                (applicant.Experiences[0] ? models.Region.find({
+                  where: { id: _.get(applicant.Experiences[0], 'region_id') },
+                  include: [models.Province],
+                  attributes: ['region'],
+                }) : []),
+                // Applicant Owner - Consultant
+                models.User.find({
+                  attributes: ['id', 'name', 'username'], where: { id: applicant.user_id },
+                  include: [{ attributes: ['id', 'name', 'eng_mgr_id'], model: models.Client }],
+                }),
+                // Job Owner - Company
+                models.User.find({
+                  attributes: ['name', 'username'],
+                  where: { id: applicant.JobApplications[0].Job.user_id },
+                }),
+              ]).then(prRet => {
+                const plainApplicant = applicant.toJSON();
+                if (plainApplicant.Education[0]) {
+                  plainApplicant.Education[0].Degree = typeof prRet[0] === 'object' ?
+                    prRet[0].toJSON() : {};
+                }
+                if (plainApplicant.Experiences[0]) {
+                  plainApplicant.Experiences[0].Employer = typeof prRet[1] === 'object' ?
+                    prRet[1].toJSON() : {};
+                  plainApplicant.Experiences[0].Designation = typeof prRet[2] === 'object' ?
+                    prRet[2].toJSON() : {};
+                  plainApplicant.Experiences[0].Region = typeof prRet[3] === 'object' ?
+                    prRet[3].toJSON() : {};
+                }
+
+                plainApplicant.User = typeof prRet[4] === 'object' ? prRet[4].toJSON() : {};
+                if (plainApplicant.JobApplications[0]) {
+                  plainApplicant.JobApplications[0].Job.User = typeof prRet[5] === 'object' ?
+                    prRet[5].toJSON() : {};
+                }
+
+                const jobContentFilePath = plainApplicant.JobApplications[0].Job.JobContent.path ?
+                  `${config.QDMS_PATH}${plainApplicant.JobApplications[0].Job.JobContent.path}` :
+                  null;
+
+                const jobContentFileExt = jobContentFilePath ? jobContentFilePath.split('.') : null;
+
+                const resumeFilePath = _.get(applicant.Resumes[0], 'path') ?
+                  `${config.QDMS_PATH}${applicant.Resumes[0].path}` : '';
+
+                const resumeExt = resumeFilePath ? resumeFilePath.split('.') : null;
+
+                const file1 = jobContentFileExt.length ?
+                  `Job_Description.${jobContentFileExt[1]}` : '';
+                const file2 = resumeExt.length ? `Your_Resume.${resumeExt[1]}` : '';
+
+                const attachments = [{}];
+                if (file1) {
+                  attachments[0][file1] = jobContentFilePath;
+                }
+                if (file2) {
+                  attachments[0][file2] = resumeFilePath;
+                }
+
+                // Mail to Applicant
+                const subject = `QuezX.com - Application for
+                ${plainApplicant.JobApplications[0].Job.User.name} -
+                ${plainApplicant.JobApplications[0].Job.role}`;
+
+                const emailData = {
+                  settings: {
+                    subject,
+                    to: _.get(plainApplicant.Emails[0], 'email'),
+                    bcc: 'quezx@quetzal.in',
+                    replyTo: 'candidate-upload@quezx.com',
+                    from: ['notifications@quezx.com', 'QuezX.com'],
+                    domain: 'Quezx.com',
+                    attachments,
+                    template: ['email_candidate'],
+                  },
+                  consts: {
+                    details: {
+                      Applicant: _.pick(plainApplicant, [
+                        'name', 'expected_ctc', 'total_exp',
+                        'user_id', 'notice_period', 'id',
+                      ]),
+                      User: _.pick(plainApplicant.User, ['name', 'username']),
+                      ApplicantPreferenceTime: plainApplicant.ApplicantPreferenceTime,
+                      Education: plainApplicant.Education,
+                      Email: plainApplicant.Emails,
+                      Experience: plainApplicant.Experiences,
+                      JobApplication: plainApplicant.JobApplications,
+                      PhoneNumber: plainApplicant.PhoneNumbers,
+                      Resume: plainApplicant.Resumes,
+                    },
+                    appid: id,
+                  },
+                };
+
+                const data = phpSerialize.serialize(emailData);
+
+                const task = {
+                  jobType: 'Email',
+                  group: 'high',
+                  data,
+                };
+
+                const sendMailToCandidatePromise = models.QueuedTask.create(task);
+
+                const sendMailToConsultantEMPromise = models.User
+                  .find({ where: { id: plainApplicant.User.Client.eng_mgr_id } })
+                  .then(consultantEm => {
+                    const msg = `
+                    ${plainApplicant.User.username}  has uploaded a CV <br>
+                    Name: ${plainApplicant.name}<br>
+                    Client: ${plainApplicant.JobApplications[0].Job.User.name}<br>
+                    Position: ${plainApplicant.JobApplications[0].Job.role}<br>
+                    You can manage the applicants here
+                    <a href="https://app.quezx.com/Applicants/view/
+                    ${(config.URLS.QUARC_UI_PARTNER || 'https://partner.quezx.com')}applicants/
+                    ${id}"> View Aplicant</a>`;
+
+                    const emailInternals = {
+                      settings: {
+                        subject: 'New Candidate Upload',
+                        to: consultantEm.email_id,
+                        bcc: 'quezx@quetzal.in',
+                        emailFormat: 'html',
+                        from: ['notifications@quezx.com', 'Candidate Upload'],
+                        domain: 'Quezx.com',
+                      },
+                      vars: {
+                        content: msg,
+                      },
+                    };
+
+                    const internalData = phpSerialize.serialize(emailInternals);
+                    const internalTask = {
+                      jobType: 'Email',
+                      group: 'email',
+                      data: internalData,
+                    };
+                    return models.QueuedTask.create(internalTask);
+                  });
+
+                return Promise.all([
+                  sendMailToCandidatePromise,
+                  sendMailToConsultantEMPromise,
+                ]);
+              });
             });
           });
-        });
       },
       // Todo: generate hash to be replaced by some library for more robust and simple code
-      generatehash(length) {
-        var length = length || 150;
-        var characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        var charactersLength = characters.length;
-        var randomString = '';
-        for (var i = 0; i < length; i++) {
+      generatehash(argLength) {
+        const length = argLength || 150;
+        const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const charactersLength = characters.length;
+        let randomString = '';
+        for (let i = 0; i < length; i++) {
           randomString += characters[Math.floor((Math.random() * (charactersLength - 1)))];
         }
         return randomString;
       },
       processApplicantCharactersticks(models, id, jobId) {
-
         const extractApplicant = phpSerialize.serialize({
           command: `${config.QUARC_PATH}app/Console/cake`,
           params: [
@@ -832,7 +882,6 @@ export default function (sequelize, DataTypes) {
           models.QueuedTask.create({ jobType: 'Execute', group: 'low', data: extractApplicant }),
           models.QueuedTask.create({ jobType: 'Execute', group: 'low', data: updateScore }),
           models.QueuedTask.create({ jobType: 'Execute', group: 'low', data: updateStates })]);
-
       },
     },
     instanceMethods: {
@@ -845,56 +894,64 @@ export default function (sequelize, DataTypes) {
 
         // Todo: _this is current applicant, No need to query again
         return db.Applicant.find({
-          attributes: ['id', 'name', 'total_exp', 'expected_ctc', 'notice_period', ['score', 'applicant_score'], 'verified'
-            , ['created_at', 'created_on'], 'updated_on', ['user_id', 'owner_id']],
+          attributes: ['id', 'name', 'total_exp', 'expected_ctc', 'notice_period',
+            ['score', 'applicant_score'], 'verified', ['created_at', 'created_on'],
+            'updated_on', ['user_id', 'owner_id']],
           where: { id: _this.id },
           include: [
             { model: db.PhoneNumber, attributes: ['number'] },
             { model: db.Email, attributes: ['email'] },
-            { model: db.Comment, attributes: ['comment'], order: 'updated_on DESC', required: false },
+            { model: db.Comment, attributes: ['comment'],
+              order: 'updated_on DESC', required: false },
             { model: db.Resume, attributes: ['contents'] },
             { model: db.Education, attributes: ['degree_id', 'institute_id'] },
-            { model: db.JobApplication, attributes: [], include: [{ model: db.Job, attributes: [] }] },
-            { model: db.ApplicantState, include: [{ model: db.State, attributes: ['id', 'name'] }], attributes: ['state_id'] },
+            { model: db.JobApplication, attributes: [],
+              include: [{ model: db.Job, attributes: [] }] },
+            { model: db.ApplicantState, attributes: ['state_id'],
+              include: [{ model: db.State, attributes: ['id', 'name'] }] },
             { model: db.ApplicantSkill, attributes: ['skill_id'] },
           ],
-        }).then(function (applicant) {
+        }).then(applicant => {
           if (!applicant) return Promise.reject('Candidate not found while updating to solr');
 
           const experiancePromise = db.Experience.find({
             where: { applicant_id: _this.id },
             raw: true,
-          }).then(experiance => {
-            var experiancePromises = [
-              db.Region.findById(experiance.region_id),
-              db.Employer.findById(experiance.employer_id),
-              db.Designation.findById(experiance.designation_id),
-            ];
+          }).then(experience => Promise.all([
+            db.Region.findById(experience.region_id),
+            db.Employer.findById(experience.employer_id),
+            db.Designation.findById(experience.designation_id),
+          ]).then(resolvedPromise => {
+            const region = resolvedPromise[0] || {};
+            const employer = resolvedPromise[1] || {};
+            const designation = resolvedPromise[2] || {};
+            const temp = experience;
+            _.assign({
+              region: region.region,
+              employer: employer.name,
+              designation: designation.name,
+            }, temp);
+            return temp;
+          }));
 
-            return Promise.all(experiancePromises).then(resolvedPromise => {
-              const region = resolvedPromise[0] || {};
-              const employer = resolvedPromise[1] || {};
-              const designation = resolvedPromise[2] || {};
-              experiance.region = region.region;
-              experiance.employer = employer.name;
-              experiance.designation = designation.name;
-              return experiance;
-            });
-          });
-
-          var latestCommentQuery = `
-            (SELECT comment AS latest_comment, updated_on AS LC_updated_on FROM comments WHERE (applicant_id = ${applicant.id}) AND (status = 1) ORDER BY id DESC LIMIT 1)
+          const latestCommentQuery = `
+            (SELECT comment AS latest_comment, updated_on AS LC_updated_on FROM comments
+            WHERE (applicant_id = ${applicant.id}) AND (status = 1) ORDER BY id DESC LIMIT 1)
             UNION
-            (SELECT comments AS latest_comment, updated_on AS LC_updated_on FROM applicant_states WHERE applicant_id = ${applicant.id} ORDER BY id DESC LIMIT 1)
+            (SELECT comments AS latest_comment, updated_on AS LC_updated_on FROM applicant_states
+            WHERE applicant_id = ${applicant.id} ORDER BY id DESC LIMIT 1)
             ORDER BY LC_updated_on DESC LIMIT 1`;
 
           // For Feteching skills
-          var skillIds = applicant.ApplicantSkills.map(skill => skill.skill_id);
+          const skillIds = applicant.ApplicantSkills.map(skill => skill.skill_id);
 
-          var promises = [
-            (applicant.Education.length ? db.Degree.findById(applicant.Education[0].degree_id) : []),
-            (applicant.Education.length ? db.Institute.findById(applicant.Education[0].institute_id) : []),
-            db.User.find({ where: { id: userId }, include: [db.Client], raw: true }), // Current Consultant and Client Details
+          const promises = [
+            (applicant.Education.length ?
+              db.Degree.findById(applicant.Education[0].degree_id) : []),
+            (applicant.Education.length ?
+              db.Institute.findById(applicant.Education[0].institute_id) : []),
+            // Current Consultant and Client Details
+            db.User.find({ where: { id: userId }, include: [db.Client], raw: true }),
             db.sequelizeQuarc.query(latestCommentQuery, { type: db.Sequelize.QueryTypes.SELECT }),
             db.Skill.findAll({ where: { id: { $in: skillIds }, system_defined: 1 }, raw: true }),
             experiancePromise,
@@ -903,52 +960,53 @@ export default function (sequelize, DataTypes) {
           return Promise.all(promises).then(resolvedPromise => {
             const degree = resolvedPromise[0];
             const institute = resolvedPromise[1];
-            var client = resolvedPromise[2];
+            const client = resolvedPromise[2];
             const latestComment = resolvedPromise[3].comment;
             const simpleSkills = resolvedPromise[4].map(skill => skill.name);
             const experience = resolvedPromise[5];
-            var engagementManagerId = client['Client.eng_mgr_id'];
+            const engagementManagerId = client['Client.eng_mgr_id'];
 
-            return db.User.find({ where: { id: engagementManagerId }, attributes: ['name'], raw: true }).then(engMgr => {
-              var solrRecord = {
-                'updated_on': applicant.updated_on,
-                'type_s': 'applicant',
-                // Todo: .user_id is found in previousDatavalues of applicant, so currently taken from _this
-                'owner_id': applicant.user_id || _this.user_id,
-                'mobile': _.get(applicant.PhoneNumbers[0], 'number'),
-                'verified': applicant.verified,
-                'applicant_score': applicant.applicant_score,
-                'expected_ctc': applicant.expected_ctc,
-                'state_name': applicant.ApplicantState.State.get('name'),
-                'created_on': applicant.created_on,
-                'name': applicant.name,
-                'id': applicant.id,
-                'state_id':  applicant.ApplicantState.State.get('id'),
-                'notice_period': applicant.notice_period,
-                'total_exp': applicant.total_exp,
-                'email': applicant.Emails.length ? applicant.Emails[0].email : '',
-                'latest_comment': latestComment,
+            return db.User
+              .find({ where: { id: engagementManagerId }, attributes: ['name'], raw: true })
+              .then(engMgr => {
+                const solrRecord = {
+                  updated_on: applicant.updated_on,
+                  type_s: 'applicant',
+                  // Todo: .user_id is found in previousDatavalues of applicant,
+                  owner_id: applicant.user_id || _this.user_id,
+                  mobile: _.get(applicant.PhoneNumbers[0], 'number'),
+                  verified: applicant.verified,
+                  applicant_score: applicant.applicant_score,
+                  expected_ctc: applicant.expected_ctc,
+                  state_name: applicant.ApplicantState.State.get('name'),
+                  created_on: applicant.created_on,
+                  name: applicant.name,
+                  id: applicant.id,
+                  state_id: applicant.ApplicantState.State.get('id'),
+                  notice_period: applicant.notice_period,
+                  total_exp: applicant.total_exp,
+                  email: applicant.Emails.length ? applicant.Emails[0].email : '',
+                  latest_comment: latestComment,
 
-                'consultant_username': client.name,
-                'eng_mgr_name': engMgr.name,
-                'client_name': client['Client.name'],
+                  consultant_username: client.name,
+                  eng_mgr_name: engMgr.name,
+                  client_name: client['Client.name'],
 
-                'skills': simpleSkills,
-                'edu_institute': institute.name,
-                'edu_degree': degree.degree,
-                'exp_salary': experience.salary,
-                'exp_designation': experience.designation,
-                'exp_location': experience.region,
-                'exp_employer': experience.employer,
-                '_root_': jobId,
-              };
+                  skills: simpleSkills,
+                  edu_institute: institute.name,
+                  edu_degree: degree.degree,
+                  exp_salary: experience.salary,
+                  exp_designation: experience.designation,
+                  exp_location: experience.region,
+                  exp_employer: experience.employer,
+                  _root_: jobId,
+                };
 
-              console.log(solrRecord);
-              return db.Solr.add(solrRecord, function solrJobAdd(err) {
-                if (err) return Promise.reject(err);
-                return db.Solr.softCommit();
+                return db.Solr.add(solrRecord, (err) => {
+                  if (err) return Promise.reject(err);
+                  return db.Solr.softCommit();
+                });
               });
-            });
           });
         });
       },

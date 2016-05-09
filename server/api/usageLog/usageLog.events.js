@@ -2,7 +2,7 @@
  * UsageLog model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var UsageLog = require('../../sqldb').UsageLog;

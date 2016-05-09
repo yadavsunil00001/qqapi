@@ -1,4 +1,4 @@
-'use strict';
+
 
 export default function (sequelize, DataTypes) {
   const ScreeningState = sequelize.define('ScreeningState', {
@@ -15,7 +15,7 @@ export default function (sequelize, DataTypes) {
     timestamps: false,
     underscored: true,
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ScreeningState.hasMany(models.ApplicantScreening);
       },
     },

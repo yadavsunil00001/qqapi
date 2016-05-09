@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobsEmployerModel(sequelize, DataTypes) {
   const JobsEmployer = sequelize.define('JobsEmployer', {
@@ -15,7 +15,7 @@ module.exports = function JobsEmployerModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobsEmployer.belongsTo(models.Job, {
           foreignKey: 'job_id',
         });

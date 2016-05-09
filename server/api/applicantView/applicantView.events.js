@@ -2,7 +2,7 @@
  * ApplicantView model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantView = require('../../sqldb').ApplicantView;

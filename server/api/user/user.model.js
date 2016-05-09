@@ -1,4 +1,4 @@
-'use strict';
+
 
 const crypto = require('crypto');
 const salt = 'DYhG93b0fIxfs2guVoUubasdfajfkljasdjfaklsdjflakrfWwvniR2G0FgaC9mi';
@@ -143,7 +143,7 @@ export default function (sequelize, DataTypes) {
     },
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         User.belongsTo(models.Client, {
           foreignKey: 'client_id',
         });

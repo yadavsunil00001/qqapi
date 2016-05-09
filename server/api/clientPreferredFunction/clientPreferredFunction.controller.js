@@ -7,7 +7,7 @@
  * DELETE  /api/clientPreferredFunctions/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ClientPreferredFunction } from '../../sqldb';

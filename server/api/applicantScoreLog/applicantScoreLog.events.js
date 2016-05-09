@@ -2,7 +2,7 @@
  * ApplicantScoreLog model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantScoreLog = require('../../sqldb').ApplicantScoreLog;

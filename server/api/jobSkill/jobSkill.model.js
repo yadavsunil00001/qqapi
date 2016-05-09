@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobSkillModel(sequelize, DataTypes) {
   const JobSkill = sequelize.define('JobSkill', {
@@ -112,7 +112,7 @@ module.exports = function JobSkillModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobSkill.belongsTo(models.Job, {
           foreignKey: 'job_id',
         });

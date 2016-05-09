@@ -1,5 +1,3 @@
-'use strict';
-
 // Development specific configuration
 // ==================================
 module.exports = {
@@ -37,7 +35,7 @@ module.exports = {
 
   URLS: {
     QUARC_UI_PARTNER: process.env.URLS_QUARC_UI_PARTNER,
-    SLACK: process.env.URLS_SLACK
-  }
+    SLACK: process.env.URLS_SLACK,
+  },
 
 };

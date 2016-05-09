@@ -7,7 +7,7 @@
  * DELETE  /api/experiences/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Experience } from '../../sqldb';

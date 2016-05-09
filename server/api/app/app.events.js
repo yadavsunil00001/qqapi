@@ -2,7 +2,7 @@
  * App model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var App = require('../../sqldb').App;

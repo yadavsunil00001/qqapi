@@ -2,7 +2,7 @@
  * Skill model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Skill = require('../../sqldb').Skill;

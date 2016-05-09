@@ -1,4 +1,4 @@
-'use strict';
+
 
 export default function (sequelize, DataTypes) {
   const JobAllocation = sequelize.define('JobAllocation', {
@@ -14,7 +14,7 @@ export default function (sequelize, DataTypes) {
       allowNull: false,
     },
     user_id: {
-      type : DataTypes.INTEGER(14),
+      type: DataTypes.INTEGER(14),
       allowNull: false,
     },
     consultant_response_id: {
@@ -79,7 +79,7 @@ export default function (sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobAllocation.belongsTo(models.Job, {
           foreignKey: 'job_id',
           defaultScope: {
@@ -94,7 +94,6 @@ export default function (sequelize, DataTypes) {
         JobAllocation.belongsTo(models.ConsultantResponse, {
           foreignKey: 'consultant_response_id',
         });
-
       },
     },
   });

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function EmployerModel(sequelize, DataTypes) {
   const Employer = sequelize.define('Employer', {
@@ -81,7 +81,7 @@ module.exports = function EmployerModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Employer.hasMany(models.Experience, {
           defaultScope: {
             where: { status: 1 },

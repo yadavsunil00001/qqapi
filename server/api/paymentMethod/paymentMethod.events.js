@@ -2,7 +2,7 @@
  * PaymentMethod model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var PaymentMethod = require('../../sqldb').PaymentMethod;

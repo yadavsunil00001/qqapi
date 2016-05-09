@@ -7,7 +7,7 @@
  * DELETE  /api/notifications/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Notification } from '../../sqldb';

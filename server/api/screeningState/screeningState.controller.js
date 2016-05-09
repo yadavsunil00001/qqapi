@@ -7,7 +7,7 @@
  * DELETE  /api/screeningStates/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ScreeningState } from '../../sqldb';

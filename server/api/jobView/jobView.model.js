@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobViewModel(sequelize, DataTypes) {
   const JobView = sequelize.define('JobView', {
@@ -33,7 +33,7 @@ module.exports = function JobViewModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobView.belongsTo(models.Job, {
           foreignKey: 'job_id',
         });

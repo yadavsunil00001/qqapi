@@ -7,7 +7,7 @@
  * DELETE  /api/clientPreferredIndustries/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ClientPreferredIndustry } from '../../sqldb';

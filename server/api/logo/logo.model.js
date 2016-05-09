@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function LogoModel(sequelize, DataTypes) {
   const Logo = sequelize.define('Logo', {
@@ -39,7 +39,7 @@ module.exports = function LogoModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Logo.hasMany(models.Client);
       },
     },

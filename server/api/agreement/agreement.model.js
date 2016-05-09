@@ -1,4 +1,3 @@
-'use strict';
 
 export default function (sequelize, DataTypes) {
   const Agreement = sequelize.define('Agreement', {
@@ -16,7 +15,7 @@ export default function (sequelize, DataTypes) {
     timestamps: false,
     underscored: true,
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Agreement.belongsTo(models.ClientPaymentMap, {
           foreignKey: 'client_payment_map_id',
         });

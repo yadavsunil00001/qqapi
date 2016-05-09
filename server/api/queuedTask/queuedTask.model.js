@@ -1,4 +1,4 @@
-'use strict';
+
 
 const _ = require('lodash');
 const config = require('./../../config/environment');
@@ -70,7 +70,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
        * @param  {Number} model.user_id       Action by User id
        * @return {Promise.<Number>}  Sequelize Create Row Promise
        */
-      postChangeStateActions: function postChangeStateActions(model) {
+      postChangeStateActions(model) {
         const data = php.serialize({
           command: `${config.QUARC_PATH}/app/Console/cake`,
           params: [
@@ -88,25 +88,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
         });
       },
 
-      addJobFollowerNotify: function addJobFollowerNotify(options) {
-        const data = php.serialize({
-          command: `${config.QUARC_PATH}/app/Console/cake`,
-          params: [
-            'state_change_action',
-            '-s', model.state_id,
-            '-a', model.applicant_id,
-            '-u', model.user_id,
-          ],
-        });
-
-        return this.create({
-          jobType: 'Execute',
-          group: 'high',
-          data,
-        });
-      },
-
-      addJobFollowerNotify: function addJobFollowerNotify(options) {
+      addJobFollowerNotify(options) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] You are following ${options.client.name} - ${options.job.role}`,
@@ -136,7 +118,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
         });
       },
 
-      clientLoginNotify: function clientLoginNotify(options) {
+      clientLoginNotify(options) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] Client - ${options.user.name} [${options.client.name}]` +
@@ -181,7 +163,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
        * @param  {Object}   options.job.creator       Job creator User
        * @return {Promise.<number>} Return promise for inseration of row in QueuedTask
        */
-      changeStateNotify: function changeStateNotify(options) {
+      changeStateNotify(options) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] ${options.job.creator.Client.name} | ${options.job.role},`,
@@ -213,7 +195,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
         });
       },
 
-      createJDNotify: function createJDNotify(options) {
+      createJDNotify(options) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] New JD: ${options.job.role} | uploaded by ${options.user.name}`,
@@ -248,7 +230,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
        * @param  {Array} emails   Array of email of consultants
        * @return {Array.Promise.<Number>}         Array of email queue write promise
        */
-      updateJDNotify: function createJDNotify(current, update, emails, pdf) {
+      updateJDNotify(current, update, emails, pdf) {
         // Still some intentetional fields skipping due to non-indexed fields
         function ultraJoin(array) {
           return Array.isArray(array) ? array.join(', ') : '';
@@ -317,7 +299,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
         );
       },
 
-      jobCommentNotify: function jobCommentNotify(options) {
+      jobCommentNotify(options) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] A new comment on JD - ${options.client} - ${options.role}`,
@@ -356,7 +338,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
        * @param  {String}   options.job.role        Job position name
        * @return {Promise.<number>} Return promise for inseration of row in QueuedTask
        */
-      applicantCommentNotify: function applicantCommentNotify(options) {
+      applicantCommentNotify(options) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] Comment by - ${options.job.client} - ` +

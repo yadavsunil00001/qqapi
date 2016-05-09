@@ -7,7 +7,7 @@
  * DELETE  /api/consultantResponses/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ConsultantResponse } from '../../sqldb';

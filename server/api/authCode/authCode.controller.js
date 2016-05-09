@@ -7,7 +7,7 @@
  * DELETE  /api/authCodes/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { AuthCode } from '../../sqldb';

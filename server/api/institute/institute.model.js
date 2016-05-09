@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function InstituteModel(sequelize, DataTypes) {
   const Institute = sequelize.define('Institute', {
@@ -38,7 +38,7 @@ module.exports = function InstituteModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Institute.hasMany(models.Education);
       },
     },

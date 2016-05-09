@@ -2,7 +2,7 @@
  * JobAllocation model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobAllocation = require('../../sqldb').JobAllocation;

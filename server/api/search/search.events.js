@@ -2,7 +2,7 @@
  * Search model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Search = require('../../sqldb').Search;

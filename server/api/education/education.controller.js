@@ -7,7 +7,7 @@
  * DELETE  /api/educations/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Education } from '../../sqldb';

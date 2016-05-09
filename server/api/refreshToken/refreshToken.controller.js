@@ -7,7 +7,7 @@
  * DELETE  /api/refreshTokens/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { RefreshToken } from '../../sqldb';

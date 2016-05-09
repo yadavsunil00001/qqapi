@@ -2,7 +2,7 @@
  * ClientPayment model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ClientPayment = require('../../sqldb').ClientPayment;

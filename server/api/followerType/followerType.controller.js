@@ -7,7 +7,7 @@
  * DELETE  /api/followerTypes/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { FollowerType } from '../../sqldb';

@@ -1,4 +1,4 @@
-'use strict';
+
 
 export default function (sequelize, DataTypes) {
   const JobComment = sequelize.define('JobComment', {
@@ -37,7 +37,7 @@ export default function (sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobComment.belongsTo(models.User, {
           foreignKey: 'user_id',
         });

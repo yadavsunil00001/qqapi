@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function SkillModel(sequelize, DataTypes) {
   const Skill = sequelize.define('Skill', {
@@ -61,7 +61,7 @@ module.exports = function SkillModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Skill.hasMany(models.JobSkill);
       },
     },

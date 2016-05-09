@@ -7,7 +7,7 @@
  * DELETE  /api/logs/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Log } from '../../sqldb';

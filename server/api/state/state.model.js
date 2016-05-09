@@ -1,4 +1,4 @@
-'use strict';
+
 
 export default function (sequelize, DataTypes) {
   const State = sequelize.define('State', {
@@ -90,7 +90,7 @@ export default function (sequelize, DataTypes) {
     },
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         State.belongsTo(models.State, {
           as: 'Parent',
           foreignKey: 'parent_id',

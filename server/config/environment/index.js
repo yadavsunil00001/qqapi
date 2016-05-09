@@ -31,15 +31,6 @@ var all = {
   secrets: {
     session: 'quarc-ui-partner-secret'
   },
-
-  // MongoDB connection options
-  mongo: {
-    options: {
-      db: {
-        safe: true
-      }
-    }
-  }
 };
 
 // Export the config object based on the NODE_ENV

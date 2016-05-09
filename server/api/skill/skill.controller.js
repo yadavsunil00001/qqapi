@@ -7,7 +7,7 @@
  * DELETE  /api/skills/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Skill } from '../../sqldb';

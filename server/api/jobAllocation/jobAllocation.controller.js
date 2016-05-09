@@ -7,7 +7,7 @@
  * DELETE  /api/jobAllocations/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobAllocation } from '../../sqldb';

@@ -2,7 +2,7 @@
  * Reference model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Reference = require('../../sqldb').Reference;

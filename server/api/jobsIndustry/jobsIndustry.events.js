@@ -2,7 +2,7 @@
  * JobsIndustry model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobsIndustry = require('../../sqldb').JobsIndustry;

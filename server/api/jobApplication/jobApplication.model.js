@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobApplicationModel(sequelize, DataTypes) {
   const JobApplication = sequelize.define('JobApplication', {
@@ -20,7 +20,7 @@ module.exports = function JobApplicationModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobApplication.belongsTo(models.Job, {
           foreignKey: 'job_id',
           defaultScope: {

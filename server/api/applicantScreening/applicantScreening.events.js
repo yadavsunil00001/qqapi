@@ -2,7 +2,7 @@
  * ApplicantScreening model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantScreening = require('../../sqldb').ApplicantScreening;

@@ -7,7 +7,7 @@
  * DELETE  /api/jobComments/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobComment } from '../../sqldb';

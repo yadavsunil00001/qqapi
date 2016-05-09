@@ -7,7 +7,7 @@
  * DELETE  /api/apps/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { App } from '../../sqldb';

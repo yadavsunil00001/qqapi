@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function DegreeModel(sequelize, DataTypes) {
   const Degree = sequelize.define('Degree', {
@@ -56,7 +56,7 @@ module.exports = function DegreeModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Degree.hasMany(models.Education, {
           defaultScope: {
             where: { status: 1 },

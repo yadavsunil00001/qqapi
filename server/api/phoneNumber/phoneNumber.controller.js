@@ -7,7 +7,7 @@
  * DELETE  /api/phoneNumbers/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { PhoneNumber } from '../../sqldb';

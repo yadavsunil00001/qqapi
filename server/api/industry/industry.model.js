@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function IndustryModel(sequelize, DataTypes) {
   const Industry = sequelize.define('Industry', {
@@ -38,7 +38,7 @@ module.exports = function IndustryModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getIndustryList : function getIndustryList(db) {
+      getIndustryList(db) {
         return db.Industry.findAll({
           where: {
             system_defined: 1,
@@ -47,7 +47,7 @@ module.exports = function IndustryModel(sequelize, DataTypes) {
           order: '"name" ASC',
         });
       },
-      associate: function associate(models) {
+      associate(models) {
         Industry.hasMany(models.Client);
         Industry.hasMany(models.ClientPreferredIndustry);
       },

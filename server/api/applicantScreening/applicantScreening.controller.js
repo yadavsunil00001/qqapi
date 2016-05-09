@@ -7,7 +7,7 @@
  * DELETE  /api/applicantScreenings/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ApplicantScreening } from '../../sqldb';

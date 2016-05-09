@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ClientPreferredIndustryModel(sequelize, DataTypes) {
   const ClientPreferredIndustry = sequelize.define('ClientPreferredIndustry', {
@@ -20,15 +20,15 @@ module.exports = function ClientPreferredIndustryModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getClientPreferredIndustryList : function getClientPreferredIndustryList(db, client_id) {
+      getClientPreferredIndustryList(db, clientId) {
         return db.ClientPreferredIndustry.findAll({
           where: {
-            client_id: client_id,
+            client_id: clientId,
           },
           attributes: ['id', 'industry_id'],
         });
       },
-      associate: function associate(models) {
+      associate(models) {
         ClientPreferredIndustry.belongsTo(models.Industry, {
           foreignKey: 'industry_id',
         });

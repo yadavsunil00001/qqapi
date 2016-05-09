@@ -7,7 +7,7 @@
  * DELETE  /api/applicants/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import {QueuedTask, Job, JobApplication, Comment, User, ApplicantState, BUCKETS, STAKEHOLDERS} from '../../../sqldb';

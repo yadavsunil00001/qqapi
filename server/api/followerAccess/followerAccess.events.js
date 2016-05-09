@@ -2,7 +2,7 @@
  * FollowerAccess model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var FollowerAccess = require('../../sqldb').FollowerAccess;

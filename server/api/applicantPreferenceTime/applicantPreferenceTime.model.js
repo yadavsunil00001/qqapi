@@ -1,4 +1,3 @@
-'use strict';
 
 export default function (sequelize, DataTypes) {
   const ApplicantPreferenceTime = sequelize.define('ApplicantPreferenceTime', {
@@ -17,7 +16,7 @@ export default function (sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ApplicantPreferenceTime.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

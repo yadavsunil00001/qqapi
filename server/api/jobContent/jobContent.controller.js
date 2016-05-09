@@ -7,7 +7,7 @@
  * DELETE  /api/jobContents/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobContent } from '../../sqldb';

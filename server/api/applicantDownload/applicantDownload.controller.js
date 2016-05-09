@@ -7,7 +7,7 @@
  * DELETE  /api/applicantDownloads/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ApplicantDownload } from '../../sqldb';

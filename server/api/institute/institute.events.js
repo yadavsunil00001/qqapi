@@ -2,7 +2,7 @@
  * Institute model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Institute = require('../../sqldb').Institute;

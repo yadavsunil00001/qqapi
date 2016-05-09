@@ -2,7 +2,7 @@
  * PhoneNumber model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var PhoneNumber = require('../../sqldb').PhoneNumber;

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function DesignationModel(sequelize, DataTypes) {
   const Designation = sequelize.define('Designation', {
@@ -43,7 +43,7 @@ module.exports = function DesignationModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Designation.hasMany(models.Experience, {
           defaultScope: {
             where: { status: 1 },

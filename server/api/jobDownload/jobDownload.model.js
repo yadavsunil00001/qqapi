@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobDownloadModel(sequelize, DataTypes) {
   const JobDownload = sequelize.define('JobDownload', {
@@ -33,7 +33,7 @@ module.exports = function JobDownloadModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobDownload.belongsTo(models.Job, {
           foreignKey: 'job_id',
         });

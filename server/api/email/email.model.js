@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function EmailModel(sequelize, DataTypes) {
   const Email = sequelize.define('Email', {
@@ -42,7 +42,7 @@ module.exports = function EmailModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Email.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

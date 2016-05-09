@@ -7,7 +7,7 @@
  * DELETE  /api/summary/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { User, Solr } from '../../sqldb';

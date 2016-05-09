@@ -1,7 +1,7 @@
 /**
  * Created by Manjesh on 07-03-2016.
  */
-'use strict';
+
 var _ = require('lodash');
 var envs = require('./../../../config/local.env')
 var dispatch;

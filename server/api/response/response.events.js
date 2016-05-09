@@ -2,7 +2,7 @@
  * Response model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Response = require('../../sqldb').Response;

@@ -7,7 +7,7 @@
  * DELETE  /api/users/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import db, { User, Group, Client, State, ActionableState } from '../../sqldb';

@@ -7,7 +7,7 @@
  * DELETE  /api/agreements/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Agreement } from '../../sqldb';

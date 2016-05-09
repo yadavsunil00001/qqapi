@@ -2,7 +2,7 @@
  * Education model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Education = require('../../sqldb').Education;

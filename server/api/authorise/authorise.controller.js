@@ -7,7 +7,7 @@
  * DELETE  /api/authorise/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Authorise, App } from '../../sqldb';

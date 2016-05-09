@@ -1,4 +1,3 @@
-'use strict';
 
 module.exports = function AppModel(sequelize, DataTypes) {
   const App = sequelize.define('App', {
@@ -44,7 +43,7 @@ module.exports = function AppModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         App.belongsToMany(models.Scope, {
           through: {
             model: models.ItemScope,

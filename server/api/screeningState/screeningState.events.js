@@ -2,7 +2,7 @@
  * ScreeningState model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ScreeningState = require('../../sqldb').ScreeningState;

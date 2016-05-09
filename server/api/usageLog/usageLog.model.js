@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function UsageLogModel(sequelize, DataTypes) {
   const UsageLog = sequelize.define('UsageLog', {
@@ -60,7 +60,7 @@ module.exports = function UsageLogModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         UsageLog.belongsTo(models.User, {
           foreignKey: 'user_id',
         });

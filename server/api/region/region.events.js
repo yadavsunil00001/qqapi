@@ -2,7 +2,7 @@
  * Region model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Region = require('../../sqldb').Region;

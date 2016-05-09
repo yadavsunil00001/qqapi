@@ -1,4 +1,4 @@
-'use strict';
+
 
 export default function (sequelize, DataTypes) {
   const UserTawktoToken = sequelize.define('UserTawktoToken', {
@@ -19,12 +19,10 @@ export default function (sequelize, DataTypes) {
 
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         UserTawktoToken.belongsTo(models.User, {
           foreignKey: 'user_id',
         });
-
-
       },
     },
   });

@@ -2,7 +2,7 @@
  * Summary model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Summary = require('../../sqldb').Summary;

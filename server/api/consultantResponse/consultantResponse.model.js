@@ -1,4 +1,3 @@
-'use strict';
 
 export default function (sequelize, DataTypes) {
   const ConsultantResponse = sequelize.define('ConsultantResponse', {
@@ -18,7 +17,7 @@ export default function (sequelize, DataTypes) {
     timestamps: false,
     underscored: true,
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         // ConsultantResponse.belongsTo(models.User, {
         //  foreignKey: 'consultant_response_id',
         // });

@@ -7,7 +7,7 @@
  * DELETE  /api/jobs/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import db, { BUCKETS, User, Job, JobAllocation, Solr, sequelizeQuarc, Sequelize, Region, JobScore, JobStatus, ClientPayment,

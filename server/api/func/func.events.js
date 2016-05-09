@@ -2,7 +2,7 @@
  * Func model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Func = require('../../sqldb').Func;

@@ -2,7 +2,7 @@
  * JobContent model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobContent = require('../../sqldb').JobContent;

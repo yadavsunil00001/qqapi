@@ -2,7 +2,7 @@
  * JobSkill model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobSkill = require('../../sqldb').JobSkill;

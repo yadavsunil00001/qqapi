@@ -2,7 +2,7 @@
  * Notification model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Notification = require('../../sqldb').Notification;

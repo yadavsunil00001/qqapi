@@ -7,7 +7,7 @@
  * DELETE  /api/responses/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Response } from '../../sqldb';

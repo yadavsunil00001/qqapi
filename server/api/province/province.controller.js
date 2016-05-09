@@ -7,7 +7,7 @@
  * DELETE  /api/provinces/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Province } from '../../sqldb';

@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function GroupModel(sequelize, DataTypes) {
   const Group = sequelize.define('Group', {
@@ -25,7 +25,7 @@ module.exports = function GroupModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Group.belongsToMany(models.Scope, {
           through: {
             model: models.ItemScope,

@@ -2,7 +2,7 @@
  * JobsDegree model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobsDegree = require('../../sqldb').JobsDegree;

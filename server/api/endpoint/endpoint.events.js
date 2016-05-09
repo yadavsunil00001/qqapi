@@ -2,7 +2,7 @@
  * Endpoint model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Endpoint = require('../../sqldb').Endpoint;

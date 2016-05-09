@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function JobStatusModel(sequelize, DataTypes) {
   const JobStatus = sequelize.define('JobStatus', {
@@ -28,7 +28,7 @@ module.exports = function JobStatusModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         JobStatus.hasMany(models.Job);
       },
     },

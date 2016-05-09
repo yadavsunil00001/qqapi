@@ -7,7 +7,7 @@
  * DELETE  /api/accessTokens/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { AccessToken } from '../../sqldb';

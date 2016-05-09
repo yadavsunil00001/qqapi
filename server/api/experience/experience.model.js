@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ExperienceModel(sequelize, DataTypes) {
   const Experience = sequelize.define('Experience', {
@@ -36,7 +36,7 @@ module.exports = function ExperienceModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Experience.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

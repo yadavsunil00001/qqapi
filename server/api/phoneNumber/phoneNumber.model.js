@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function PhoneNumberModel(sequelize, DataTypes) {
   const PhoneNumber = sequelize.define('PhoneNumber', {
@@ -42,7 +42,7 @@ module.exports = function PhoneNumberModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         PhoneNumber.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

@@ -2,7 +2,7 @@
  * FollowerType model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var FollowerType = require('../../sqldb').FollowerType;

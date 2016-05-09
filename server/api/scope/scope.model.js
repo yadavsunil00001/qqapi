@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ScopeModel(sequelize, DataTypes) {
   const Scope = sequelize.define('Scope', {
@@ -35,7 +35,7 @@ module.exports = function ScopeModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Scope.belongsToMany(models.AccessToken, {
           through: {
             model: models.ItemScope,

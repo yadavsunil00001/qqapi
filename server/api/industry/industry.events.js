@@ -2,7 +2,7 @@
  * Industry model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Industry = require('../../sqldb').Industry;

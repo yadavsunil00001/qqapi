@@ -7,7 +7,7 @@
  * DELETE  /api/jobViews/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobView } from '../../sqldb';

@@ -7,7 +7,7 @@
  * DELETE  /api/emails/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Email } from '../../sqldb';

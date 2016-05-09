@@ -2,7 +2,7 @@
  * Experience model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Experience = require('../../sqldb').Experience;

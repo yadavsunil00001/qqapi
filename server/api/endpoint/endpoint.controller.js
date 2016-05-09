@@ -7,7 +7,7 @@
  * DELETE  /api/endpoints/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Endpoint } from '../../sqldb';

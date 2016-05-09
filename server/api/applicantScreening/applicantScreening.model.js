@@ -1,4 +1,3 @@
-'use strict';
 
 export default function (sequelize, DataTypes) {
   const ApplicantScreening = sequelize.define('ApplicantScreening', {
@@ -24,7 +23,7 @@ export default function (sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         ApplicantScreening.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });
@@ -38,7 +37,8 @@ export default function (sequelize, DataTypes) {
         });
       },
       legacyMap(models, states, loggedInUserId) {
-        // map is  a relation between stateId (as key) and screening state id (as value) which is required for mapping
+        // map is  a relation between stateId (as key) and
+        // screening state id (as value) which is required for mapping
         const map = {
           1: 3,
           13: 1,
@@ -47,15 +47,17 @@ export default function (sequelize, DataTypes) {
           27: 4,
         };
 
-        var applicantScreenings = [];
-        states.forEach(function (state) {
-          if (-1 === (Object.keys(map)).indexOf(state.state_id.toString())) {
+        const applicantScreenings = [];
+        states.forEach(state => {
+          if ((Object.keys(map)).indexOf(state.state_id.toString()) === -1) {
             return;
           }
-          var applicantScreening = {};
+          const applicantScreening = {};
           applicantScreening.screening_state_id = map[state.state_id];
           // Todo: Review for data.user_id remails undefined for all time
-          applicantScreening.user_id = !applicantScreening.user_id ? loggedInUserId : applicantScreening.user_id; // copied logic from /app/Model/ApplicantScreening - 72:60
+          // copied logic from /app/Model/ApplicantScreening - 72:60
+          applicantScreening.user_id = !applicantScreening.user_id ?
+            loggedInUserId : applicantScreening.user_id;
           applicantScreening.applicant_id = state.applicant_id;
           applicantScreening.comments = state.comments ? state.comments : '';
           applicantScreening.consultant_email_sent = 1;

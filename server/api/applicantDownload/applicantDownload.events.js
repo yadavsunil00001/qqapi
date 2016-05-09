@@ -2,7 +2,7 @@
  * ApplicantDownload model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantDownload = require('../../sqldb').ApplicantDownload;

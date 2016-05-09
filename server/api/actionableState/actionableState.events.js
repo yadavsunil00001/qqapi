@@ -2,7 +2,7 @@
  * ActionableState model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ActionableState = require('../../sqldb').ActionableState;

@@ -7,7 +7,7 @@
  * DELETE  /api/resumes/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Resume } from '../../sqldb';

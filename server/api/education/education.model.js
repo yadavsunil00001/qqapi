@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function EducationModel(sequelize, DataTypes) {
   const Education = sequelize.define('Education', {
@@ -35,7 +35,7 @@ module.exports = function EducationModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Education.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });

@@ -2,7 +2,7 @@
  * JobStatusLog model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobStatusLog = require('../../sqldb').JobStatusLog;

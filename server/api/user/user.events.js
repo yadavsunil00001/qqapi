@@ -2,7 +2,7 @@
  * User model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var User = require('../../sqldb').User;

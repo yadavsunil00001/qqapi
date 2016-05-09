@@ -7,7 +7,7 @@
  * DELETE  /api/jobScores/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobScore } from '../../sqldb';

@@ -7,7 +7,7 @@
  * DELETE  /api/jobDownloads/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobDownload } from '../../sqldb';

@@ -7,7 +7,7 @@
  * DELETE  /api/followerAccess/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { FollowerAccess } from '../../sqldb';

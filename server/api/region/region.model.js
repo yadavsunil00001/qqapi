@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function RegionModel(sequelizeQuantum, DataTypes) {
   const Region = sequelizeQuantum.define('Region', {
@@ -49,7 +49,7 @@ module.exports = function RegionModel(sequelizeQuantum, DataTypes) {
     },
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Region.hasMany(models.Education);
         Region.hasMany(models.Experience);
         Region.hasMany(models.Job);

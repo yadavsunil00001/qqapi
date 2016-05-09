@@ -7,7 +7,7 @@
  * DELETE  /api/logos/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Logo } from '../../sqldb';

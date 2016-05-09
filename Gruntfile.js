@@ -40,7 +40,7 @@ module.exports = function (grunt) {
         configFile: '.eslintrc',
         //rulePaths: ['conf/rules']
       },
-      target: ['server/**/*.controller.js', '<%= yeoman.server %>/**/!(*.spec|*.model|*.event|*.integration).js'],
+      target: [ 'server/api/**/*.model.js'],
     },
     express: {
       options: {

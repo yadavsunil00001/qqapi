@@ -2,7 +2,7 @@
  * Designation model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Designation = require('../../sqldb').Designation;

@@ -7,7 +7,7 @@
  * DELETE  /api/referrals/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Referral } from '../../sqldb';

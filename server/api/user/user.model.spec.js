@@ -1,4 +1,4 @@
-'use strict';
+
 
 import app from '../..';
 import { User } from '../../sqldb';

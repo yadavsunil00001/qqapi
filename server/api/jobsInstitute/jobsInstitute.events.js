@@ -2,7 +2,7 @@
  * JobsInstitute model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var JobsInstitute = require('../../sqldb').JobsInstitute;

@@ -1,4 +1,3 @@
-'use strict';
 
 module.exports = function ClientModel(sequelize, DataTypes) {
   const Client = sequelize.define('Client', {
@@ -277,15 +276,15 @@ module.exports = function ClientModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getTerminatedStatus : function getTerminatedStatus(db, client_id) {
+      getTerminatedStatus(db, clientId) {
         return db.Client.find({
           where: {
-            id: client_id,
+            id: clientId,
           },
           attributes: ['termination_flag'],
         });
       },
-      associate: function associate(models) {
+      associate(models) {
         Client.hasMany(models.User);
         Client.hasMany(models.ClientPayment);
         Client.hasMany(models.ClientPaymentDesignation);

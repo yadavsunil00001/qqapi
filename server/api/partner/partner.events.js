@@ -2,7 +2,7 @@
  * Partner model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Partner = require('../../sqldb').Partner;

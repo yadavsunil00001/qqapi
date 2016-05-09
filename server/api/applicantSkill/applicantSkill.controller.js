@@ -7,7 +7,7 @@
  * DELETE  /api/applicantSkills/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ApplicantSkill } from '../../sqldb';

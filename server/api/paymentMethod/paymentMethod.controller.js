@@ -7,7 +7,7 @@
  * DELETE  /api/paymentMethods/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { PaymentMethod } from '../../sqldb';

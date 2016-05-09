@@ -2,7 +2,7 @@
  * Authorise model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Authorise = require('../../sqldb').Authorise;

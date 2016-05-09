@@ -7,7 +7,7 @@
  * DELETE  /api/funcs/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Func } from '../../sqldb';

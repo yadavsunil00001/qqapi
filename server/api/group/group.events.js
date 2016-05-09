@@ -2,7 +2,7 @@
  * Group model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Group = require('../../sqldb').Group;

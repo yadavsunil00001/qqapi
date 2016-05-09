@@ -2,7 +2,7 @@
  * RefreshToken model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var RefreshToken = require('../../sqldb').RefreshToken;

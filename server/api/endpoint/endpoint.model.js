@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function EndpointModel(sequelize, DataTypes) {
   const Endpoint = sequelize.define('Endpoint', {
@@ -35,7 +35,7 @@ module.exports = function EndpointModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Endpoint.belongsToMany(models.Scope, {
           through: {
             model: models.ItemScope,

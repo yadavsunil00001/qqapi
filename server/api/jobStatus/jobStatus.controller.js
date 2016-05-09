@@ -7,7 +7,7 @@
  * DELETE  /api/jobStatus/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { JobStatus } from '../../sqldb';

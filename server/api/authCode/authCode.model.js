@@ -1,4 +1,3 @@
-'use strict';
 
 const moment = require('moment');
 
@@ -41,7 +40,7 @@ module.exports = function AuthCodeModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         AuthCode.belongsToMany(models.Scope, {
           through: {
             model: models.ItemScope,

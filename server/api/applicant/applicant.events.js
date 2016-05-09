@@ -2,7 +2,7 @@
  * Applicant model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Applicant = require('../../sqldb').Applicant;

@@ -1,4 +1,4 @@
-'use strict';
+
 
 const moment = require('moment');
 
@@ -41,7 +41,7 @@ module.exports = function RefreshTokenModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         RefreshToken.belongsToMany(models.Scope, {
           through: {
             model: models.ItemScope,

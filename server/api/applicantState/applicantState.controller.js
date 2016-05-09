@@ -7,7 +7,7 @@
  * DELETE  /api/applicantStates/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { ApplicantState } from '../../sqldb';

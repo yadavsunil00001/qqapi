@@ -1,4 +1,4 @@
-'use strict';
+
 
 module.exports = function ProvinceModel(sequelize, DataTypes) {
   const Province = sequelize.define('Province', {
@@ -30,7 +30,7 @@ module.exports = function ProvinceModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      associate: function associate(models) {
+      associate(models) {
         Province.hasMany(models.Region);
       },
     },

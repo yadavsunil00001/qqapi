@@ -2,7 +2,7 @@
  * Hotline model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Hotline = require('../../sqldb').Hotline;

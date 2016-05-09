@@ -2,7 +2,7 @@
  * Comment model events
  */
 
-'use strict';
+
 
 import {EventEmitter} from 'events';
 var Comment = require('../../sqldb').Comment;

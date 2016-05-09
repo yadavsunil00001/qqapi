@@ -7,7 +7,7 @@
  * DELETE  /api/jobs/:id          ->  destroy
  */
 
-'use strict';
+
 
 import fs from 'fs';
 import _ from 'lodash';

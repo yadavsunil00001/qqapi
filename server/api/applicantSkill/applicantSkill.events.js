@@ -2,7 +2,7 @@
  * ApplicantSkill model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var ApplicantSkill = require('../../sqldb').ApplicantSkill;

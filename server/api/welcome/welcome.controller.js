@@ -7,7 +7,7 @@
  * DELETE  /api/welcomes/:id          ->  destroy
  */
 
-'use strict';
+
 
 import _ from 'lodash';
 import { Welcome } from '../../sqldb';

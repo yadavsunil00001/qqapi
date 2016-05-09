@@ -2,7 +2,7 @@
  * Client model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Client = require('../../sqldb').Client;

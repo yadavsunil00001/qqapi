@@ -2,7 +2,7 @@
  * QueuedTask model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var QueuedTask = require('../../sqldb').QueuedTask;

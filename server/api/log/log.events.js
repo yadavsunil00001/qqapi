@@ -2,7 +2,7 @@
  * Log model events
  */
 
-'use strict';
+
 
 import { EventEmitter } from 'events';
 var Log = require('../../sqldb').Log;
