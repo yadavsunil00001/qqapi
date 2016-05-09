@@ -9,8 +9,14 @@
     "ecmaFeatures": { "modules": true }
   },
   "rules": {
+      "no-underscore-dangle": [0],
+//    "no-label": [0],
+//    "no-empty-label": [0],
     "new-cap": [2, {"capIsNewExceptions": [
       "express.Router"
     ]}]
+  },
+  "globals": {
+    "Promise": true
   }
 }

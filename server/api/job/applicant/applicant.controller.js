@@ -7,7 +7,8 @@
  * DELETE  /api/jobs//:id          ->  destroy
  */
 
-import _ from 'lodash';
+import _ from
+  'lodash';
 import db, { Applicant, Solr, STAKEHOLDERS, BUCKETS } from '../../../sqldb';
 import config from './../../../config/environment';
 import formidable from 'formidable';

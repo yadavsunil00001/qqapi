@@ -7,46 +7,40 @@
  * DELETE  /api/applicants/:id          ->  destroy
  */
 
-'use strict';
-
 import _ from 'lodash';
-import db, { Applicant, Resume, ApplicantState, QueuedTask, Solr, Job, Email, PhoneNumber, Experience,
-  JobApplication, ApplicantDownload, ApplicantSkill, User, Client, Welcome, STAKEHOLDERS, BUCKETS } from '../../sqldb';
-import phpSerialize from './../../components/php-serialize';
+import db, { Applicant, Resume, Solr, Job, JobApplication, User, Client,
+  STAKEHOLDERS, BUCKETS } from '../../sqldb';
 import config from './../../config/environment';
-import util from 'util';
-import formidable from 'formidable';
 import fs from 'fs';
-import mkdirp from 'mkdirp';
 import moment from 'moment';
 
 
 function handleError(res, statusCode, err) {
   console.log('Error: handleError >', err);
-  statusCode = statusCode || 500;
-  res.status(statusCode).send(err);
+  const status = statusCode || 500;
+  res.status(status).send(err);
 }
 
 function wildSearch(collection, keywords) {
-  if (!keywords) {
-    return collection;
-  } else {
-    keywords = keywords.toUpperCase().split(' ');
-    _.each(keywords, function (keyWord) {
-      collection = _.filter(collection, function (item) {
-        for (var key in item) {
+  let collectionTemp = collection;
+  let keywordsTemp = keywords;
+  if (keywordsTemp) {
+    keywordsTemp = keywordsTemp.toUpperCase().split(' ');
+    _.each(keywordsTemp, (keyword) => {
+      collectionTemp = _.filter(collectionTemp, (item) => {
+        Object.keys(item).forEach((key) => {
           if (item.hasOwnProperty(key) && !(key.indexOf('$$hashKey') > -1)) {
-            if (typeof item[key] === 'string' && item[key].toUpperCase().indexOf(keyWord) > -1) {
+            if (typeof item[key] === 'string' && item[key].toUpperCase().indexOf(keyword) > -1) {
               return true;
             }
           }
-        }
-
+          return false;
+        })
+        return false;
       });
     });
-
-    return collection;
   }
+  return collectionTemp;
 }
 
 // Gets a list of UserJobApplicants
@@ -62,19 +56,19 @@ export function index(req, res) {
   const rawStates = (req.query.status) ? req.query.status.split(',') : ['ALL'];
   const bucket = BUCKETS[STAKEHOLDERS[req.user.group_id]];
   const states = [];
-  rawStates.forEach(function boostStates(state, sIndex) {
+  rawStates.forEach((state, sIndex) => {
     // add weight to each state depending on positon in state array
     if (isNaN(state) && bucket[state]) {
       const bucketLength = bucket[state].length;
       bucket[state].forEach((s, i) => states.push(`${s}^=${bucketLength - i}`));
     }
-
+    const rawStateLength = rawStates.length;
     if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) {
-      states.push(`${state}^=${bucketLength - sIndex}`);
+      states.push(`${state}^=${rawStateLength - sIndex}`);
     }
   });
 
-  var solrQuery = Solr.createQuery()
+  const solrQuery = Solr.createQuery()
     .q(`state_id:(${states.map(s => s).join(' ')})`)
     .matchFilter(
       encodeURIComponent('type_s'),
@@ -101,9 +95,9 @@ export function index(req, res) {
       },
     ]);
   }
-  Solr.get('select', solrQuery, function solrCallback(err, result) {
+  Solr.get('select', solrQuery, (err, result) => {
     if (err) return res.status(500).json(err);
-    var applicants = result.response.docs;
+    let applicants = result.response.docs;
     if (!applicants.length) return res.json(applicants);
     if (!~fl.indexOf('_root_')) return res.json(applicants);
 
@@ -114,24 +108,23 @@ export function index(req, res) {
       .rows(applicants.length);
 
     // Get job to attach to results
-    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
-      if (jobErr) return handleError(res, 500, job);
-      const jobs = result.response.docs;
-      if (!jobs.length) res.json(result.response.docs);
-      applicants.forEach(function attachJob(applicant, key) {
+    return db.Solr.get('select', solrInnerQuery, (jobErr, jobResult) => {
+      if (jobErr) return handleError(res, 500, jobErr);
+      const jobs = jobResult.response.docs;
+      if (!jobs.length) res.json(applicants);
+      applicants.forEach((applicant, key) => {
         applicants[key]._root_ = jobs
           .filter(s => s.id === applicants[key]._root_)[0];
       });
       // console.log(applicants);
       if (!!req.query.q) {
-        applicants.forEach(function attachJob(applicant, key) {
+        applicants.forEach((applicant, key) => {
           applicants[key].client_name = applicants[key]._root_.client_name;
           applicants[key].role = applicants[key]._root_.role;
-
         });
         applicants = wildSearch(applicants, req.query.q);
       }
-      res.json(applicants);
+      return res.json(applicants);
     });
   });
 }
@@ -145,7 +138,8 @@ export function bulkResumeDownload(req, res) {
         applicant_id: req.query.ids.split(','),
       },
     })
-    .then(function sendResume(resumeModels) {
+    .then((resumeModels) => {
+      const concat = req.query.concat === 'true';
       const resumes = resumeModels.map(resume => {
         let path = `${config.QDMS_PATH}${resume.path}`;
         if (concat) {
@@ -175,65 +169,36 @@ export function show(req, res) {
     'mobile', 'exp_location', 'expected_ctc',
   ].join(',');
 
-  const states = BUCKETS[STAKEHOLDERS[req.user.group_id]].ALL;
+  //  const states = BUCKETS[STAKEHOLDERS[req.user.group_id]].ALL;
 
   const solrQuery = Solr.createQuery()
     .q('type_s:applicant')
     .matchFilter('id', `${req.params.id}`)
     .fl(fl);
 
-  Solr.get('select', solrQuery, function solrCallback(err, result) {
+  Solr.get('select', solrQuery, (err, result) => {
     if (err) return handleError(res, 500, err);
-    if (result.response.docs.length === 0) return handleError(res, 404, new Error('Applicant Not Found'));
+    if (result.response.docs.length === 0) {
+      return handleError(res, 404, new Error('Applicant Not Found'));
+    }
 
     if (!~fl.indexOf('_root_')) return res.json(result.response.docs[0]);
     const applicant = result.response.docs[0]; console.log(result.response.docs);
     const solrInnerQuery = db.Solr
       .createQuery()
       .q(`id:${applicant._root_} AND type_s:job`)
-      .fl(['role', 'id', 'client_name',])
+      .fl(['role', 'id', 'client_name'])
       .rows(1);
 
     // Get job to attach to results
-    db.Solr.get('select', solrInnerQuery, function solrJobCallback(jobErr, result) {
-
+    return db.Solr.get('select', solrInnerQuery, (jobErr, jobResult) => {
       if (jobErr) return handleError(res, 500, jobErr);
-      const job = result.response.docs[0];
+      const job = jobResult.response.docs[0];
       if (!job) return res.json(applicant);
       applicant._root_ = job;
-      res.json(applicant);
+      return res.json(applicant);
     });
   });
-}
-
-
-
-// Updates an existing Applicant in the DB
-export function update(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  Applicant.find({
-    where: {
-      _id: req.params.id,
-    },
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(respondWithResult(res))
-    .catch(err => handleError(res, 500, err));
-}
-
-// Deletes a Applicant from the DB
-export function destroy(req, res) {
-  Applicant.find({
-    where: {
-      id: req.params.id,
-    },
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(err => handleError(res, 500, err));
 }
 
 export function getResume(req, res) {
@@ -241,22 +206,29 @@ export function getResume(req, res) {
     .find({
       attributes: ['path'],
       where: { applicant_id: req.params.id },
-      order : 'id DESC',
+      order: 'id DESC',
     })
-    .then(function formatFile(resume) {
+    .then((resume) => {
       // const resumePath = Applicant.getPreferredPath(resume.path) Feature Concat Removed
       fs.readFile(`${config.QDMS_PATH}${resume.path}`, (err, resumeFile) => {
-        if (err) if (err.code == 'ENOENT') return res.send("<br><br><h1 style='text-align: center'>Please wait the file is under processing...</h1>");
+        if (err) {
+          if (err.code === 'ENOENT') {
+            const responseText = '<br><br><h1 style="text-align: center">' +
+              'Please wait the file is under processing...</h1>';
+            return res.send(responseText);
+          }
+        }
+
         if (err) return handleError(res, 500, err);
         res.contentType('application/pdf');
-        res.send(resumeFile);
+        return res.send(resumeFile);
       });
     })
     .catch(err => handleError(res, 500, err));
 }
 
 export function downloadResume(req, res) {
-  JobApplication
+  return JobApplication
     .find({
       where: { applicant_id: req.params.id },
       include: [
@@ -276,37 +248,34 @@ export function downloadResume(req, res) {
         },
       ],
     })
-    .then(function getClientInfo(jobApplication) {
-      User.findOne({
-        where: { id: jobApplication.Job.get('user_id') },
-        include: [
-          {
-            model: Client,
-            attributes: ['name'],
-          },
-        ],
-      })
-        .then(function sendResume(user) {
-          const file = {
-            path: `${config.QDMS_PATH}${jobApplication.Applicant.Resumes[0].get('path')}`,
-            name: `${jobApplication.Applicant.get('name')}-${jobApplication.Job.get('role')}` +
-            `-${user.Client.get('name')}_${moment().format('D-MM-YY')}`,
-          };
-          if (req.query.concat === 'true') {
-            file.path = file.path
-                .substring(0, file.path.lastIndexOf('/') + 1) + 'concat.pdf';
-            file.name += '_concat';
-          }
-
-          file.name = `${file.name.split(' ').join('_')}.pdf`;
-          res.download(file.path, file.name);
-        })
-        .catch(err => handleError(res, 500, err));
+    .then(jobApplication => User.findOne({
+      where: { id: jobApplication.Job.get('user_id') },
+      include: [
+        {
+          model: Client,
+          attributes: ['name'],
+        },
+      ],
     })
+    .then((user) => {
+      const file = {
+        path: `${config.QDMS_PATH}${jobApplication.Applicant.Resumes[0].get('path')}`,
+        name: `${jobApplication.Applicant.get('name')}-${jobApplication.Job.get('role')}` +
+        `-${user.Client.get('name')}_${moment().format('D-MM-YY')}`,
+      };
+      if (req.query.concat === 'true') {
+        file.path = `${file.path
+          .substring(0, file.path.lastIndexOf('/') + 1)}} concat.pdf`;
+        file.name += '_concat';
+      }
+
+      file.name = `${file.name.split(' ').join('_')}.pdf`;
+      res.download(file.path, file.name);
+    }))
     .catch(err => handleError(res, 500, err));
 }
 
-exports.changeState = function changeState(req, res, next) {
+exports.changeState = function changeState(req, res) {
   // @todo Need to check eligibility of entity sending this post request
   // @todo Need to add applicant state id in applicant table
   db.ApplicantState
@@ -320,7 +289,7 @@ exports.changeState = function changeState(req, res, next) {
       // update applicant table
       db.Applicant.find({
         where: { id: model.applicant_id },
-      }).then(function (applicant) {
+      }).then((applicant) => {
         applicant.update({ applicant_state_id: model.id });
       });
 
@@ -389,11 +358,9 @@ exports.changeState = function changeState(req, res, next) {
               };
 
               // add notification for user
-              user.map(u => {
-                db.Notification
+              user.map(u => db.Notification
                   .build({ user_id: u.id })
-                  .changeStateNotify({ state, applicant, job, server });
-              });
+                  .changeStateNotify({ state, applicant, job, server }));
 
               // Notify job recruiter EM
               db.QueuedTask.changeStateNotify({
@@ -401,7 +368,7 @@ exports.changeState = function changeState(req, res, next) {
                 email: job.creator.Client.EngagementManager.email_id,
               });
             })
-            .catch(logger.error);
+            .catch(err => handleError(res, 500, err));
         });
 
       db.QueuedTask.postChangeStateActions(model);
