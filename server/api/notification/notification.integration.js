@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newNotification;
 
-describe('Notification API:', function() {
+describe('Notification API:', function () {
 
-  describe('GET /api/notifications', function() {
+  describe('GET /api/notifications', function () {
     var notifications;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/notifications')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Notification API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       notifications.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/notifications', function() {
-    beforeEach(function(done) {
+  describe('POST /api/notifications', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/notifications')
         .send({
           name: 'New Notification',
-          info: 'This is the brand new notification!!!'
+          info: 'This is the brand new notification!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Notification API:', function() {
         });
     });
 
-    it('should respond with the newly created notification', function() {
+    it('should respond with the newly created notification', function () {
       newNotification.name.should.equal('New Notification');
       newNotification.info.should.equal('This is the brand new notification!!!');
     });
 
   });
 
-  describe('GET /api/notifications/:id', function() {
+  describe('GET /api/notifications/:id', function () {
     var notification;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/notifications/' + newNotification._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Notification API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       notification = {};
     });
 
-    it('should respond with the requested notification', function() {
+    it('should respond with the requested notification', function () {
       notification.name.should.equal('New Notification');
       notification.info.should.equal('This is the brand new notification!!!');
     });
 
   });
 
-  describe('PUT /api/notifications/:id', function() {
+  describe('PUT /api/notifications/:id', function () {
     var updatedNotification;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/notifications/' + newNotification._id)
         .send({
           name: 'Updated Notification',
-          info: 'This is the updated notification!!!'
+          info: 'This is the updated notification!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Notification API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedNotification = {};
     });
 
-    it('should respond with the updated notification', function() {
+    it('should respond with the updated notification', function () {
       updatedNotification.name.should.equal('Updated Notification');
       updatedNotification.info.should.equal('This is the updated notification!!!');
     });
 
   });
 
-  describe('DELETE /api/notifications/:id', function() {
+  describe('DELETE /api/notifications/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/notifications/' + newNotification._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Notification API:', function() {
         });
     });
 
-    it('should respond with 404 when notification does not exist', function(done) {
+    it('should respond with 404 when notification does not exist', function (done) {
       request(app)
         .delete('/api/notifications/' + newNotification._id)
         .expect(404)

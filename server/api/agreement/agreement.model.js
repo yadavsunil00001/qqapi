@@ -1,17 +1,17 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const Agreement = sequelize.define('Agreement', {
     _id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     name: DataTypes.STRING,
     info: DataTypes.STRING,
-    active: DataTypes.BOOLEAN
-  },{
+    active: DataTypes.BOOLEAN,
+  }, {
     tableName: 'agreements',
     timestamps: false,
     underscored: true,

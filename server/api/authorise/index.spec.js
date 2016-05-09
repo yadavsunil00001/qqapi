@@ -7,7 +7,7 @@ var authoriseCtrlStub = {
   show: 'authoriseCtrl.show',
   create: 'authoriseCtrl.create',
   update: 'authoriseCtrl.update',
-  destroy: 'authoriseCtrl.destroy'
+  destroy: 'authoriseCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var authoriseIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './authorise.controller': authoriseCtrlStub
+  './authorise.controller': authoriseCtrlStub,
 });
 
-describe('Authorise API Router:', function() {
+describe('Authorise API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     authoriseIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/authorise', function() {
+  describe('GET /api/authorise', function () {
 
-    it('should route to authorise.controller.index', function() {
+    it('should route to authorise.controller.index', function () {
       routerStub.get
         .withArgs('/', 'authoriseCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Authorise API Router:', function() {
 
   });
 
-  describe('GET /api/authorise/:id', function() {
+  describe('GET /api/authorise/:id', function () {
 
-    it('should route to authorise.controller.show', function() {
+    it('should route to authorise.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'authoriseCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Authorise API Router:', function() {
 
   });
 
-  describe('POST /api/authorise', function() {
+  describe('POST /api/authorise', function () {
 
-    it('should route to authorise.controller.create', function() {
+    it('should route to authorise.controller.create', function () {
       routerStub.post
         .withArgs('/', 'authoriseCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Authorise API Router:', function() {
 
   });
 
-  describe('PUT /api/authorise/:id', function() {
+  describe('PUT /api/authorise/:id', function () {
 
-    it('should route to authorise.controller.update', function() {
+    it('should route to authorise.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'authoriseCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Authorise API Router:', function() {
 
   });
 
-  describe('PATCH /api/authorise/:id', function() {
+  describe('PATCH /api/authorise/:id', function () {
 
-    it('should route to authorise.controller.update', function() {
+    it('should route to authorise.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'authoriseCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Authorise API Router:', function() {
 
   });
 
-  describe('DELETE /api/authorise/:id', function() {
+  describe('DELETE /api/authorise/:id', function () {
 
-    it('should route to authorise.controller.destroy', function() {
+    it('should route to authorise.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'authoriseCtrl.destroy')
         .should.have.been.calledOnce;

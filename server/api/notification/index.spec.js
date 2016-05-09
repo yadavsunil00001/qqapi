@@ -7,7 +7,7 @@ var notificationCtrlStub = {
   show: 'notificationCtrl.show',
   create: 'notificationCtrl.create',
   update: 'notificationCtrl.update',
-  destroy: 'notificationCtrl.destroy'
+  destroy: 'notificationCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var notificationIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './notification.controller': notificationCtrlStub
+  './notification.controller': notificationCtrlStub,
 });
 
-describe('Notification API Router:', function() {
+describe('Notification API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     notificationIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/notifications', function() {
+  describe('GET /api/notifications', function () {
 
-    it('should route to notification.controller.index', function() {
+    it('should route to notification.controller.index', function () {
       routerStub.get
         .withArgs('/', 'notificationCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Notification API Router:', function() {
 
   });
 
-  describe('GET /api/notifications/:id', function() {
+  describe('GET /api/notifications/:id', function () {
 
-    it('should route to notification.controller.show', function() {
+    it('should route to notification.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'notificationCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Notification API Router:', function() {
 
   });
 
-  describe('POST /api/notifications', function() {
+  describe('POST /api/notifications', function () {
 
-    it('should route to notification.controller.create', function() {
+    it('should route to notification.controller.create', function () {
       routerStub.post
         .withArgs('/', 'notificationCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Notification API Router:', function() {
 
   });
 
-  describe('PUT /api/notifications/:id', function() {
+  describe('PUT /api/notifications/:id', function () {
 
-    it('should route to notification.controller.update', function() {
+    it('should route to notification.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'notificationCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Notification API Router:', function() {
 
   });
 
-  describe('PATCH /api/notifications/:id', function() {
+  describe('PATCH /api/notifications/:id', function () {
 
-    it('should route to notification.controller.update', function() {
+    it('should route to notification.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'notificationCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Notification API Router:', function() {
 
   });
 
-  describe('DELETE /api/notifications/:id', function() {
+  describe('DELETE /api/notifications/:id', function () {
 
-    it('should route to notification.controller.destroy', function() {
+    it('should route to notification.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'notificationCtrl.destroy')
         .should.have.been.calledOnce;

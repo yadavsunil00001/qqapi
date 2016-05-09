@@ -277,13 +277,13 @@ module.exports = function ClientModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getTerminatedStatus : function getTerminatedStatus(db, client_id){
+      getTerminatedStatus : function getTerminatedStatus(db, client_id) {
         return db.Client.find({
           where: {
-            id: client_id
+            id: client_id,
           },
-          attributes: ['termination_flag']
-        })
+          attributes: ['termination_flag'],
+        });
       },
       associate: function associate(models) {
         Client.hasMany(models.User);
@@ -294,22 +294,22 @@ module.exports = function ClientModel(sequelize, DataTypes) {
         Client.hasMany(models.Follower);
 
         Client.belongsTo(models.Group, {
-          foreignKey: 'group_id'
+          foreignKey: 'group_id',
         });
 
         Client.belongsTo(models.Industry, {
-          foreignKey: 'industry_id'
+          foreignKey: 'industry_id',
         });
 
         Client.belongsTo(models.PaymentMethod, {
-          foreignKey: 'payment_method_id'
+          foreignKey: 'payment_method_id',
         });
 
         Client.belongsTo(models.Logo, {
-          foreignKey: 'logo_id'
+          foreignKey: 'logo_id',
         });
-      }
-    }
+      },
+    },
   });
 
   return Client;

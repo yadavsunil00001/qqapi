@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   var ClientPaymentMap = sequelize.define('ClientPaymentMap', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -13,7 +13,7 @@ export default function(sequelize, DataTypes) {
     type:  DataTypes.INTEGER(11),
     start_time: DataTypes.DATE,
     end_time: DataTypes.DATE,
-  },{
+  }, {
     tableName: 'client_payment_maps',
     timestamps: false,
     underscored: true,
@@ -23,7 +23,7 @@ export default function(sequelize, DataTypes) {
           foreignKey: 'client_id',
         });
         ClientPaymentMap.hasMany(models.Agreement);
-      }
+      },
     },
   });
 

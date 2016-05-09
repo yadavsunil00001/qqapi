@@ -7,7 +7,7 @@ var welcomeCtrlStub = {
   show: 'welcomeCtrl.show',
   create: 'welcomeCtrl.create',
   update: 'welcomeCtrl.update',
-  destroy: 'welcomeCtrl.destroy'
+  destroy: 'welcomeCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var welcomeIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './welcome.controller': welcomeCtrlStub
+  './welcome.controller': welcomeCtrlStub,
 });
 
-describe('Welcome API Router:', function() {
+describe('Welcome API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     welcomeIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/welcomes', function() {
+  describe('GET /api/welcomes', function () {
 
-    it('should route to welcome.controller.index', function() {
+    it('should route to welcome.controller.index', function () {
       routerStub.get
         .withArgs('/', 'welcomeCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Welcome API Router:', function() {
 
   });
 
-  describe('GET /api/welcomes/:id', function() {
+  describe('GET /api/welcomes/:id', function () {
 
-    it('should route to welcome.controller.show', function() {
+    it('should route to welcome.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'welcomeCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Welcome API Router:', function() {
 
   });
 
-  describe('POST /api/welcomes', function() {
+  describe('POST /api/welcomes', function () {
 
-    it('should route to welcome.controller.create', function() {
+    it('should route to welcome.controller.create', function () {
       routerStub.post
         .withArgs('/', 'welcomeCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Welcome API Router:', function() {
 
   });
 
-  describe('PUT /api/welcomes/:id', function() {
+  describe('PUT /api/welcomes/:id', function () {
 
-    it('should route to welcome.controller.update', function() {
+    it('should route to welcome.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'welcomeCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Welcome API Router:', function() {
 
   });
 
-  describe('PATCH /api/welcomes/:id', function() {
+  describe('PATCH /api/welcomes/:id', function () {
 
-    it('should route to welcome.controller.update', function() {
+    it('should route to welcome.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'welcomeCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Welcome API Router:', function() {
 
   });
 
-  describe('DELETE /api/welcomes/:id', function() {
+  describe('DELETE /api/welcomes/:id', function () {
 
-    it('should route to welcome.controller.destroy', function() {
+    it('should route to welcome.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'welcomeCtrl.destroy')
         .should.have.been.calledOnce;

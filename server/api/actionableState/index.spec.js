@@ -7,7 +7,7 @@ var actionableStateCtrlStub = {
   show: 'actionableStateCtrl.show',
   create: 'actionableStateCtrl.create',
   update: 'actionableStateCtrl.update',
-  destroy: 'actionableStateCtrl.destroy'
+  destroy: 'actionableStateCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var actionableStateIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './actionableState.controller': actionableStateCtrlStub
+  './actionableState.controller': actionableStateCtrlStub,
 });
 
-describe('ActionableState API Router:', function() {
+describe('ActionableState API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     actionableStateIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/actionableStates', function() {
+  describe('GET /api/actionableStates', function () {
 
-    it('should route to actionableState.controller.index', function() {
+    it('should route to actionableState.controller.index', function () {
       routerStub.get
         .withArgs('/', 'actionableStateCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('ActionableState API Router:', function() {
 
   });
 
-  describe('GET /api/actionableStates/:id', function() {
+  describe('GET /api/actionableStates/:id', function () {
 
-    it('should route to actionableState.controller.show', function() {
+    it('should route to actionableState.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'actionableStateCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('ActionableState API Router:', function() {
 
   });
 
-  describe('POST /api/actionableStates', function() {
+  describe('POST /api/actionableStates', function () {
 
-    it('should route to actionableState.controller.create', function() {
+    it('should route to actionableState.controller.create', function () {
       routerStub.post
         .withArgs('/', 'actionableStateCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('ActionableState API Router:', function() {
 
   });
 
-  describe('PUT /api/actionableStates/:id', function() {
+  describe('PUT /api/actionableStates/:id', function () {
 
-    it('should route to actionableState.controller.update', function() {
+    it('should route to actionableState.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'actionableStateCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('ActionableState API Router:', function() {
 
   });
 
-  describe('PATCH /api/actionableStates/:id', function() {
+  describe('PATCH /api/actionableStates/:id', function () {
 
-    it('should route to actionableState.controller.update', function() {
+    it('should route to actionableState.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'actionableStateCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('ActionableState API Router:', function() {
 
   });
 
-  describe('DELETE /api/actionableStates/:id', function() {
+  describe('DELETE /api/actionableStates/:id', function () {
 
-    it('should route to actionableState.controller.destroy', function() {
+    it('should route to actionableState.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'actionableStateCtrl.destroy')
         .should.have.been.calledOnce;

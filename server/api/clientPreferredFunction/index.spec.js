@@ -7,7 +7,7 @@ var clientPreferredFunctionCtrlStub = {
   show: 'clientPreferredFunctionCtrl.show',
   create: 'clientPreferredFunctionCtrl.create',
   update: 'clientPreferredFunctionCtrl.update',
-  destroy: 'clientPreferredFunctionCtrl.destroy'
+  destroy: 'clientPreferredFunctionCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var clientPreferredFunctionIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './clientPreferredFunction.controller': clientPreferredFunctionCtrlStub
+  './clientPreferredFunction.controller': clientPreferredFunctionCtrlStub,
 });
 
-describe('ClientPreferredFunction API Router:', function() {
+describe('ClientPreferredFunction API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     clientPreferredFunctionIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/clientPreferredFunctions', function() {
+  describe('GET /api/clientPreferredFunctions', function () {
 
-    it('should route to clientPreferredFunction.controller.index', function() {
+    it('should route to clientPreferredFunction.controller.index', function () {
       routerStub.get
         .withArgs('/', 'clientPreferredFunctionCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('ClientPreferredFunction API Router:', function() {
 
   });
 
-  describe('GET /api/clientPreferredFunctions/:id', function() {
+  describe('GET /api/clientPreferredFunctions/:id', function () {
 
-    it('should route to clientPreferredFunction.controller.show', function() {
+    it('should route to clientPreferredFunction.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'clientPreferredFunctionCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('ClientPreferredFunction API Router:', function() {
 
   });
 
-  describe('POST /api/clientPreferredFunctions', function() {
+  describe('POST /api/clientPreferredFunctions', function () {
 
-    it('should route to clientPreferredFunction.controller.create', function() {
+    it('should route to clientPreferredFunction.controller.create', function () {
       routerStub.post
         .withArgs('/', 'clientPreferredFunctionCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('ClientPreferredFunction API Router:', function() {
 
   });
 
-  describe('PUT /api/clientPreferredFunctions/:id', function() {
+  describe('PUT /api/clientPreferredFunctions/:id', function () {
 
-    it('should route to clientPreferredFunction.controller.update', function() {
+    it('should route to clientPreferredFunction.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'clientPreferredFunctionCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('ClientPreferredFunction API Router:', function() {
 
   });
 
-  describe('PATCH /api/clientPreferredFunctions/:id', function() {
+  describe('PATCH /api/clientPreferredFunctions/:id', function () {
 
-    it('should route to clientPreferredFunction.controller.update', function() {
+    it('should route to clientPreferredFunction.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'clientPreferredFunctionCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('ClientPreferredFunction API Router:', function() {
 
   });
 
-  describe('DELETE /api/clientPreferredFunctions/:id', function() {
+  describe('DELETE /api/clientPreferredFunctions/:id', function () {
 
-    it('should route to clientPreferredFunction.controller.destroy', function() {
+    it('should route to clientPreferredFunction.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'clientPreferredFunctionCtrl.destroy')
         .should.have.been.calledOnce;

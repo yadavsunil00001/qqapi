@@ -63,7 +63,7 @@ function handleEntityNotFound(res) {
 function handleError(res, statusCode,err) {
   console.log("handleError",err)
   statusCode = statusCode || 500;
-    res.status(statusCode).send(err);
+  res.status(statusCode).send(err);
 }
 
 // Gets a list of Clients
@@ -75,11 +75,11 @@ export function index(req, res) {
 
 // Gets a single Client from the DB
 export function show(req, res) {
-    Client.find({
-        where: {
-          id: req.params.id
-        }
-      })
+  Client.find({
+      where: {
+        id: req.params.id
+      }
+    })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
     .catch(handleError(res));
@@ -123,37 +123,37 @@ export function destroy(req, res) {
 export function makeUserActive(req, res) {
   // get your data into a variable
   User.find({
-    where: {
-      id: req.user.id
-    },
-    attributes: ['id','name','email_id','timestamp'],
-    include: {
-      model: Client,
-      attributes: ['name','perc_revenue_share','reg_address'],
-    }
-  })
-  .then(user => {
-    //console.log(user);
-    //return res.json(user.Client.get('perc_revenue_share'));
-    var client_data = {
-      'current_date' :moment().format('Do MMMM YYYY'),
-      'company_name' : user.Client.get('name'),
-      'perc_revenue_share' : user.Client.get('perc_revenue_share'),
-      'company_address' : user.Client.get('reg_address')
-    };
-    var options = {
-      'pageSize': 'A4',
-      'encoding': 'UTF-8',
-      'no-print-media-type': true,
-      'outline': true,
-      'dpi': 300,
-      'margin-bottom': 0,
-      'margin-left': 5,
-      'margin-right': 5,
-      'margin-top': 5
-    };
-    // set up your handlebars template
-    fs.readFile(path.join(config.root,'server','views','terms-and-condition-pdf.html'), 'utf8', function (err,data) {
+      where: {
+        id: req.user.id
+      },
+      attributes: ['id','name','email_id','timestamp'],
+      include: {
+        model: Client,
+        attributes: ['name','perc_revenue_share','reg_address'],
+      }
+    })
+    .then(user => {
+      //console.log(user);
+      //return res.json(user.Client.get('perc_revenue_share'));
+      var client_data = {
+        'current_date' :moment().format('Do MMMM YYYY'),
+        'company_name' : user.Client.get('name'),
+        'perc_revenue_share' : user.Client.get('perc_revenue_share'),
+        'company_address' : user.Client.get('reg_address')
+      };
+      var options = {
+        'pageSize': 'A4',
+        'encoding': 'UTF-8',
+        'no-print-media-type': true,
+        'outline': true,
+        'dpi': 300,
+        'margin-bottom': 0,
+        'margin-left': 5,
+        'margin-right': 5,
+        'margin-top': 5
+      };
+      // set up your handlebars template
+      fs.readFile(path.join(config.root,'server','views','terms-and-condition-pdf.html'), 'utf8', function (err,data) {
         if (err) {
           return res.json(err);
         }
@@ -203,34 +203,34 @@ export function makeUserActive(req, res) {
             })
           })
         })
-    });
-    return res.json(user);
-  })
-  .catch(err => handleError(res,500,err));
+      });
+      return res.json(user);
+    })
+    .catch(err => handleError(res,500,err));
 }
 
 export function agreement(req, res) {
   // get your data into a variable
   User.find({
-    where: {
-      id: req.user.id
-    },
-    attributes: ['id','name','email_id','timestamp'],
-    include: {
-      model: Client,
-      attributes: ['name','perc_revenue_share','reg_address'],
-    }
-  })
-  .then(user => {
-    var client_data = {
-      'current_date' :moment().format('Do MMMM YYYY'),
-      'company_name' : user.dataValues.Client.name,
-      'perc_revenue_share' : user.dataValues.Client.perc_revenue_share,
-      'company_address' : user.dataValues.Client.reg_address
-    };
-    // set up your handlebars template
+      where: {
+        id: req.user.id
+      },
+      attributes: ['id','name','email_id','timestamp'],
+      include: {
+        model: Client,
+        attributes: ['name','perc_revenue_share','reg_address'],
+      }
+    })
+    .then(user => {
+      var client_data = {
+        'current_date' :moment().format('Do MMMM YYYY'),
+        'company_name' : user.dataValues.Client.name,
+        'perc_revenue_share' : user.dataValues.Client.perc_revenue_share,
+        'company_address' : user.dataValues.Client.reg_address
+      };
+      // set up your handlebars template
 
-    fs.readFile(path.join(config.root,'server','views','terms-and-conditions.html'), 'utf8', function (err,data) {
+      fs.readFile(path.join(config.root,'server','views','terms-and-conditions.html'), 'utf8', function (err,data) {
         if (err) {
           return res.json(err);
         }
@@ -238,10 +238,10 @@ export function agreement(req, res) {
         var template = handlebars.compile(data.replace(/\n|\r/g, ""));
         // call template as a function, passing in your data as the context
         var outputString = template(client_data);
-      return res.end(outputString);
-    });
-  })
-  .catch(err => handleError(res,500,err));
+        return res.end(outputString);
+      });
+    })
+    .catch(err => handleError(res,500,err));
 
 }
 
@@ -348,85 +348,85 @@ export function updatePreferences(req, res){
       id : req.user.client_id
     }
   }).then(client => {
-    return client.update({
-    min_ctc: minCTC,
-    max_ctc: maxCTC,
-    consultant_survey_time: consultantSurveyTime,
-    consultant_survey: consultantSurvey
-  }).then(function() {
+      return client.update({
+        min_ctc: minCTC,
+        max_ctc: maxCTC,
+        consultant_survey_time: consultantSurveyTime,
+        consultant_survey: consultantSurvey
+      }).then(function() {
 
-      let functionListToSave = _.filter(req.body.functionList,{ selected:true });
-      var clientPreferredFunctionData = functionListToSave.map(item => {return {client_id: req.user.client_id, func_id: item.id}});
+        let functionListToSave = _.filter(req.body.functionList,{ selected:true });
+        var clientPreferredFunctionData = functionListToSave.map(item => {return {client_id: req.user.client_id, func_id: item.id}});
 
-      let industryListToSave = _.filter(req.body.industryList,{ selected:true });
-      var clientPreferredIndustryData = industryListToSave.map(item => {return {client_id: req.user.client_id, industry_id: item.id}});
+        let industryListToSave = _.filter(req.body.industryList,{ selected:true });
+        var clientPreferredIndustryData = industryListToSave.map(item => {return {client_id: req.user.client_id, industry_id: item.id}});
 
-      return Promise.all([
-        (req.user.client_id ? ClientPreferredFunction.destroy({ where:{ client_id:req.user.client_id }}):[]),
-        (req.user.client_id ? ClientPreferredIndustry.destroy({ where:{ client_id: req.user.client_id }} ):[])
-      ])
-        .then(promiseResult => {
-          return Promise.all([
-            // Inserting Client Preferred Function
-            ClientPreferredFunction.bulkCreate(clientPreferredFunctionData),
-            // Inserting Client Preferred Industry
-            ClientPreferredIndustry.bulkCreate(clientPreferredIndustryData)
-          ]).then(pR => {
-            res.json({message:"record updated"});
+        return Promise.all([
+            (req.user.client_id ? ClientPreferredFunction.destroy({ where:{ client_id:req.user.client_id }}):[]),
+            (req.user.client_id ? ClientPreferredIndustry.destroy({ where:{ client_id: req.user.client_id }} ):[])
+          ])
+          .then(promiseResult => {
+            return Promise.all([
+              // Inserting Client Preferred Function
+              ClientPreferredFunction.bulkCreate(clientPreferredFunctionData),
+              // Inserting Client Preferred Industry
+              ClientPreferredIndustry.bulkCreate(clientPreferredIndustryData)
+            ]).then(pR => {
+              res.json({message:"record updated"});
+            })
           })
-        })
+      })
     })
-  })
-  .catch(err => handleError(res, 500, err));
+    .catch(err => handleError(res, 500, err));
 }
 
 export function dashboard(req, res) {
 
   Applicant.findAll({
-    where: {
-      user_id : req.user.id
-    },
-    attributes: ['id'/*[Sequelize.fn('count', Sequelize.col('*')),'count']*/],
-    include: [
-      {
-        model: ApplicantState,
-        attributes: [],
-        where: {
-          state_id : [6,22,32,33]
-        },
-        include: {
-          model: State,
-          attributes: ['name'],
+      where: {
+        user_id : req.user.id
+      },
+      attributes: ['id'/*[Sequelize.fn('count', Sequelize.col('*')),'count']*/],
+      include: [
+        {
+          model: ApplicantState,
+          attributes: [],
           where: {
-            //id : [6,22,32,33]
+            state_id : [6,22,32,33]
+          },
+          include: {
+            model: State,
+            attributes: ['name'],
+            where: {
+              //id : [6,22,32,33]
+            }
           }
         }
-      }
-    ],
-    raw: true
-  })
-  .then(allApplicants => {
-    // Getting count applicant ids wrt state ids
+      ],
+      raw: true
+    })
+    .then(allApplicants => {
+      // Getting count applicant ids wrt state ids
 
-    var _count = _.countBy(_.map(allApplicants,"ApplicantState.State.id"));
-    // extracting applicant ids from result data which is used later to fetch data from query
-    var _applicantIds = _.map(allApplicants,"id");
-    var countData = [];
-    for(var id in _count){
-      var widgetItem = {};
-      widgetItem.id = id;
-      widgetItem.name = _.get(_.filter(allApplicants,{"ApplicantState.State.id":parseInt(id)})[0],"ApplicantState.State.name");
-      widgetItem.count = _count[id];
-      countData.push(widgetItem);
-    }
-    // Fetching data from applicant using solr
-    const solrQuery = Solr.createQuery()
-      .q(` type_s:applicant`)
-      .fl('id,name,mobile,email,state_name,exp_designation,exp_employer,_root_')
-      .matchFilter('id', `(${_applicantIds.join(' ')})`);
-    Solr.get('select', solrQuery, function solrCallback(err, result) {
-      if (err) return handleError(res, 500,err);
-      var applicantData = result.response.docs;
+      var _count = _.countBy(_.map(allApplicants,"ApplicantState.State.id"));
+      // extracting applicant ids from result data which is used later to fetch data from query
+      var _applicantIds = _.map(allApplicants,"id");
+      var countData = [];
+      for(var id in _count){
+        var widgetItem = {};
+        widgetItem.id = id;
+        widgetItem.name = _.get(_.filter(allApplicants,{"ApplicantState.State.id":parseInt(id)})[0],"ApplicantState.State.name");
+        widgetItem.count = _count[id];
+        countData.push(widgetItem);
+      }
+      // Fetching data from applicant using solr
+      const solrQuery = Solr.createQuery()
+        .q(` type_s:applicant`)
+        .fl('id,name,mobile,email,state_name,exp_designation,exp_employer,_root_')
+        .matchFilter('id', `(${_applicantIds.join(' ')})`);
+      Solr.get('select', solrQuery, function solrCallback(err, result) {
+        if (err) return handleError(res, 500,err);
+        var applicantData = result.response.docs;
         if(!allApplicants.length) return res.json(applicantData)
 
         const solrInnerQuery = db.Solr
@@ -730,9 +730,9 @@ export function dashboard(req, res) {
               } // End Checking if any job is allocated today or not
             });
         })
-      // Calculating Screening ratio
+        // Calculating Screening ratio
 
-    });
-  })
-  .catch(err => handleError(res, 500, err));
+      });
+    })
+    .catch(err => handleError(res, 500, err));
 }

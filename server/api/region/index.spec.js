@@ -7,7 +7,7 @@ var regionCtrlStub = {
   show: 'regionCtrl.show',
   create: 'regionCtrl.create',
   update: 'regionCtrl.update',
-  destroy: 'regionCtrl.destroy'
+  destroy: 'regionCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var regionIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './region.controller': regionCtrlStub
+  './region.controller': regionCtrlStub,
 });
 
-describe('Region API Router:', function() {
+describe('Region API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     regionIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/regions', function() {
+  describe('GET /api/regions', function () {
 
-    it('should route to region.controller.index', function() {
+    it('should route to region.controller.index', function () {
       routerStub.get
         .withArgs('/', 'regionCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Region API Router:', function() {
 
   });
 
-  describe('GET /api/regions/:id', function() {
+  describe('GET /api/regions/:id', function () {
 
-    it('should route to region.controller.show', function() {
+    it('should route to region.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'regionCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Region API Router:', function() {
 
   });
 
-  describe('POST /api/regions', function() {
+  describe('POST /api/regions', function () {
 
-    it('should route to region.controller.create', function() {
+    it('should route to region.controller.create', function () {
       routerStub.post
         .withArgs('/', 'regionCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Region API Router:', function() {
 
   });
 
-  describe('PUT /api/regions/:id', function() {
+  describe('PUT /api/regions/:id', function () {
 
-    it('should route to region.controller.update', function() {
+    it('should route to region.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'regionCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Region API Router:', function() {
 
   });
 
-  describe('PATCH /api/regions/:id', function() {
+  describe('PATCH /api/regions/:id', function () {
 
-    it('should route to region.controller.update', function() {
+    it('should route to region.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'regionCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Region API Router:', function() {
 
   });
 
-  describe('DELETE /api/regions/:id', function() {
+  describe('DELETE /api/regions/:id', function () {
 
-    it('should route to region.controller.destroy', function() {
+    it('should route to region.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'regionCtrl.destroy')
         .should.have.been.calledOnce;

@@ -1,7 +1,7 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
-  var ClientPaymentDesignation =  sequelize.define('ClientPaymentDesignation', {
+export default function (sequelize, DataTypes) {
+  var ClientPaymentDesignation = sequelize.define('ClientPaymentDesignation', {
     id: {
       type: DataTypes.INTEGER(11),
       autoIncrement: true,
@@ -24,20 +24,20 @@ export default function(sequelize, DataTypes) {
     start_time:DataTypes.DATEONLY,
     end_time:DataTypes.DATEONLY,
     consultant_comment:DataTypes.TEXT(),
-    internal_comment:DataTypes.TEXT()
-  },{
+    internal_comment:DataTypes.TEXT(),
+  }, {
     tableName:'client_payment_designations',
     timestamps: false,
     underscored: true,
     classMethods: {
       associate: function associate(models) {
-        //ClientPaymentDesignation.belongsTo(models.Client, {
+        // ClientPaymentDesignation.belongsTo(models.Client, {
         //  foreignKey: 'client_id',
-        //});
+        // });
 
-        //ClientPaymentDesignation.hasMany(models.Job);
-      }
-    }
+        // ClientPaymentDesignation.hasMany(models.Job);
+      },
+    },
   });
 
   return ClientPaymentDesignation;

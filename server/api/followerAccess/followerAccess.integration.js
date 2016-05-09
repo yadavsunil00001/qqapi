@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newFollowerAccess;
 
-describe('FollowerAccess API:', function() {
+describe('FollowerAccess API:', function () {
 
-  describe('GET /api/followerAccess', function() {
+  describe('GET /api/followerAccess', function () {
     var followerAccesss;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/followerAccess')
         .expect(200)
@@ -24,19 +24,19 @@ describe('FollowerAccess API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       followerAccesss.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/followerAccess', function() {
-    beforeEach(function(done) {
+  describe('POST /api/followerAccess', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/followerAccess')
         .send({
           name: 'New FollowerAccess',
-          info: 'This is the brand new followerAccess!!!'
+          info: 'This is the brand new followerAccess!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('FollowerAccess API:', function() {
         });
     });
 
-    it('should respond with the newly created followerAccess', function() {
+    it('should respond with the newly created followerAccess', function () {
       newFollowerAccess.name.should.equal('New FollowerAccess');
       newFollowerAccess.info.should.equal('This is the brand new followerAccess!!!');
     });
 
   });
 
-  describe('GET /api/followerAccess/:id', function() {
+  describe('GET /api/followerAccess/:id', function () {
     var followerAccess;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/followerAccess/' + newFollowerAccess._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('FollowerAccess API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       followerAccess = {};
     });
 
-    it('should respond with the requested followerAccess', function() {
+    it('should respond with the requested followerAccess', function () {
       followerAccess.name.should.equal('New FollowerAccess');
       followerAccess.info.should.equal('This is the brand new followerAccess!!!');
     });
 
   });
 
-  describe('PUT /api/followerAccess/:id', function() {
+  describe('PUT /api/followerAccess/:id', function () {
     var updatedFollowerAccess;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/followerAccess/' + newFollowerAccess._id)
         .send({
           name: 'Updated FollowerAccess',
-          info: 'This is the updated followerAccess!!!'
+          info: 'This is the updated followerAccess!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('FollowerAccess API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedFollowerAccess = {};
     });
 
-    it('should respond with the updated followerAccess', function() {
+    it('should respond with the updated followerAccess', function () {
       updatedFollowerAccess.name.should.equal('Updated FollowerAccess');
       updatedFollowerAccess.info.should.equal('This is the updated followerAccess!!!');
     });
 
   });
 
-  describe('DELETE /api/followerAccess/:id', function() {
+  describe('DELETE /api/followerAccess/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/followerAccess/' + newFollowerAccess._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('FollowerAccess API:', function() {
         });
     });
 
-    it('should respond with 404 when followerAccess does not exist', function(done) {
+    it('should respond with 404 when followerAccess does not exist', function (done) {
       request(app)
         .delete('/api/followerAccess/' + newFollowerAccess._id)
         .expect(404)

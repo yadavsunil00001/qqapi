@@ -7,7 +7,7 @@ var applicantSkillCtrlStub = {
   show: 'applicantSkillCtrl.show',
   create: 'applicantSkillCtrl.create',
   update: 'applicantSkillCtrl.update',
-  destroy: 'applicantSkillCtrl.destroy'
+  destroy: 'applicantSkillCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var applicantSkillIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './applicantSkill.controller': applicantSkillCtrlStub
+  './applicantSkill.controller': applicantSkillCtrlStub,
 });
 
-describe('ApplicantSkill API Router:', function() {
+describe('ApplicantSkill API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     applicantSkillIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/applicantSkills', function() {
+  describe('GET /api/applicantSkills', function () {
 
-    it('should route to applicantSkill.controller.index', function() {
+    it('should route to applicantSkill.controller.index', function () {
       routerStub.get
         .withArgs('/', 'applicantSkillCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('ApplicantSkill API Router:', function() {
 
   });
 
-  describe('GET /api/applicantSkills/:id', function() {
+  describe('GET /api/applicantSkills/:id', function () {
 
-    it('should route to applicantSkill.controller.show', function() {
+    it('should route to applicantSkill.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'applicantSkillCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('ApplicantSkill API Router:', function() {
 
   });
 
-  describe('POST /api/applicantSkills', function() {
+  describe('POST /api/applicantSkills', function () {
 
-    it('should route to applicantSkill.controller.create', function() {
+    it('should route to applicantSkill.controller.create', function () {
       routerStub.post
         .withArgs('/', 'applicantSkillCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('ApplicantSkill API Router:', function() {
 
   });
 
-  describe('PUT /api/applicantSkills/:id', function() {
+  describe('PUT /api/applicantSkills/:id', function () {
 
-    it('should route to applicantSkill.controller.update', function() {
+    it('should route to applicantSkill.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'applicantSkillCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('ApplicantSkill API Router:', function() {
 
   });
 
-  describe('PATCH /api/applicantSkills/:id', function() {
+  describe('PATCH /api/applicantSkills/:id', function () {
 
-    it('should route to applicantSkill.controller.update', function() {
+    it('should route to applicantSkill.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'applicantSkillCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('ApplicantSkill API Router:', function() {
 
   });
 
-  describe('DELETE /api/applicantSkills/:id', function() {
+  describe('DELETE /api/applicantSkills/:id', function () {
 
-    it('should route to applicantSkill.controller.destroy', function() {
+    it('should route to applicantSkill.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'applicantSkillCtrl.destroy')
         .should.have.been.calledOnce;

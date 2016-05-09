@@ -43,9 +43,9 @@ module.exports = function RegionModel(sequelizeQuantum, DataTypes) {
     timestamps: false,
     underscored: true,
     getterMethods: {
-      name(){
-        return this.getDataValue('region')
-      }
+      name() {
+        return this.getDataValue('region');
+      },
     },
 
     classMethods: {

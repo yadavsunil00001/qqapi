@@ -10,13 +10,13 @@
 'use strict';
 
 import _ from 'lodash';
-import {Welcome} from '../../sqldb';
+import { Welcome } from '../../sqldb';
 import config from './../../config/environment';
-import {saveApplicant} from '../../api/job/applicant/applicant.controller';
+import { saveApplicant } from '../../api/job/applicant/applicant.controller';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -24,7 +24,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -33,7 +33,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -44,7 +44,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -62,26 +62,26 @@ function handleError(res, statusCode, err) {
 export function index(req, res) {
   Welcome.findAll()
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Gets a single Welcome from the DB
 export function show(req, res) {
   Welcome.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Creates a new Welcome in the DB
 export function create(req, res) {
   Welcome.create(req.body)
     .then(respondWithResult(res, 201))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Updates an existing Welcome in the DB
@@ -91,25 +91,25 @@ export function update(req, res) {
   }
   Welcome.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Deletes a Welcome from the DB
 export function destroy(req, res) {
   Welcome.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 export function preScreenedView(req, res) {
@@ -118,14 +118,14 @@ export function preScreenedView(req, res) {
   // 2 -> Reject
   // 3 -> Duplicate
   Welcome.find({
-      where: {
-        id: req.params.id,
-        con_id: req.user.id
-      }
-    })
+    where: {
+      id: req.params.id,
+      con_id: req.user.id,
+    },
+  })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Create applicant from social shared cv stored in welcome table

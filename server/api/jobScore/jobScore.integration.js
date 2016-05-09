@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newJobScore;
 
-describe('JobScore API:', function() {
+describe('JobScore API:', function () {
 
-  describe('GET /api/jobScores', function() {
+  describe('GET /api/jobScores', function () {
     var jobScores;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobScores')
         .expect(200)
@@ -24,19 +24,19 @@ describe('JobScore API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       jobScores.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/jobScores', function() {
-    beforeEach(function(done) {
+  describe('POST /api/jobScores', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/jobScores')
         .send({
           name: 'New JobScore',
-          info: 'This is the brand new jobScore!!!'
+          info: 'This is the brand new jobScore!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('JobScore API:', function() {
         });
     });
 
-    it('should respond with the newly created jobScore', function() {
+    it('should respond with the newly created jobScore', function () {
       newJobScore.name.should.equal('New JobScore');
       newJobScore.info.should.equal('This is the brand new jobScore!!!');
     });
 
   });
 
-  describe('GET /api/jobScores/:id', function() {
+  describe('GET /api/jobScores/:id', function () {
     var jobScore;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobScores/' + newJobScore._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('JobScore API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       jobScore = {};
     });
 
-    it('should respond with the requested jobScore', function() {
+    it('should respond with the requested jobScore', function () {
       jobScore.name.should.equal('New JobScore');
       jobScore.info.should.equal('This is the brand new jobScore!!!');
     });
 
   });
 
-  describe('PUT /api/jobScores/:id', function() {
+  describe('PUT /api/jobScores/:id', function () {
     var updatedJobScore;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/jobScores/' + newJobScore._id)
         .send({
           name: 'Updated JobScore',
-          info: 'This is the updated jobScore!!!'
+          info: 'This is the updated jobScore!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('JobScore API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedJobScore = {};
     });
 
-    it('should respond with the updated jobScore', function() {
+    it('should respond with the updated jobScore', function () {
       updatedJobScore.name.should.equal('Updated JobScore');
       updatedJobScore.info.should.equal('This is the updated jobScore!!!');
     });
 
   });
 
-  describe('DELETE /api/jobScores/:id', function() {
+  describe('DELETE /api/jobScores/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/jobScores/' + newJobScore._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('JobScore API:', function() {
         });
     });
 
-    it('should respond with 404 when jobScore does not exist', function(done) {
+    it('should respond with 404 when jobScore does not exist', function (done) {
       request(app)
         .delete('/api/jobScores/' + newJobScore._id)
         .expect(404)

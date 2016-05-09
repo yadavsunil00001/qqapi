@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newJobsIndustry;
 
-describe('JobsIndustry API:', function() {
+describe('JobsIndustry API:', function () {
 
-  describe('GET /api/jobsIndustries', function() {
+  describe('GET /api/jobsIndustries', function () {
     var jobsIndustrys;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobsIndustries')
         .expect(200)
@@ -24,19 +24,19 @@ describe('JobsIndustry API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       jobsIndustrys.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/jobsIndustries', function() {
-    beforeEach(function(done) {
+  describe('POST /api/jobsIndustries', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/jobsIndustries')
         .send({
           name: 'New JobsIndustry',
-          info: 'This is the brand new jobsIndustry!!!'
+          info: 'This is the brand new jobsIndustry!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('JobsIndustry API:', function() {
         });
     });
 
-    it('should respond with the newly created jobsIndustry', function() {
+    it('should respond with the newly created jobsIndustry', function () {
       newJobsIndustry.name.should.equal('New JobsIndustry');
       newJobsIndustry.info.should.equal('This is the brand new jobsIndustry!!!');
     });
 
   });
 
-  describe('GET /api/jobsIndustries/:id', function() {
+  describe('GET /api/jobsIndustries/:id', function () {
     var jobsIndustry;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobsIndustries/' + newJobsIndustry._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('JobsIndustry API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       jobsIndustry = {};
     });
 
-    it('should respond with the requested jobsIndustry', function() {
+    it('should respond with the requested jobsIndustry', function () {
       jobsIndustry.name.should.equal('New JobsIndustry');
       jobsIndustry.info.should.equal('This is the brand new jobsIndustry!!!');
     });
 
   });
 
-  describe('PUT /api/jobsIndustries/:id', function() {
+  describe('PUT /api/jobsIndustries/:id', function () {
     var updatedJobsIndustry;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/jobsIndustries/' + newJobsIndustry._id)
         .send({
           name: 'Updated JobsIndustry',
-          info: 'This is the updated jobsIndustry!!!'
+          info: 'This is the updated jobsIndustry!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('JobsIndustry API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedJobsIndustry = {};
     });
 
-    it('should respond with the updated jobsIndustry', function() {
+    it('should respond with the updated jobsIndustry', function () {
       updatedJobsIndustry.name.should.equal('Updated JobsIndustry');
       updatedJobsIndustry.info.should.equal('This is the updated jobsIndustry!!!');
     });
 
   });
 
-  describe('DELETE /api/jobsIndustries/:id', function() {
+  describe('DELETE /api/jobsIndustries/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/jobsIndustries/' + newJobsIndustry._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('JobsIndustry API:', function() {
         });
     });
 
-    it('should respond with 404 when jobsIndustry does not exist', function(done) {
+    it('should respond with 404 when jobsIndustry does not exist', function (done) {
       request(app)
         .delete('/api/jobsIndustries/' + newJobsIndustry._id)
         .expect(404)

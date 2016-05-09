@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var Summary = require('../../sqldb').Summary;
 var SummaryEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ SummaryEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     SummaryEvents.emit(event + ':' + doc._id, doc);
     SummaryEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default SummaryEvents;

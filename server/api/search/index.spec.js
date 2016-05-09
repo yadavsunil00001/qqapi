@@ -7,7 +7,7 @@ var searchCtrlStub = {
   show: 'searchCtrl.show',
   create: 'searchCtrl.create',
   update: 'searchCtrl.update',
-  destroy: 'searchCtrl.destroy'
+  destroy: 'searchCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var searchIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './search.controller': searchCtrlStub
+  './search.controller': searchCtrlStub,
 });
 
-describe('Search API Router:', function() {
+describe('Search API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     searchIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/search', function() {
+  describe('GET /api/search', function () {
 
-    it('should route to search.controller.index', function() {
+    it('should route to search.controller.index', function () {
       routerStub.get
         .withArgs('/', 'searchCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Search API Router:', function() {
 
   });
 
-  describe('GET /api/search/:id', function() {
+  describe('GET /api/search/:id', function () {
 
-    it('should route to search.controller.show', function() {
+    it('should route to search.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'searchCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Search API Router:', function() {
 
   });
 
-  describe('POST /api/search', function() {
+  describe('POST /api/search', function () {
 
-    it('should route to search.controller.create', function() {
+    it('should route to search.controller.create', function () {
       routerStub.post
         .withArgs('/', 'searchCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Search API Router:', function() {
 
   });
 
-  describe('PUT /api/search/:id', function() {
+  describe('PUT /api/search/:id', function () {
 
-    it('should route to search.controller.update', function() {
+    it('should route to search.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'searchCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Search API Router:', function() {
 
   });
 
-  describe('PATCH /api/search/:id', function() {
+  describe('PATCH /api/search/:id', function () {
 
-    it('should route to search.controller.update', function() {
+    it('should route to search.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'searchCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Search API Router:', function() {
 
   });
 
-  describe('DELETE /api/search/:id', function() {
+  describe('DELETE /api/search/:id', function () {
 
-    it('should route to search.controller.destroy', function() {
+    it('should route to search.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'searchCtrl.destroy')
         .should.have.been.calledOnce;

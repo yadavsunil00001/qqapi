@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newAuthCode;
 
-describe('AuthCode API:', function() {
+describe('AuthCode API:', function () {
 
-  describe('GET /api/authCodes', function() {
+  describe('GET /api/authCodes', function () {
     var authCodes;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/authCodes')
         .expect(200)
@@ -24,19 +24,19 @@ describe('AuthCode API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       authCodes.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/authCodes', function() {
-    beforeEach(function(done) {
+  describe('POST /api/authCodes', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/authCodes')
         .send({
           name: 'New AuthCode',
-          info: 'This is the brand new authCode!!!'
+          info: 'This is the brand new authCode!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('AuthCode API:', function() {
         });
     });
 
-    it('should respond with the newly created authCode', function() {
+    it('should respond with the newly created authCode', function () {
       newAuthCode.name.should.equal('New AuthCode');
       newAuthCode.info.should.equal('This is the brand new authCode!!!');
     });
 
   });
 
-  describe('GET /api/authCodes/:id', function() {
+  describe('GET /api/authCodes/:id', function () {
     var authCode;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/authCodes/' + newAuthCode._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('AuthCode API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       authCode = {};
     });
 
-    it('should respond with the requested authCode', function() {
+    it('should respond with the requested authCode', function () {
       authCode.name.should.equal('New AuthCode');
       authCode.info.should.equal('This is the brand new authCode!!!');
     });
 
   });
 
-  describe('PUT /api/authCodes/:id', function() {
+  describe('PUT /api/authCodes/:id', function () {
     var updatedAuthCode;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/authCodes/' + newAuthCode._id)
         .send({
           name: 'Updated AuthCode',
-          info: 'This is the updated authCode!!!'
+          info: 'This is the updated authCode!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('AuthCode API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedAuthCode = {};
     });
 
-    it('should respond with the updated authCode', function() {
+    it('should respond with the updated authCode', function () {
       updatedAuthCode.name.should.equal('Updated AuthCode');
       updatedAuthCode.info.should.equal('This is the updated authCode!!!');
     });
 
   });
 
-  describe('DELETE /api/authCodes/:id', function() {
+  describe('DELETE /api/authCodes/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/authCodes/' + newAuthCode._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('AuthCode API:', function() {
         });
     });
 
-    it('should respond with 404 when authCode does not exist', function(done) {
+    it('should respond with 404 when authCode does not exist', function (done) {
       request(app)
         .delete('/api/authCodes/' + newAuthCode._id)
         .expect(404)

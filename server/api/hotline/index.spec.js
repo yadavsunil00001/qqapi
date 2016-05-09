@@ -7,7 +7,7 @@ var hotlineCtrlStub = {
   show: 'hotlineCtrl.show',
   create: 'hotlineCtrl.create',
   update: 'hotlineCtrl.update',
-  destroy: 'hotlineCtrl.destroy'
+  destroy: 'hotlineCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var hotlineIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './hotline.controller': hotlineCtrlStub
+  './hotline.controller': hotlineCtrlStub,
 });
 
-describe('Hotline API Router:', function() {
+describe('Hotline API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     hotlineIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/hotlines', function() {
+  describe('GET /api/hotlines', function () {
 
-    it('should route to hotline.controller.index', function() {
+    it('should route to hotline.controller.index', function () {
       routerStub.get
         .withArgs('/', 'hotlineCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Hotline API Router:', function() {
 
   });
 
-  describe('GET /api/hotlines/:id', function() {
+  describe('GET /api/hotlines/:id', function () {
 
-    it('should route to hotline.controller.show', function() {
+    it('should route to hotline.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'hotlineCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Hotline API Router:', function() {
 
   });
 
-  describe('POST /api/hotlines', function() {
+  describe('POST /api/hotlines', function () {
 
-    it('should route to hotline.controller.create', function() {
+    it('should route to hotline.controller.create', function () {
       routerStub.post
         .withArgs('/', 'hotlineCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Hotline API Router:', function() {
 
   });
 
-  describe('PUT /api/hotlines/:id', function() {
+  describe('PUT /api/hotlines/:id', function () {
 
-    it('should route to hotline.controller.update', function() {
+    it('should route to hotline.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'hotlineCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Hotline API Router:', function() {
 
   });
 
-  describe('PATCH /api/hotlines/:id', function() {
+  describe('PATCH /api/hotlines/:id', function () {
 
-    it('should route to hotline.controller.update', function() {
+    it('should route to hotline.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'hotlineCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Hotline API Router:', function() {
 
   });
 
-  describe('DELETE /api/hotlines/:id', function() {
+  describe('DELETE /api/hotlines/:id', function () {
 
-    it('should route to hotline.controller.destroy', function() {
+    it('should route to hotline.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'hotlineCtrl.destroy')
         .should.have.been.calledOnce;

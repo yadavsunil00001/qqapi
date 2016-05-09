@@ -7,7 +7,7 @@ var logoCtrlStub = {
   show: 'logoCtrl.show',
   create: 'logoCtrl.create',
   update: 'logoCtrl.update',
-  destroy: 'logoCtrl.destroy'
+  destroy: 'logoCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var logoIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './logo.controller': logoCtrlStub
+  './logo.controller': logoCtrlStub,
 });
 
-describe('Logo API Router:', function() {
+describe('Logo API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     logoIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/logos', function() {
+  describe('GET /api/logos', function () {
 
-    it('should route to logo.controller.index', function() {
+    it('should route to logo.controller.index', function () {
       routerStub.get
         .withArgs('/', 'logoCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Logo API Router:', function() {
 
   });
 
-  describe('GET /api/logos/:id', function() {
+  describe('GET /api/logos/:id', function () {
 
-    it('should route to logo.controller.show', function() {
+    it('should route to logo.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'logoCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Logo API Router:', function() {
 
   });
 
-  describe('POST /api/logos', function() {
+  describe('POST /api/logos', function () {
 
-    it('should route to logo.controller.create', function() {
+    it('should route to logo.controller.create', function () {
       routerStub.post
         .withArgs('/', 'logoCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Logo API Router:', function() {
 
   });
 
-  describe('PUT /api/logos/:id', function() {
+  describe('PUT /api/logos/:id', function () {
 
-    it('should route to logo.controller.update', function() {
+    it('should route to logo.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'logoCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Logo API Router:', function() {
 
   });
 
-  describe('PATCH /api/logos/:id', function() {
+  describe('PATCH /api/logos/:id', function () {
 
-    it('should route to logo.controller.update', function() {
+    it('should route to logo.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'logoCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Logo API Router:', function() {
 
   });
 
-  describe('DELETE /api/logos/:id', function() {
+  describe('DELETE /api/logos/:id', function () {
 
-    it('should route to logo.controller.destroy', function() {
+    it('should route to logo.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'logoCtrl.destroy')
         .should.have.been.calledOnce;

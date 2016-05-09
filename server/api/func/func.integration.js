@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newFunc;
 
-describe('Func API:', function() {
+describe('Func API:', function () {
 
-  describe('GET /api/funcs', function() {
+  describe('GET /api/funcs', function () {
     var funcs;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/funcs')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Func API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       funcs.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/funcs', function() {
-    beforeEach(function(done) {
+  describe('POST /api/funcs', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/funcs')
         .send({
           name: 'New Func',
-          info: 'This is the brand new func!!!'
+          info: 'This is the brand new func!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Func API:', function() {
         });
     });
 
-    it('should respond with the newly created func', function() {
+    it('should respond with the newly created func', function () {
       newFunc.name.should.equal('New Func');
       newFunc.info.should.equal('This is the brand new func!!!');
     });
 
   });
 
-  describe('GET /api/funcs/:id', function() {
+  describe('GET /api/funcs/:id', function () {
     var func;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/funcs/' + newFunc._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Func API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       func = {};
     });
 
-    it('should respond with the requested func', function() {
+    it('should respond with the requested func', function () {
       func.name.should.equal('New Func');
       func.info.should.equal('This is the brand new func!!!');
     });
 
   });
 
-  describe('PUT /api/funcs/:id', function() {
+  describe('PUT /api/funcs/:id', function () {
     var updatedFunc;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/funcs/' + newFunc._id)
         .send({
           name: 'Updated Func',
-          info: 'This is the updated func!!!'
+          info: 'This is the updated func!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Func API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedFunc = {};
     });
 
-    it('should respond with the updated func', function() {
+    it('should respond with the updated func', function () {
       updatedFunc.name.should.equal('Updated Func');
       updatedFunc.info.should.equal('This is the updated func!!!');
     });
 
   });
 
-  describe('DELETE /api/funcs/:id', function() {
+  describe('DELETE /api/funcs/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/funcs/' + newFunc._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Func API:', function() {
         });
     });
 
-    it('should respond with 404 when func does not exist', function(done) {
+    it('should respond with 404 when func does not exist', function (done) {
       request(app)
         .delete('/api/funcs/' + newFunc._id)
         .expect(404)

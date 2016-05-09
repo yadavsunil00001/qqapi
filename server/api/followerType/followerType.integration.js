@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newFollowerType;
 
-describe('FollowerType API:', function() {
+describe('FollowerType API:', function () {
 
-  describe('GET /api/followerTypes', function() {
+  describe('GET /api/followerTypes', function () {
     var followerTypes;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/followerTypes')
         .expect(200)
@@ -24,19 +24,19 @@ describe('FollowerType API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       followerTypes.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/followerTypes', function() {
-    beforeEach(function(done) {
+  describe('POST /api/followerTypes', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/followerTypes')
         .send({
           name: 'New FollowerType',
-          info: 'This is the brand new followerType!!!'
+          info: 'This is the brand new followerType!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('FollowerType API:', function() {
         });
     });
 
-    it('should respond with the newly created followerType', function() {
+    it('should respond with the newly created followerType', function () {
       newFollowerType.name.should.equal('New FollowerType');
       newFollowerType.info.should.equal('This is the brand new followerType!!!');
     });
 
   });
 
-  describe('GET /api/followerTypes/:id', function() {
+  describe('GET /api/followerTypes/:id', function () {
     var followerType;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/followerTypes/' + newFollowerType._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('FollowerType API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       followerType = {};
     });
 
-    it('should respond with the requested followerType', function() {
+    it('should respond with the requested followerType', function () {
       followerType.name.should.equal('New FollowerType');
       followerType.info.should.equal('This is the brand new followerType!!!');
     });
 
   });
 
-  describe('PUT /api/followerTypes/:id', function() {
+  describe('PUT /api/followerTypes/:id', function () {
     var updatedFollowerType;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/followerTypes/' + newFollowerType._id)
         .send({
           name: 'Updated FollowerType',
-          info: 'This is the updated followerType!!!'
+          info: 'This is the updated followerType!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('FollowerType API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedFollowerType = {};
     });
 
-    it('should respond with the updated followerType', function() {
+    it('should respond with the updated followerType', function () {
       updatedFollowerType.name.should.equal('Updated FollowerType');
       updatedFollowerType.info.should.equal('This is the updated followerType!!!');
     });
 
   });
 
-  describe('DELETE /api/followerTypes/:id', function() {
+  describe('DELETE /api/followerTypes/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/followerTypes/' + newFollowerType._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('FollowerType API:', function() {
         });
     });
 
-    it('should respond with 404 when followerType does not exist', function(done) {
+    it('should respond with 404 when followerType does not exist', function (done) {
       request(app)
         .delete('/api/followerTypes/' + newFollowerType._id)
         .expect(404)

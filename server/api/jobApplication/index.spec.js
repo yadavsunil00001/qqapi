@@ -7,7 +7,7 @@ var jobApplicationCtrlStub = {
   show: 'jobApplicationCtrl.show',
   create: 'jobApplicationCtrl.create',
   update: 'jobApplicationCtrl.update',
-  destroy: 'jobApplicationCtrl.destroy'
+  destroy: 'jobApplicationCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var jobApplicationIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './jobApplication.controller': jobApplicationCtrlStub
+  './jobApplication.controller': jobApplicationCtrlStub,
 });
 
-describe('JobApplication API Router:', function() {
+describe('JobApplication API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     jobApplicationIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/jobApplications', function() {
+  describe('GET /api/jobApplications', function () {
 
-    it('should route to jobApplication.controller.index', function() {
+    it('should route to jobApplication.controller.index', function () {
       routerStub.get
         .withArgs('/', 'jobApplicationCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('JobApplication API Router:', function() {
 
   });
 
-  describe('GET /api/jobApplications/:id', function() {
+  describe('GET /api/jobApplications/:id', function () {
 
-    it('should route to jobApplication.controller.show', function() {
+    it('should route to jobApplication.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'jobApplicationCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('JobApplication API Router:', function() {
 
   });
 
-  describe('POST /api/jobApplications', function() {
+  describe('POST /api/jobApplications', function () {
 
-    it('should route to jobApplication.controller.create', function() {
+    it('should route to jobApplication.controller.create', function () {
       routerStub.post
         .withArgs('/', 'jobApplicationCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('JobApplication API Router:', function() {
 
   });
 
-  describe('PUT /api/jobApplications/:id', function() {
+  describe('PUT /api/jobApplications/:id', function () {
 
-    it('should route to jobApplication.controller.update', function() {
+    it('should route to jobApplication.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'jobApplicationCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('JobApplication API Router:', function() {
 
   });
 
-  describe('PATCH /api/jobApplications/:id', function() {
+  describe('PATCH /api/jobApplications/:id', function () {
 
-    it('should route to jobApplication.controller.update', function() {
+    it('should route to jobApplication.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'jobApplicationCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('JobApplication API Router:', function() {
 
   });
 
-  describe('DELETE /api/jobApplications/:id', function() {
+  describe('DELETE /api/jobApplications/:id', function () {
 
-    it('should route to jobApplication.controller.destroy', function() {
+    it('should route to jobApplication.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'jobApplicationCtrl.destroy')
         .should.have.been.calledOnce;

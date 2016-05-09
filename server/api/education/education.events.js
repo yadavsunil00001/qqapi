@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var Education = require('../../sqldb').Education;
 var EducationEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ EducationEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     EducationEvents.emit(event + ':' + doc._id, doc);
     EducationEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default EducationEvents;

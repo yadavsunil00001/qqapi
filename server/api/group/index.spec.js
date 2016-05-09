@@ -7,7 +7,7 @@ var groupCtrlStub = {
   show: 'groupCtrl.show',
   create: 'groupCtrl.create',
   update: 'groupCtrl.update',
-  destroy: 'groupCtrl.destroy'
+  destroy: 'groupCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var groupIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './group.controller': groupCtrlStub
+  './group.controller': groupCtrlStub,
 });
 
-describe('Group API Router:', function() {
+describe('Group API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     groupIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/groups', function() {
+  describe('GET /api/groups', function () {
 
-    it('should route to group.controller.index', function() {
+    it('should route to group.controller.index', function () {
       routerStub.get
         .withArgs('/', 'groupCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Group API Router:', function() {
 
   });
 
-  describe('GET /api/groups/:id', function() {
+  describe('GET /api/groups/:id', function () {
 
-    it('should route to group.controller.show', function() {
+    it('should route to group.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'groupCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Group API Router:', function() {
 
   });
 
-  describe('POST /api/groups', function() {
+  describe('POST /api/groups', function () {
 
-    it('should route to group.controller.create', function() {
+    it('should route to group.controller.create', function () {
       routerStub.post
         .withArgs('/', 'groupCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Group API Router:', function() {
 
   });
 
-  describe('PUT /api/groups/:id', function() {
+  describe('PUT /api/groups/:id', function () {
 
-    it('should route to group.controller.update', function() {
+    it('should route to group.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'groupCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Group API Router:', function() {
 
   });
 
-  describe('PATCH /api/groups/:id', function() {
+  describe('PATCH /api/groups/:id', function () {
 
-    it('should route to group.controller.update', function() {
+    it('should route to group.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'groupCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Group API Router:', function() {
 
   });
 
-  describe('DELETE /api/groups/:id', function() {
+  describe('DELETE /api/groups/:id', function () {
 
-    it('should route to group.controller.destroy', function() {
+    it('should route to group.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'groupCtrl.destroy')
         .should.have.been.calledOnce;

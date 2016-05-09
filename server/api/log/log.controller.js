@@ -10,27 +10,27 @@
 'use strict';
 
 import _ from 'lodash';
-import {Log} from '../../sqldb';
+import { Log } from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
-      if(entity.length && entity instanceof Array){
-        if(entity[0].name === "stacktrace.js"){
-          entity.map(function(item){
-            if(item.info){
+      if (entity.length && entity instanceof Array) {
+        if (entity[0].name === 'stacktrace.js') {
+          entity.map(function (item) {
+            if (item.info) {
               try {
-                item.info = (JSON.parse(item.info))
+                item.info = (JSON.parse(item.info));
                 item.createdAt = new Date(item.createdAt).toString();
                 item.updatedAt = new Date(item.updatedAt).toString();
-              } catch (e){
+              } catch (e) {
                 return item;
               }
 
             }
             return entity;
-          })
+          });
         }
       }
       res.status(statusCode).json(entity);
@@ -39,7 +39,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -48,7 +48,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -59,7 +59,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -70,8 +70,8 @@ function handleEntityNotFound(res) {
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
-    console.log(err)
+  return function (err) {
+    console.log(err);
     res.status(statusCode).send(err);
   };
 }
@@ -80,7 +80,7 @@ function handleError(res, statusCode) {
 export function index(req, res) {
   Log.findAll({
     order: '_id Desc',
-    raw:true
+    raw:true,
   })
     .then(respondWithResult(res))
     .catch(handleError(res));
@@ -90,8 +90,8 @@ export function index(req, res) {
 export function show(req, res) {
   Log.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
@@ -100,7 +100,7 @@ export function show(req, res) {
 
 // Creates a new Log in the DB
 export function create(req, res) {
-  Log.create({name:"stacktrace.js",info:JSON.stringify(req.body)})
+  Log.create({ name:'stacktrace.js', info:JSON.stringify(req.body) })
     .then(respondWithResult(res, 201))
     .catch(handleError(res));
 }
@@ -112,8 +112,8 @@ export function update(req, res) {
   }
   Log.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
@@ -125,8 +125,8 @@ export function update(req, res) {
 export function destroy(req, res) {
   Log.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))

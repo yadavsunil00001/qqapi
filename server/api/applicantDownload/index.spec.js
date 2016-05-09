@@ -7,7 +7,7 @@ var applicantDownloadCtrlStub = {
   show: 'applicantDownloadCtrl.show',
   create: 'applicantDownloadCtrl.create',
   update: 'applicantDownloadCtrl.update',
-  destroy: 'applicantDownloadCtrl.destroy'
+  destroy: 'applicantDownloadCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var applicantDownloadIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './applicantDownload.controller': applicantDownloadCtrlStub
+  './applicantDownload.controller': applicantDownloadCtrlStub,
 });
 
-describe('ApplicantDownload API Router:', function() {
+describe('ApplicantDownload API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     applicantDownloadIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/applicantDownloads', function() {
+  describe('GET /api/applicantDownloads', function () {
 
-    it('should route to applicantDownload.controller.index', function() {
+    it('should route to applicantDownload.controller.index', function () {
       routerStub.get
         .withArgs('/', 'applicantDownloadCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('ApplicantDownload API Router:', function() {
 
   });
 
-  describe('GET /api/applicantDownloads/:id', function() {
+  describe('GET /api/applicantDownloads/:id', function () {
 
-    it('should route to applicantDownload.controller.show', function() {
+    it('should route to applicantDownload.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'applicantDownloadCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('ApplicantDownload API Router:', function() {
 
   });
 
-  describe('POST /api/applicantDownloads', function() {
+  describe('POST /api/applicantDownloads', function () {
 
-    it('should route to applicantDownload.controller.create', function() {
+    it('should route to applicantDownload.controller.create', function () {
       routerStub.post
         .withArgs('/', 'applicantDownloadCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('ApplicantDownload API Router:', function() {
 
   });
 
-  describe('PUT /api/applicantDownloads/:id', function() {
+  describe('PUT /api/applicantDownloads/:id', function () {
 
-    it('should route to applicantDownload.controller.update', function() {
+    it('should route to applicantDownload.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'applicantDownloadCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('ApplicantDownload API Router:', function() {
 
   });
 
-  describe('PATCH /api/applicantDownloads/:id', function() {
+  describe('PATCH /api/applicantDownloads/:id', function () {
 
-    it('should route to applicantDownload.controller.update', function() {
+    it('should route to applicantDownload.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'applicantDownloadCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('ApplicantDownload API Router:', function() {
 
   });
 
-  describe('DELETE /api/applicantDownloads/:id', function() {
+  describe('DELETE /api/applicantDownloads/:id', function () {
 
-    it('should route to applicantDownload.controller.destroy', function() {
+    it('should route to applicantDownload.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'applicantDownloadCtrl.destroy')
         .should.have.been.calledOnce;

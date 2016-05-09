@@ -7,7 +7,7 @@ var paymentMethodCtrlStub = {
   show: 'paymentMethodCtrl.show',
   create: 'paymentMethodCtrl.create',
   update: 'paymentMethodCtrl.update',
-  destroy: 'paymentMethodCtrl.destroy'
+  destroy: 'paymentMethodCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var paymentMethodIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './paymentMethod.controller': paymentMethodCtrlStub
+  './paymentMethod.controller': paymentMethodCtrlStub,
 });
 
-describe('PaymentMethod API Router:', function() {
+describe('PaymentMethod API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     paymentMethodIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/paymentMethods', function() {
+  describe('GET /api/paymentMethods', function () {
 
-    it('should route to paymentMethod.controller.index', function() {
+    it('should route to paymentMethod.controller.index', function () {
       routerStub.get
         .withArgs('/', 'paymentMethodCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('PaymentMethod API Router:', function() {
 
   });
 
-  describe('GET /api/paymentMethods/:id', function() {
+  describe('GET /api/paymentMethods/:id', function () {
 
-    it('should route to paymentMethod.controller.show', function() {
+    it('should route to paymentMethod.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'paymentMethodCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('PaymentMethod API Router:', function() {
 
   });
 
-  describe('POST /api/paymentMethods', function() {
+  describe('POST /api/paymentMethods', function () {
 
-    it('should route to paymentMethod.controller.create', function() {
+    it('should route to paymentMethod.controller.create', function () {
       routerStub.post
         .withArgs('/', 'paymentMethodCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('PaymentMethod API Router:', function() {
 
   });
 
-  describe('PUT /api/paymentMethods/:id', function() {
+  describe('PUT /api/paymentMethods/:id', function () {
 
-    it('should route to paymentMethod.controller.update', function() {
+    it('should route to paymentMethod.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'paymentMethodCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('PaymentMethod API Router:', function() {
 
   });
 
-  describe('PATCH /api/paymentMethods/:id', function() {
+  describe('PATCH /api/paymentMethods/:id', function () {
 
-    it('should route to paymentMethod.controller.update', function() {
+    it('should route to paymentMethod.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'paymentMethodCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('PaymentMethod API Router:', function() {
 
   });
 
-  describe('DELETE /api/paymentMethods/:id', function() {
+  describe('DELETE /api/paymentMethods/:id', function () {
 
-    it('should route to paymentMethod.controller.destroy', function() {
+    it('should route to paymentMethod.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'paymentMethodCtrl.destroy')
         .should.have.been.calledOnce;

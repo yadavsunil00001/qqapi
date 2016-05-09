@@ -7,7 +7,7 @@ var instituteCtrlStub = {
   show: 'instituteCtrl.show',
   create: 'instituteCtrl.create',
   update: 'instituteCtrl.update',
-  destroy: 'instituteCtrl.destroy'
+  destroy: 'instituteCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var instituteIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './institute.controller': instituteCtrlStub
+  './institute.controller': instituteCtrlStub,
 });
 
-describe('Institute API Router:', function() {
+describe('Institute API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     instituteIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/institutes', function() {
+  describe('GET /api/institutes', function () {
 
-    it('should route to institute.controller.index', function() {
+    it('should route to institute.controller.index', function () {
       routerStub.get
         .withArgs('/', 'instituteCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Institute API Router:', function() {
 
   });
 
-  describe('GET /api/institutes/:id', function() {
+  describe('GET /api/institutes/:id', function () {
 
-    it('should route to institute.controller.show', function() {
+    it('should route to institute.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'instituteCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Institute API Router:', function() {
 
   });
 
-  describe('POST /api/institutes', function() {
+  describe('POST /api/institutes', function () {
 
-    it('should route to institute.controller.create', function() {
+    it('should route to institute.controller.create', function () {
       routerStub.post
         .withArgs('/', 'instituteCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Institute API Router:', function() {
 
   });
 
-  describe('PUT /api/institutes/:id', function() {
+  describe('PUT /api/institutes/:id', function () {
 
-    it('should route to institute.controller.update', function() {
+    it('should route to institute.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'instituteCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Institute API Router:', function() {
 
   });
 
-  describe('PATCH /api/institutes/:id', function() {
+  describe('PATCH /api/institutes/:id', function () {
 
-    it('should route to institute.controller.update', function() {
+    it('should route to institute.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'instituteCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Institute API Router:', function() {
 
   });
 
-  describe('DELETE /api/institutes/:id', function() {
+  describe('DELETE /api/institutes/:id', function () {
 
-    it('should route to institute.controller.destroy', function() {
+    it('should route to institute.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'instituteCtrl.destroy')
         .should.have.been.calledOnce;

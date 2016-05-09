@@ -9,7 +9,7 @@ export default function (sequelize, DataTypes) {
       allowNull: false,
       unique: true,
     },
-    name: DataTypes.STRING
+    name: DataTypes.STRING,
   }, {
     tableName: 'screening_states',
     timestamps: false,
@@ -17,7 +17,7 @@ export default function (sequelize, DataTypes) {
     classMethods: {
       associate: function associate(models) {
         ScreeningState.hasMany(models.ApplicantScreening);
-      }
+      },
     },
   });
 

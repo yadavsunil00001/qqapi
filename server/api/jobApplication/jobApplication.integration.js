@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newJobApplication;
 
-describe('JobApplication API:', function() {
+describe('JobApplication API:', function () {
 
-  describe('GET /api/jobApplications', function() {
+  describe('GET /api/jobApplications', function () {
     var jobApplications;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobApplications')
         .expect(200)
@@ -24,19 +24,19 @@ describe('JobApplication API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       jobApplications.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/jobApplications', function() {
-    beforeEach(function(done) {
+  describe('POST /api/jobApplications', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/jobApplications')
         .send({
           name: 'New JobApplication',
-          info: 'This is the brand new jobApplication!!!'
+          info: 'This is the brand new jobApplication!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('JobApplication API:', function() {
         });
     });
 
-    it('should respond with the newly created jobApplication', function() {
+    it('should respond with the newly created jobApplication', function () {
       newJobApplication.name.should.equal('New JobApplication');
       newJobApplication.info.should.equal('This is the brand new jobApplication!!!');
     });
 
   });
 
-  describe('GET /api/jobApplications/:id', function() {
+  describe('GET /api/jobApplications/:id', function () {
     var jobApplication;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobApplications/' + newJobApplication._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('JobApplication API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       jobApplication = {};
     });
 
-    it('should respond with the requested jobApplication', function() {
+    it('should respond with the requested jobApplication', function () {
       jobApplication.name.should.equal('New JobApplication');
       jobApplication.info.should.equal('This is the brand new jobApplication!!!');
     });
 
   });
 
-  describe('PUT /api/jobApplications/:id', function() {
+  describe('PUT /api/jobApplications/:id', function () {
     var updatedJobApplication;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/jobApplications/' + newJobApplication._id)
         .send({
           name: 'Updated JobApplication',
-          info: 'This is the updated jobApplication!!!'
+          info: 'This is the updated jobApplication!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('JobApplication API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedJobApplication = {};
     });
 
-    it('should respond with the updated jobApplication', function() {
+    it('should respond with the updated jobApplication', function () {
       updatedJobApplication.name.should.equal('Updated JobApplication');
       updatedJobApplication.info.should.equal('This is the updated jobApplication!!!');
     });
 
   });
 
-  describe('DELETE /api/jobApplications/:id', function() {
+  describe('DELETE /api/jobApplications/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/jobApplications/' + newJobApplication._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('JobApplication API:', function() {
         });
     });
 
-    it('should respond with 404 when jobApplication does not exist', function(done) {
+    it('should respond with 404 when jobApplication does not exist', function (done) {
       request(app)
         .delete('/api/jobApplications/' + newJobApplication._id)
         .expect(404)

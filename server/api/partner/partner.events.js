@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var Partner = require('../../sqldb').Partner;
 var PartnerEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ PartnerEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     PartnerEvents.emit(event + ':' + doc._id, doc);
     PartnerEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default PartnerEvents;

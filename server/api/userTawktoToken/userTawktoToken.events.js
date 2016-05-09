@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var UserTawktoToken = require('../../sqldb').UserTawktoToken;
 var UserTawktoTokenEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ UserTawktoTokenEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     UserTawktoTokenEvents.emit(event + ':' + doc._id, doc);
     UserTawktoTokenEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default UserTawktoTokenEvents;

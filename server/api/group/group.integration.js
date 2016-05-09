@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newGroup;
 
-describe('Group API:', function() {
+describe('Group API:', function () {
 
-  describe('GET /api/groups', function() {
+  describe('GET /api/groups', function () {
     var groups;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/groups')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Group API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       groups.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/groups', function() {
-    beforeEach(function(done) {
+  describe('POST /api/groups', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/groups')
         .send({
           name: 'New Group',
-          info: 'This is the brand new group!!!'
+          info: 'This is the brand new group!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Group API:', function() {
         });
     });
 
-    it('should respond with the newly created group', function() {
+    it('should respond with the newly created group', function () {
       newGroup.name.should.equal('New Group');
       newGroup.info.should.equal('This is the brand new group!!!');
     });
 
   });
 
-  describe('GET /api/groups/:id', function() {
+  describe('GET /api/groups/:id', function () {
     var group;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/groups/' + newGroup._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Group API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       group = {};
     });
 
-    it('should respond with the requested group', function() {
+    it('should respond with the requested group', function () {
       group.name.should.equal('New Group');
       group.info.should.equal('This is the brand new group!!!');
     });
 
   });
 
-  describe('PUT /api/groups/:id', function() {
+  describe('PUT /api/groups/:id', function () {
     var updatedGroup;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/groups/' + newGroup._id)
         .send({
           name: 'Updated Group',
-          info: 'This is the updated group!!!'
+          info: 'This is the updated group!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Group API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedGroup = {};
     });
 
-    it('should respond with the updated group', function() {
+    it('should respond with the updated group', function () {
       updatedGroup.name.should.equal('Updated Group');
       updatedGroup.info.should.equal('This is the updated group!!!');
     });
 
   });
 
-  describe('DELETE /api/groups/:id', function() {
+  describe('DELETE /api/groups/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/groups/' + newGroup._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Group API:', function() {
         });
     });
 
-    it('should respond with 404 when group does not exist', function(done) {
+    it('should respond with 404 when group does not exist', function (done) {
       request(app)
         .delete('/api/groups/' + newGroup._id)
         .expect(404)

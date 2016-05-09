@@ -7,7 +7,7 @@ var screeningStateCtrlStub = {
   show: 'screeningStateCtrl.show',
   create: 'screeningStateCtrl.create',
   update: 'screeningStateCtrl.update',
-  destroy: 'screeningStateCtrl.destroy'
+  destroy: 'screeningStateCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var screeningStateIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './screeningState.controller': screeningStateCtrlStub
+  './screeningState.controller': screeningStateCtrlStub,
 });
 
-describe('ScreeningState API Router:', function() {
+describe('ScreeningState API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     screeningStateIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/screeningStates', function() {
+  describe('GET /api/screeningStates', function () {
 
-    it('should route to screeningState.controller.index', function() {
+    it('should route to screeningState.controller.index', function () {
       routerStub.get
         .withArgs('/', 'screeningStateCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('ScreeningState API Router:', function() {
 
   });
 
-  describe('GET /api/screeningStates/:id', function() {
+  describe('GET /api/screeningStates/:id', function () {
 
-    it('should route to screeningState.controller.show', function() {
+    it('should route to screeningState.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'screeningStateCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('ScreeningState API Router:', function() {
 
   });
 
-  describe('POST /api/screeningStates', function() {
+  describe('POST /api/screeningStates', function () {
 
-    it('should route to screeningState.controller.create', function() {
+    it('should route to screeningState.controller.create', function () {
       routerStub.post
         .withArgs('/', 'screeningStateCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('ScreeningState API Router:', function() {
 
   });
 
-  describe('PUT /api/screeningStates/:id', function() {
+  describe('PUT /api/screeningStates/:id', function () {
 
-    it('should route to screeningState.controller.update', function() {
+    it('should route to screeningState.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'screeningStateCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('ScreeningState API Router:', function() {
 
   });
 
-  describe('PATCH /api/screeningStates/:id', function() {
+  describe('PATCH /api/screeningStates/:id', function () {
 
-    it('should route to screeningState.controller.update', function() {
+    it('should route to screeningState.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'screeningStateCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('ScreeningState API Router:', function() {
 
   });
 
-  describe('DELETE /api/screeningStates/:id', function() {
+  describe('DELETE /api/screeningStates/:id', function () {
 
-    it('should route to screeningState.controller.destroy', function() {
+    it('should route to screeningState.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'screeningStateCtrl.destroy')
         .should.have.been.calledOnce;

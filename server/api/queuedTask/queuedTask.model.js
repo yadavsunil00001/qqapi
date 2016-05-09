@@ -140,7 +140,7 @@ module.exports = function QueuedTaskModel(sequelize, DataTypes) {
         const data = php.serialize({
           settings: {
             subject: `[QuezX Hire] Client - ${options.user.name} [${options.client.name}]` +
-            ` Logged in | Internal Notification`,
+            ' Logged in | Internal Notification',
             to: options.client.EngagementManager.email_id,
             bcc: 'client.relations@quetzal.in',
             from: ['clientactivity@quezx.com', 'QuezX.com'],

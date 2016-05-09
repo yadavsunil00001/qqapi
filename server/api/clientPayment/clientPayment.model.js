@@ -1,7 +1,7 @@
 'use strict';
 var moment = require('moment');
 var _ = require('lodash');
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const ClientPayment = sequelize.define('ClientPayment', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -26,8 +26,8 @@ export default function(sequelize, DataTypes) {
     start_time:DataTypes.DATEONLY,
     end_time:DataTypes.DATEONLY,
     consultant_comment:DataTypes.TEXT(),
-    internal_comment:DataTypes.TEXT()
-  },{
+    internal_comment:DataTypes.TEXT(),
+  }, {
     tableName: 'client_payments',
     timestamps: false,
     underscored: true,
@@ -36,52 +36,52 @@ export default function(sequelize, DataTypes) {
       associate: function associate(models) {
 
       },
-      retrieveJobPayment(models,jobdetails){
-        var quarc = "gloryque_quarc";
-        var currentDate = moment().format("YYYY-MM-DD");
-        //return Promise.resolve(jobdetails)
-        return models.ClientPaymentMap.findAll({where:{
+      retrieveJobPayment(models, jobdetails) {
+        var quarc = 'gloryque_quarc';
+        var currentDate = moment().format('YYYY-MM-DD');
+        // return Promise.resolve(jobdetails)
+        return models.ClientPaymentMap.findAll({ where:{
           client_id:jobdetails.User.get('client_id'),
-          start_time: {$lte:moment(jobdetails.created_on).format("YYYY-MM-DD")},
-          end_time:{$gte:moment(jobdetails.created_on).format("YYYY-MM-DD")},
-        }}).then(clientPaymentMap => {
+          start_time: { $lte:moment(jobdetails.created_on).format('YYYY-MM-DD') },
+          end_time:{ $gte:moment(jobdetails.created_on).format('YYYY-MM-DD') },
+        } }).then(clientPaymentMap => {
           var sqlQuery;
-          if(_.get(clientPaymentMap[0],'type') == 1 ){
-              sqlQuery = "SELECT id,client_id,isFixed,currency,payment_days,replacement_days,designation as `start_range`"+
-                ",'NA' AS end_range,percent,no_of_payment,range_order,consultant_comment,internal_comment "+
-                "FROM " +quarc + ".client_payment_designations WHERE id = "+ jobdetails.client_payment_designation_id;
+          if (_.get(clientPaymentMap[0], 'type') == 1) {
+            sqlQuery = 'SELECT id,client_id,isFixed,currency,payment_days,replacement_days,designation as `start_range`' +
+                ",'NA' AS end_range,percent,no_of_payment,range_order,consultant_comment,internal_comment " +
+                'FROM ' + quarc + '.client_payment_designations WHERE id = ' + jobdetails.client_payment_designation_id;
           } else {
-            console.log("s")
+            console.log('s');
             if (!(jobdetails.min_sal == 0 && jobdetails.max_sal == 0)) {
               sqlQuery = `SELECT id,client_id, isFixed,currency,payment_days,replacement_days,start_range,end_range,
               percent,no_of_payment,range_order,consultant_comment,internal_comment
               FROM (SELECT id,client_id,isFixed,currency,payment_days,replacement_days,start_range,end_range,
               percent,no_of_payment,range_order,consultant_comment,internal_comment
-              FROM ${quarc}.client_payments WHERE client_id = ${jobdetails.User.get('client_id') }
-              AND start_time <= '${moment(jobdetails.created_on).format("YYYY-MM-DD") }'
-              AND end_time >=  '${moment(jobdetails.created_on).format("YYYY-MM-DD")}'
-              AND start_range <= ${ jobdetails.min_sal } ORDER BY start_range DESC LIMIT 1) AS A
+              FROM ${quarc}.client_payments WHERE client_id = ${jobdetails.User.get('client_id')}
+              AND start_time <= '${moment(jobdetails.created_on).format('YYYY-MM-DD')}'
+              AND end_time >=  '${moment(jobdetails.created_on).format('YYYY-MM-DD')}'
+              AND start_range <= ${jobdetails.min_sal} ORDER BY start_range DESC LIMIT 1) AS A
               UNION SELECT id,client_id,isFixed,currency,payment_days,replacement_days,start_range,end_range,percent,
               no_of_payment,range_order,consultant_comment,internal_comment FROM ${quarc}.client_payments
-              WHERE client_id = ${ jobdetails.User.get('client_id') } AND
-              start_time <= '${moment(jobdetails.created_on).format("YYYY-MM-DD") }'
-              AND end_time >=  '${moment(jobdetails.created_on).format("YYYY-MM-DD")}'
-              AND start_range <= ${ jobdetails.max_sal } AND start_range >= ${jobdetails.min_sal}`;
+              WHERE client_id = ${jobdetails.User.get('client_id')} AND
+              start_time <= '${moment(jobdetails.created_on).format('YYYY-MM-DD')}'
+              AND end_time >=  '${moment(jobdetails.created_on).format('YYYY-MM-DD')}'
+              AND start_range <= ${jobdetails.max_sal} AND start_range >= ${jobdetails.min_sal}`;
             } else {
-              console.log("else")
+              console.log('else');
               sqlQuery = `SELECT id,client_id,isFixed,currency,payment_days,replacement_days,start_range,end_range,
               percent,no_of_payment,range_order,consultant_comment,internal_comment FROM ${quarc}.client_payments
-              WHERE client_id = ${ jobdetails.User.get('client_id') }
-              AND start_time <= '${moment(jobdetails.created_on).format("YYYY-MM-DD")}'
-              AND end_time >=  '${moment(jobdetails.created_on).format("YYYY-MM-DD")}'`;
+              WHERE client_id = ${jobdetails.User.get('client_id')}
+              AND start_time <= '${moment(jobdetails.created_on).format('YYYY-MM-DD')}'
+              AND end_time >=  '${moment(jobdetails.created_on).format('YYYY-MM-DD')}'`;
             }
           }
-          return models.sequelizeQuarc.query(sqlQuery,{type: models.Sequelize.QueryTypes.SELECT});
-          return "nothing"
-        })
+          return models.sequelizeQuarc.query(sqlQuery, { type: models.Sequelize.QueryTypes.SELECT });
+          return 'nothing';
+        });
 
 
-      }
+      },
     },
   });
 

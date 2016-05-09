@@ -7,7 +7,7 @@ var usageLogCtrlStub = {
   show: 'usageLogCtrl.show',
   create: 'usageLogCtrl.create',
   update: 'usageLogCtrl.update',
-  destroy: 'usageLogCtrl.destroy'
+  destroy: 'usageLogCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var usageLogIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './usageLog.controller': usageLogCtrlStub
+  './usageLog.controller': usageLogCtrlStub,
 });
 
-describe('UsageLog API Router:', function() {
+describe('UsageLog API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     usageLogIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/usageLogs', function() {
+  describe('GET /api/usageLogs', function () {
 
-    it('should route to usageLog.controller.index', function() {
+    it('should route to usageLog.controller.index', function () {
       routerStub.get
         .withArgs('/', 'usageLogCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('UsageLog API Router:', function() {
 
   });
 
-  describe('GET /api/usageLogs/:id', function() {
+  describe('GET /api/usageLogs/:id', function () {
 
-    it('should route to usageLog.controller.show', function() {
+    it('should route to usageLog.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'usageLogCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('UsageLog API Router:', function() {
 
   });
 
-  describe('POST /api/usageLogs', function() {
+  describe('POST /api/usageLogs', function () {
 
-    it('should route to usageLog.controller.create', function() {
+    it('should route to usageLog.controller.create', function () {
       routerStub.post
         .withArgs('/', 'usageLogCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('UsageLog API Router:', function() {
 
   });
 
-  describe('PUT /api/usageLogs/:id', function() {
+  describe('PUT /api/usageLogs/:id', function () {
 
-    it('should route to usageLog.controller.update', function() {
+    it('should route to usageLog.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'usageLogCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('UsageLog API Router:', function() {
 
   });
 
-  describe('PATCH /api/usageLogs/:id', function() {
+  describe('PATCH /api/usageLogs/:id', function () {
 
-    it('should route to usageLog.controller.update', function() {
+    it('should route to usageLog.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'usageLogCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('UsageLog API Router:', function() {
 
   });
 
-  describe('DELETE /api/usageLogs/:id', function() {
+  describe('DELETE /api/usageLogs/:id', function () {
 
-    it('should route to usageLog.controller.destroy', function() {
+    it('should route to usageLog.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'usageLogCtrl.destroy')
         .should.have.been.calledOnce;

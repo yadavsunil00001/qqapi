@@ -7,7 +7,7 @@ var refreshTokenCtrlStub = {
   show: 'refreshTokenCtrl.show',
   create: 'refreshTokenCtrl.create',
   update: 'refreshTokenCtrl.update',
-  destroy: 'refreshTokenCtrl.destroy'
+  destroy: 'refreshTokenCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var refreshTokenIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './refreshToken.controller': refreshTokenCtrlStub
+  './refreshToken.controller': refreshTokenCtrlStub,
 });
 
-describe('RefreshToken API Router:', function() {
+describe('RefreshToken API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     refreshTokenIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/refreshTokens', function() {
+  describe('GET /api/refreshTokens', function () {
 
-    it('should route to refreshToken.controller.index', function() {
+    it('should route to refreshToken.controller.index', function () {
       routerStub.get
         .withArgs('/', 'refreshTokenCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('RefreshToken API Router:', function() {
 
   });
 
-  describe('GET /api/refreshTokens/:id', function() {
+  describe('GET /api/refreshTokens/:id', function () {
 
-    it('should route to refreshToken.controller.show', function() {
+    it('should route to refreshToken.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'refreshTokenCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('RefreshToken API Router:', function() {
 
   });
 
-  describe('POST /api/refreshTokens', function() {
+  describe('POST /api/refreshTokens', function () {
 
-    it('should route to refreshToken.controller.create', function() {
+    it('should route to refreshToken.controller.create', function () {
       routerStub.post
         .withArgs('/', 'refreshTokenCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('RefreshToken API Router:', function() {
 
   });
 
-  describe('PUT /api/refreshTokens/:id', function() {
+  describe('PUT /api/refreshTokens/:id', function () {
 
-    it('should route to refreshToken.controller.update', function() {
+    it('should route to refreshToken.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'refreshTokenCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('RefreshToken API Router:', function() {
 
   });
 
-  describe('PATCH /api/refreshTokens/:id', function() {
+  describe('PATCH /api/refreshTokens/:id', function () {
 
-    it('should route to refreshToken.controller.update', function() {
+    it('should route to refreshToken.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'refreshTokenCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('RefreshToken API Router:', function() {
 
   });
 
-  describe('DELETE /api/refreshTokens/:id', function() {
+  describe('DELETE /api/refreshTokens/:id', function () {
 
-    it('should route to refreshToken.controller.destroy', function() {
+    it('should route to refreshToken.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'refreshTokenCtrl.destroy')
         .should.have.been.calledOnce;

@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newDesignation;
 
-describe('Designation API:', function() {
+describe('Designation API:', function () {
 
-  describe('GET /api/designations', function() {
+  describe('GET /api/designations', function () {
     var designations;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/designations')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Designation API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       designations.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/designations', function() {
-    beforeEach(function(done) {
+  describe('POST /api/designations', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/designations')
         .send({
           name: 'New Designation',
-          info: 'This is the brand new designation!!!'
+          info: 'This is the brand new designation!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Designation API:', function() {
         });
     });
 
-    it('should respond with the newly created designation', function() {
+    it('should respond with the newly created designation', function () {
       newDesignation.name.should.equal('New Designation');
       newDesignation.info.should.equal('This is the brand new designation!!!');
     });
 
   });
 
-  describe('GET /api/designations/:id', function() {
+  describe('GET /api/designations/:id', function () {
     var designation;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/designations/' + newDesignation._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Designation API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       designation = {};
     });
 
-    it('should respond with the requested designation', function() {
+    it('should respond with the requested designation', function () {
       designation.name.should.equal('New Designation');
       designation.info.should.equal('This is the brand new designation!!!');
     });
 
   });
 
-  describe('PUT /api/designations/:id', function() {
+  describe('PUT /api/designations/:id', function () {
     var updatedDesignation;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/designations/' + newDesignation._id)
         .send({
           name: 'Updated Designation',
-          info: 'This is the updated designation!!!'
+          info: 'This is the updated designation!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Designation API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedDesignation = {};
     });
 
-    it('should respond with the updated designation', function() {
+    it('should respond with the updated designation', function () {
       updatedDesignation.name.should.equal('Updated Designation');
       updatedDesignation.info.should.equal('This is the updated designation!!!');
     });
 
   });
 
-  describe('DELETE /api/designations/:id', function() {
+  describe('DELETE /api/designations/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/designations/' + newDesignation._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Designation API:', function() {
         });
     });
 
-    it('should respond with 404 when designation does not exist', function(done) {
+    it('should respond with 404 when designation does not exist', function (done) {
       request(app)
         .delete('/api/designations/' + newDesignation._id)
         .expect(404)

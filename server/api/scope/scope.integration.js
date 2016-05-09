@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newScope;
 
-describe('Scope API:', function() {
+describe('Scope API:', function () {
 
-  describe('GET /api/scopes', function() {
+  describe('GET /api/scopes', function () {
     var scopes;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/scopes')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Scope API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       scopes.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/scopes', function() {
-    beforeEach(function(done) {
+  describe('POST /api/scopes', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/scopes')
         .send({
           name: 'New Scope',
-          info: 'This is the brand new scope!!!'
+          info: 'This is the brand new scope!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Scope API:', function() {
         });
     });
 
-    it('should respond with the newly created scope', function() {
+    it('should respond with the newly created scope', function () {
       newScope.name.should.equal('New Scope');
       newScope.info.should.equal('This is the brand new scope!!!');
     });
 
   });
 
-  describe('GET /api/scopes/:id', function() {
+  describe('GET /api/scopes/:id', function () {
     var scope;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/scopes/' + newScope._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Scope API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       scope = {};
     });
 
-    it('should respond with the requested scope', function() {
+    it('should respond with the requested scope', function () {
       scope.name.should.equal('New Scope');
       scope.info.should.equal('This is the brand new scope!!!');
     });
 
   });
 
-  describe('PUT /api/scopes/:id', function() {
+  describe('PUT /api/scopes/:id', function () {
     var updatedScope;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/scopes/' + newScope._id)
         .send({
           name: 'Updated Scope',
-          info: 'This is the updated scope!!!'
+          info: 'This is the updated scope!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Scope API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedScope = {};
     });
 
-    it('should respond with the updated scope', function() {
+    it('should respond with the updated scope', function () {
       updatedScope.name.should.equal('Updated Scope');
       updatedScope.info.should.equal('This is the updated scope!!!');
     });
 
   });
 
-  describe('DELETE /api/scopes/:id', function() {
+  describe('DELETE /api/scopes/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/scopes/' + newScope._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Scope API:', function() {
         });
     });
 
-    it('should respond with 404 when scope does not exist', function(done) {
+    it('should respond with 404 when scope does not exist', function (done) {
       request(app)
         .delete('/api/scopes/' + newScope._id)
         .expect(404)

@@ -1,7 +1,7 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
-  const ApplicantScreening =  sequelize.define('ApplicantScreening', {
+export default function (sequelize, DataTypes) {
+  const ApplicantScreening = sequelize.define('ApplicantScreening', {
     id: {
       type: DataTypes.INTEGER(11),
       autoIncrement: true,
@@ -37,20 +37,20 @@ export default function(sequelize, DataTypes) {
           foreignKey: 'user_id',
         });
       },
-      legacyMap(models,states,loggedInUserId){
+      legacyMap(models, states, loggedInUserId) {
         // map is  a relation between stateId (as key) and screening state id (as value) which is required for mapping
         const map = {
           1: 3,
           13: 1,
           32: 5,
           6: 2,
-          27: 4
+          27: 4,
         };
 
         var applicantScreenings = [];
-        states.forEach(function(state){
-          if(-1 === (Object.keys(map)).indexOf(state.state_id.toString())) {
-            return
+        states.forEach(function (state) {
+          if (-1 === (Object.keys(map)).indexOf(state.state_id.toString())) {
+            return;
           }
           var applicantScreening = {};
           applicantScreening.screening_state_id = map[state.state_id];
@@ -60,11 +60,11 @@ export default function(sequelize, DataTypes) {
           applicantScreening.comments = state.comments ? state.comments : '';
           applicantScreening.consultant_email_sent = 1;
           applicantScreening.recruiter_email_sent = 1;
-          applicantScreenings.push(applicantScreening)
-        })
+          applicantScreenings.push(applicantScreening);
+        });
 
-        return models.ApplicantScreening.bulkCreate(applicantScreenings)
-      }
+        return models.ApplicantScreening.bulkCreate(applicantScreenings);
+      },
     },
   });
 

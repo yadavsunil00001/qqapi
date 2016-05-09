@@ -10,17 +10,17 @@
 'use strict';
 
 import _ from 'lodash';
-import db, {BUCKETS,User,Job,JobAllocation, Solr,sequelizeQuarc,Sequelize,Region,JobScore,JobStatus,ClientPayment,
-  ConsultantResponse,Welcome} from '../../sqldb';
+import db, { BUCKETS, User, Job, JobAllocation, Solr, sequelizeQuarc, Sequelize, Region, JobScore, JobStatus, ClientPayment,
+  ConsultantResponse, Welcome } from '../../sqldb';
 
-function handleCatch(res, statusCode){
-  return function(err){
+function handleCatch(res, statusCode) {
+  return function (err) {
     res.status(500).json(err);
-  }
+  };
 }
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -28,7 +28,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -37,7 +37,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -48,7 +48,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -57,8 +57,8 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode,err ) {
-  console.log("handleError",err)
+function handleError(res, statusCode, err) {
+  console.log('handleError', err);
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -66,10 +66,10 @@ function handleError(res, statusCode,err ) {
 // Gets a list of Jobs
 export function index(req, res) {
   // Todo: ORM Impl: Writtern manual query becasue of currently sequelize don't have Multidatabase Join Support
-  const query =req.query.query || "";
+  const query = req.query.query || '';
 
   const rawStates = (req.query.status) ? req.query.status.split(',') : ['ALL'];
-  const bucket = { HIGH_PRIORITY:[1], OPEN:[2], HOLD:[3], CLOSED:[4], ALL: [ 1,2,3,4 ] };
+  const bucket = { HIGH_PRIORITY:[1], OPEN:[2], HOLD:[3], CLOSED:[4], ALL: [1, 2, 3, 4] };
   const states = [];
 
   rawStates.forEach(function boostStates(state, sIndex) {
@@ -84,7 +84,7 @@ export function index(req, res) {
   });
 
 
-  const countQueryPr = !req.query.meta || req.query.offset != 0 ? []: sequelizeQuarc.query(`
+  const countQueryPr = !req.query.meta || req.query.offset != 0 ? [] : sequelizeQuarc.query(`
     SELECT
       COUNT(JobStatus.id) as jobStatusCount,
       JobStatus.name AS jobStatusName
@@ -99,7 +99,7 @@ export function index(req, res) {
           AND ConsultantResponse.response_id = 1
           AND Job.status = '1'
           AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
-    GROUP BY JobStatus.id`,{type: Sequelize.QueryTypes.SELECT});
+    GROUP BY JobStatus.id`, { type: Sequelize.QueryTypes.SELECT });
 
 
   const queryPr = sequelizeQuarc.query(`
@@ -125,40 +125,40 @@ export function index(req, res) {
         LEFT JOIN  gloryque_quantum.clients AS Client ON  (User.client_id = Client.id)
       WHERE JobAllocation.user_id = ${req.user.id} AND JobAllocation.status = '1' AND ConsultantResponse.response_id = 1 AND
             Job.status = '1'
-            ${'AND JobStatus.id IN (' + states.join(' , ')  + ") "}
+            ${'AND JobStatus.id IN (' + states.join(' , ') + ') '}
             AND ((Job.role LIKE '%${query}%') OR (User.username LIKE '%${query}%') OR (User.name LIKE '%${query}%'))
       GROUP BY Job.id
       ORDER BY JobScore.consultant DESC
       LIMIT ${(req.query.limit > 20) ? 20 : req.query.limit || 10}
       OFFSET ${req.query.offset || 0}`,
-      {type: Sequelize.QueryTypes.SELECT})
-    return Promise.all([countQueryPr,queryPr])
+      { type: Sequelize.QueryTypes.SELECT });
+  return Promise.all([countQueryPr, queryPr])
       .then(prRe => {
-        const jobsCount = CakeList(prRe[0],'jobStatusName','jobStatusCount')
-        const jobs = prRe[1]
-        return res.json({jobs,meta:{jobsCount}})
-      }).catch(err => handleError(res,500,err))
+        const jobsCount = CakeList(prRe[0], 'jobStatusName', 'jobStatusCount');
+        const jobs = prRe[1];
+        return res.json({ jobs, meta:{ jobsCount } });
+      }).catch(err => handleError(res, 500, err));
 }
 
 // Gets a list of jobs depending on response id
 export function search(req, res) {
-  const  user_id = req.user.id;
-  const response = {'Accepted':1, 'Hold':2, 'Rejected':3};
+  const user_id = req.user.id;
+  const response = { 'Accepted':1, 'Hold':2, 'Rejected':3 };
   const responseId = response[req.query.response];
 
   const offset = req.query.offset || 0;
   const limit = (req.query.limit > 20) ? 20 : req.query.limit || 10;
 
-    const fl = req.query.fl || [
-        'updated_on','role','owner_id','consultant_score','direct_line_up','job_nature','eng_mgr_name',
-        'eng_mgr_name_sf','max_sal','max_exp','recruiter_username','id','job_code','client_name',
-        'client_name_sf','email','min_sal','min_exp','client_score','type_s',
-        'screening_score','total_applicants','job_status','created_on',
-        'job_location','vacancy','skills'
-      ].join(',');
+  const fl = req.query.fl || [
+    'updated_on', 'role', 'owner_id', 'consultant_score', 'direct_line_up', 'job_nature', 'eng_mgr_name',
+    'eng_mgr_name_sf', 'max_sal', 'max_exp', 'recruiter_username', 'id', 'job_code', 'client_name',
+    'client_name_sf', 'email', 'min_sal', 'min_exp', 'client_score', 'type_s',
+    'screening_score', 'total_applicants', 'job_status', 'created_on',
+    'job_location', 'vacancy', 'skills',
+  ].join(',');
 
 
-    sequelizeQuarc.query(`
+  sequelizeQuarc.query(`
         SELECT
             JA.job_id,
             JA.user_id,
@@ -174,13 +174,13 @@ export function search(req, res) {
         WHERE
             JA.user_id = ${user_id} AND CR.response_id = ${responseId}
         GROUP BY CR.job_id , CR.user_id;
-        `,{type: Sequelize.QueryTypes.SELECT})
-    .then(function(jobs){
-      jobs = _.map(jobs,'job_id');
+        `, { type: Sequelize.QueryTypes.SELECT })
+    .then(function (jobs) {
+      jobs = _.map(jobs, 'job_id');
       let insideQuery = jobs.join(' OR ');
       // After getting job_id fetching data from Solr
       const solrQuery = Solr.createQuery()
-        .q('id:('+insideQuery+') AND type_s:job ')
+        .q('id:(' + insideQuery + ') AND type_s:job ')
         .fl(fl);
       Solr.get('select', solrQuery, function solrCallback(err, result) {
         if (err) return res.status(500).json(err);
@@ -191,13 +191,13 @@ export function search(req, res) {
 
 }
 
-function CakeList(jsonArray,key,value){
-  var keyArray = _.map(jsonArray,key);
-  var valueArray = _.map(jsonArray,value);
+function CakeList(jsonArray, key, value) {
+  var keyArray = _.map(jsonArray, key);
+  var valueArray = _.map(jsonArray, value);
   var map = {};
-  keyArray.map(function(item,index){
+  keyArray.map(function (item, index) {
     map[item] = valueArray[index];
-    return item
+    return item;
   });
   return map;
 }
@@ -208,7 +208,7 @@ export function allocationStatusNew(req, res) {
 
   const rawStates = (req.query.status) ? req.query.status.split(',') : ['ALL'];
   //
-  //[{ id:0,name:'New'},{ id:1, name:'Accepted'},{id:2,name:'Hide'},{id:3,name:'Rejected'},{id:'all',name:'All'}]
+  // [{ id:0,name:'New'},{ id:1, name:'Accepted'},{id:2,name:'Hide'},{id:3,name:'Rejected'},{id:'all',name:'All'}]
   const bucket = {
     NEW:[0], //  Using sql query Null is assumed as 0
     ACCEPTED:[1],
@@ -253,17 +253,17 @@ export function allocationStatusNew(req, res) {
   WHERE JobAllocation.user_id = ${req.user.id} AND Job.status = '1' AND JobAllocation.status = '1'
   GROUP BY JobAllocation.job_id
   ORDER BY JobAllocation.updated_on DESC
-  ) AS TEMP ${ states.length ? 'WHERE (role LIKE "%'+query+'%" OR owner_company LIKE "%'+query+'%" ) AND response_id IN ('+ states.join()+ ')':'' }
+  ) AS TEMP ${states.length ? 'WHERE (role LIKE "%' + query + '%" OR owner_company LIKE "%' + query + '%" ) AND response_id IN (' + states.join() + ')' : ''}
     ORDER BY  DATE(updated_on) DESC
-  LIMIT ${ req.query.limit ? parseInt(req.query.limit) : 100 }
+  LIMIT ${req.query.limit ? parseInt(req.query.limit) : 100}
   OFFSET ${req.query.offset || 0} `;
 
   let priorityPromise = JobStatus.findAll({
-    attributes: ['id','name']
-  })
+    attributes: ['id', 'name'],
+  });
 
   sequelizeQuarc
-    .query(sqlQuery, {type: Sequelize.QueryTypes.SELECT})
+    .query(sqlQuery, { type: Sequelize.QueryTypes.SELECT })
     .then(jobs => {
 
       let jobCountPromise = [];
@@ -284,99 +284,99 @@ export function allocationStatusNew(req, res) {
               GROUP BY JobAllocation.job_id) AS TEMP
             GROUP BY  response_id`;
 
-        jobCountPromise = sequelizeQuarc.query(countQuery, {type: Sequelize.QueryTypes.SELECT}).then(countResult =>{
-          const jobCountObject = CakeList(countResult,'response_id','count');
+        jobCountPromise = sequelizeQuarc.query(countQuery, { type: Sequelize.QueryTypes.SELECT }).then(countResult => {
+          const jobCountObject = CakeList(countResult, 'response_id', 'count');
 
           // Calculate all count
           var currentStatesCount = 4; //    ['NEW', 'ACCEPTED','HOLD', 'REJECTED'].length
-          var jobCount= [];
+          var jobCount = [];
           var total = 0;
-          for(var i=0;i < currentStatesCount;i++) {
-            if(typeof jobCountObject[i] !== 'undefined'){
-              total += jobCountObject[i]
+          for (var i = 0; i < currentStatesCount; i++) {
+            if (typeof jobCountObject[i] !== 'undefined') {
+              total += jobCountObject[i];
             } else {
-              jobCountObject[i] = 0
+              jobCountObject[i] = 0;
             }
-            jobCount.push({id:i,count:jobCountObject[i]})
+            jobCount.push({ id:i, count:jobCountObject[i] });
           }
-          jobCount.push({id:'all',count:total})//    ['NEW', 'ACCEPTED','HOLD', 'REJECTED'].length
+          jobCount.push({ id:'all', count:total });//    ['NEW', 'ACCEPTED','HOLD', 'REJECTED'].length
           return jobCount;
-        })
+        });
       }
 
-      if(jobs.length){
-        const userIds = _.map(jobs,'user_id')
-        const regionIds = _.map(jobs,'region_id')
-        const jobScoreIds = _.map(jobs,'job_score_id')
-        const clientIds = _.map(jobs,'client_id')
+      if (jobs.length) {
+        const userIds = _.map(jobs, 'user_id');
+        const regionIds = _.map(jobs, 'region_id');
+        const jobScoreIds = _.map(jobs, 'job_score_id');
+        const clientIds = _.map(jobs, 'client_id');
         let userPromise = User.findAll({
-          attributes: ['id','name'],
+          attributes: ['id', 'name'],
           where:{
-            id: userIds
-          }
+            id: userIds,
+          },
         });
 
         let regionPromise = Region.findAll({
-            attributes: ['id','region'],
-            where:{
-              id: regionIds
-            }
-          });
+          attributes: ['id', 'region'],
+          where:{
+            id: regionIds,
+          },
+        });
 
         let jobScorePromise = JobScore.findAll({
-          attributes: ['id','consultant'],
+          attributes: ['id', 'consultant'],
           where:{
-            id: jobScoreIds
-          }
+            id: jobScoreIds,
+          },
         });
 
         let clientPaymentPromise = ClientPayment.findAll({
-          attributes: ['id','client_id','isFixed'],
+          attributes: ['id', 'client_id', 'isFixed'],
           where:{
-            client_id: clientIds
+            client_id: clientIds,
           },
-          raw:true
-        })
+          raw:true,
+        });
 
-        return Promise.all([userPromise,regionPromise,jobScorePromise,priorityPromise,clientPaymentPromise,jobCountPromise]).then(promiseReturnArray=>{
+        return Promise.all([userPromise, regionPromise, jobScorePromise, priorityPromise, clientPaymentPromise, jobCountPromise]).then(promiseReturnArray => {
 
-          const users = CakeList(promiseReturnArray[0],'id','name');
-          const regions = CakeList(promiseReturnArray[1],'id','region');
-          const jobScores = CakeList(promiseReturnArray[2],'id','consultant');
-          const priority = CakeList(promiseReturnArray[3],'id','name');
+          const users = CakeList(promiseReturnArray[0], 'id', 'name');
+          const regions = CakeList(promiseReturnArray[1], 'id', 'region');
+          const jobScores = CakeList(promiseReturnArray[2], 'id', 'consultant');
+          const priority = CakeList(promiseReturnArray[3], 'id', 'name');
           const deepClientPayments = promiseReturnArray[4];
-          const jobCount = promiseReturnArray[5]
+          const jobCount = promiseReturnArray[5];
 
           // DEEP Query Job ClientPayments
           let clientPayments = {};
-          deepClientPayments.map(function(item,index){
+          deepClientPayments.map(function (item, index) {
             clientPayments[item.client_id] = clientPayments[item.client_id] ? clientPayments[item.client_id] : [];
-            clientPayments[item.client_id].push(item)
+            clientPayments[item.client_id].push(item);
             return item;
           });
-          jobs = jobs.map(function(job) {
-            job.clientPayments = clientPayments[job.client_id]
+          jobs = jobs.map(function (job) {
+            job.clientPayments = clientPayments[job.client_id];
             return job;
           }); // DEEP Query Job ClientPayments
 
-          jobs = jobs.map(function(job){
-            job.clientPayments =  clientPayments[job.client_id]
-            job.owner = users[parseInt(job.user_id)]
-            job.region = regions[parseInt(job.region_id)]
-            job.score = jobScores[parseInt(job.job_score_id)]
-            job.priority = priority[parseInt(job.job_status_id)]
-            if(job.clientPayments){
-              if(job.clientPayments.length>0){
-                if(job.clientPayments[0]['isFixed']==1){
+          jobs = jobs.map(function (job) {
+            job.clientPayments = clientPayments[job.client_id];
+            job.owner = users[parseInt(job.user_id)];
+            job.region = regions[parseInt(job.region_id)];
+            job.score = jobScores[parseInt(job.job_score_id)];
+            job.priority = priority[parseInt(job.job_status_id)];
+            if (job.clientPayments) {
+              if (job.clientPayments.length > 0) {
+                if (job.clientPayments[0]['isFixed'] == 1) {
                   job.payment = 'Fixed - Standard';
-                } else if(job.clientPayments[0]['isFixed']==2) {
+                } else if (job.clientPayments[0]['isFixed'] == 2) {
                   job.payment = 'Fixed - Customised';
-                } else if(job.clientPayments[0]['isFixed']==3){
-                  job.payment =  '1% EMI - Customised';
+                } else if (job.clientPayments[0]['isFixed'] == 3) {
+                  job.payment = '1% EMI - Customised';
                 } else {
                   job.payment = '1% EMI - Standard';
                 }
-              } else{
+              } else {
                 job.payment = '-';
               }
               delete job.clientPayments;
@@ -385,27 +385,27 @@ export function allocationStatusNew(req, res) {
             return job;
           });
 
-          return res.json({jobs:jobs,meta:{jobsCount:jobCount}})
+          return res.json({ jobs:jobs, meta:{ jobsCount:jobCount } });
 
-          //return res.json({jobs:allJobs,stateMenu:[{ id:0,name:'New'},{ id:1, name:'Accepted'},{id:2,name:'Hide'},{id:3,name:'Rejected'},{id:'all',name:'All'}]})
+          // return res.json({jobs:allJobs,stateMenu:[{ id:0,name:'New'},{ id:1, name:'Accepted'},{id:2,name:'Hide'},{id:3,name:'Rejected'},{id:'all',name:'All'}]})
 
-        })
+        });
       } else {
         return jobCountPromise.then(jobCount => {
-          return res.status(200).json({jobs:[],meta:{jobsCount:jobCount}})
-        })
+          return res.status(200).json({ jobs:[], meta:{ jobsCount:jobCount } });
+        });
       }
     })
-  .catch(err => handleError(res,500,err))
+  .catch(err => handleError(res, 500, err));
 }
 
 // List Jobs allocationed to consultant
 export function allocationStatusNewCount(req, res) {
   return JobAllocation.count({
-      where: {consultant_response_id: null, user_id: req.user.id},
-      include: [{model: db.Job, where: {status: 1}}]
-    })
-    .then(count => res.json({count})).catch(err=>handleError(res, 500, err))
+    where: { consultant_response_id: null, user_id: req.user.id },
+    include: [{ model: db.Job, where: { status: 1 } }],
+  })
+    .then(count => res.json({ count })).catch(err => handleError(res, 500, err));
 }
 
 // Gets a single Job from the DB
@@ -413,28 +413,28 @@ export function show(req, res) {
   // @todo refine and restructure flow
   const following = req.followingJobs ? ` OR id:(${req.followingJobs})` : '';
   const fl = req.query.fl || [
-      'id', 'role', 'owner_id', 'max_sal', 'min_sal', 'job_code', 'min_exp', 'max_exp',
-      'client_name', 'job_status', 'job_status_id', 'required_skills', 'optional_skills',
-      'interview_addr', 'interview_place_direction', 'days_per_week', 'job_location',
-      'end_work_time', 'start_work_time', 'degrees', 'institutes', '_root_', 'vacancy',
-      'employers', 'industries', 'perks', 'preferred_genders', 'responsibility',
-    ].join(',');
+    'id', 'role', 'owner_id', 'max_sal', 'min_sal', 'job_code', 'min_exp', 'max_exp',
+    'client_name', 'job_status', 'job_status_id', 'required_skills', 'optional_skills',
+    'interview_addr', 'interview_place_direction', 'days_per_week', 'job_location',
+    'end_work_time', 'start_work_time', 'degrees', 'institutes', '_root_', 'vacancy',
+    'employers', 'industries', 'perks', 'preferred_genders', 'responsibility',
+  ].join(',');
 
   const solrQuery = db.Solr
     .createQuery()
-    .q(`id:${req.params.jobId} AND type_s:job `)//AND (owner_id:${req.user.id}${following})
+    .q(`id:${req.params.jobId} AND type_s:job `)// AND (owner_id:${req.user.id}${following})
     .fl(fl);
 
 
   db.Solr.get('select', solrQuery, function solrCallback(err, result) {
-    if (err) return handleError(res,500,err);
+    if (err) return handleError(res, 500, err);
     const job = result.response.docs;
     const clientAttr = [
       'id', 'description', 'reg_address', 'min_emp', 'max_emp', 'website',
-      'apple_store_link', 'playstore_link', 'windows_store_link'
-    ]
+      'apple_store_link', 'playstore_link', 'windows_store_link',
+    ];
     // @todo handle error from components/error
-    if (!job.length) return handleError(res,404,new Error('Job not found'));
+    if (!job.length) return handleError(res, 404, new Error('Job not found'));
     if (~fl.indexOf('_root_')) {
       return db.User.findById(job[0].owner_id).then(hr => {
         return db.Client.findById(hr.client_id, {
@@ -442,54 +442,54 @@ export function show(req, res) {
           include: [db.Logo],
         }).then(clientModel => {
           return Promise.all([
-            clientModel.getClientPayments({ attributes: ['isFixed','end_range']}),
-            clientModel.getClientPaymentDesignations({ attributes: ['isFixed','designation']})
+            clientModel.getClientPayments({ attributes: ['isFixed', 'end_range'] }),
+            clientModel.getClientPaymentDesignations({ attributes: ['isFixed', 'designation'] }),
           ]).then(prRe => {
             var clientPaymentsAll = prRe[0].concat(prRe[1]);
             var clientPayments = clientPaymentsAll[0];
 
             const client = clientModel.toJSON();
             if (clientPayments) {
-                if( clientPayments.end_range !='NA' ) { // from db.ClientPayment
-                  if (clientPayments.isFixed == 1 ) {
-                     client.payment = 'Fixed Module - Standard';
-                  } else  if (clientPayments.isFixed == 2) {
-                     client.payment = 'Fixed Module - Customised';
-                  } else  if (clientPayments.isFixed == 3) {
-                     client.payment = '1% Module, No Replacement - Customised';
-                  } else { // isFixed 0
-                     client.payment = '1% Module, No Replacement - Standard';
-                  }
-                } else if(clientPayments.end_range=='NA'){
-                  if(clientPayments.isFixed == 4){ // from db.ClientPaymentDesignation
-                     client.payment = 'Designation wise Module - Fixed';
-                  } else{
-                     client.payment = 'Designation wise Module - EMI';
-                  }
-                } else{
-                   client.payment = 'NA';
+              if (clientPayments.end_range != 'NA') { // from db.ClientPayment
+                if (clientPayments.isFixed == 1) {
+                  client.payment = 'Fixed Module - Standard';
+                } else if (clientPayments.isFixed == 2) {
+                  client.payment = 'Fixed Module - Customised';
+                } else if (clientPayments.isFixed == 3) {
+                  client.payment = '1% Module, No Replacement - Customised';
+                } else { // isFixed 0
+                  client.payment = '1% Module, No Replacement - Standard';
                 }
+              } else if (clientPayments.end_range == 'NA') {
+                if (clientPayments.isFixed == 4) { // from db.ClientPaymentDesignation
+                  client.payment = 'Designation wise Module - Fixed';
+                } else {
+                  client.payment = 'Designation wise Module - EMI';
+                }
+              } else {
+                client.payment = 'NA';
+              }
             }
 
             const logo = new Buffer(client.Logo.logo).toString('base64');
             client.logo = `data:${client.Logo.mime};base64,${logo}`;
-            job[0]._root_ = _.pick(client, clientAttr.concat(['logo','payment']));
+            job[0]._root_ = _.pick(client, clientAttr.concat(['logo', 'payment']));
             res.json(job[0]);
-          })
+          });
 
         });
-      })
+      });
     }
   });
 }
 
-export function clientPayments(req, res){
-  db.Job.viewJobData(db,req.params.jobId).then(jobDetails => {
-    //return res.json({jobDetails});
-    return db.ClientPayment.retrieveJobPayment(db,jobDetails).then(function(resultData){
+export function clientPayments(req, res) {
+  db.Job.viewJobData(db, req.params.jobId).then(jobDetails => {
+    // return res.json({jobDetails});
+    return db.ClientPayment.retrieveJobPayment(db, jobDetails).then(function (resultData) {
       return res.json(resultData);
-    })
-  }).catch(err => handleError(res, 500, err))
+    });
+  }).catch(err => handleError(res, 500, err));
 }
 
 // Creates a new Job in the DB
@@ -506,8 +506,8 @@ export function update(req, res) {
   }
   Job.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
@@ -519,8 +519,8 @@ export function update(req, res) {
 export function destroy(req, res) {
   Job.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
@@ -535,7 +535,7 @@ export function consultantResponse(req, res) {
   const consultantResponse = {
     job_id: req.params.jobId,
     user_id: req.user.id,
-    response_id: req.body.responseId
+    response_id: req.body.responseId,
   };
 
   ConsultantResponse.create(consultantResponse)
@@ -544,11 +544,11 @@ export function consultantResponse(req, res) {
       return JobAllocation.find({
         where: {
           job_id: req.params.jobId,
-          user_id: req.user.id
-        }
+          user_id: req.user.id,
+        },
       }).then(jA => {
-        return jA.update({consultant_response_id: genereatedResponseId}).then(uJA => res.json(_.pick(uJA,['id'])))
-      })
-    }).catch(err => handleError(res,500,err));
+        return jA.update({ consultant_response_id: genereatedResponseId }).then(uJA => res.json(_.pick(uJA, ['id'])));
+      });
+    }).catch(err => handleError(res, 500, err));
 }
 

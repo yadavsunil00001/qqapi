@@ -10,11 +10,11 @@
 'use strict';
 
 import _ from 'lodash';
-import {Endpoint} from '../../sqldb';
+import { Endpoint } from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -22,7 +22,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -31,7 +31,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -42,7 +42,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -53,7 +53,7 @@ function handleEntityNotFound(res) {
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).send(err);
   };
 }
@@ -69,8 +69,8 @@ export function index(req, res) {
 export function show(req, res) {
   Endpoint.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
@@ -91,8 +91,8 @@ export function update(req, res) {
   }
   Endpoint.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
@@ -104,8 +104,8 @@ export function update(req, res) {
 export function destroy(req, res) {
   Endpoint.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))

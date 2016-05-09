@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newEmail;
 
-describe('Email API:', function() {
+describe('Email API:', function () {
 
-  describe('GET /api/emails', function() {
+  describe('GET /api/emails', function () {
     var emails;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/emails')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Email API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       emails.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/emails', function() {
-    beforeEach(function(done) {
+  describe('POST /api/emails', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/emails')
         .send({
           name: 'New Email',
-          info: 'This is the brand new email!!!'
+          info: 'This is the brand new email!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Email API:', function() {
         });
     });
 
-    it('should respond with the newly created email', function() {
+    it('should respond with the newly created email', function () {
       newEmail.name.should.equal('New Email');
       newEmail.info.should.equal('This is the brand new email!!!');
     });
 
   });
 
-  describe('GET /api/emails/:id', function() {
+  describe('GET /api/emails/:id', function () {
     var email;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/emails/' + newEmail._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Email API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       email = {};
     });
 
-    it('should respond with the requested email', function() {
+    it('should respond with the requested email', function () {
       email.name.should.equal('New Email');
       email.info.should.equal('This is the brand new email!!!');
     });
 
   });
 
-  describe('PUT /api/emails/:id', function() {
+  describe('PUT /api/emails/:id', function () {
     var updatedEmail;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/emails/' + newEmail._id)
         .send({
           name: 'Updated Email',
-          info: 'This is the updated email!!!'
+          info: 'This is the updated email!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Email API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedEmail = {};
     });
 
-    it('should respond with the updated email', function() {
+    it('should respond with the updated email', function () {
       updatedEmail.name.should.equal('Updated Email');
       updatedEmail.info.should.equal('This is the updated email!!!');
     });
 
   });
 
-  describe('DELETE /api/emails/:id', function() {
+  describe('DELETE /api/emails/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/emails/' + newEmail._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Email API:', function() {
         });
     });
 
-    it('should respond with 404 when email does not exist', function(done) {
+    it('should respond with 404 when email does not exist', function (done) {
       request(app)
         .delete('/api/emails/' + newEmail._id)
         .expect(404)

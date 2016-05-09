@@ -12,9 +12,9 @@ router.get('/allocationStatusNewCount', controller.allocationStatusNewCount);
 router.get('/:jobId', controller.show);
 router.get('/:jobId/clientPayments', controller.clientPayments);
 router.post('/:jobId/consultantResponse', controller.consultantResponse);
-//router.post('/', controller.create);
-//router.put('/:id', controller.update);
-//router.patch('/:id', controller.update);
-//router.delete('/:id', controller.destroy);
+// router.post('/', controller.create);
+// router.put('/:id', controller.update);
+// router.patch('/:id', controller.update);
+// router.delete('/:id', controller.destroy);
 
 module.exports = router;

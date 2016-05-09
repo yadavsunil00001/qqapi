@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newClientPaymentDesignation;
 
-describe('ClientPaymentDesignation API:', function() {
+describe('ClientPaymentDesignation API:', function () {
 
-  describe('GET /api/clientPaymentDesignations', function() {
+  describe('GET /api/clientPaymentDesignations', function () {
     var clientPaymentDesignations;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/clientPaymentDesignations')
         .expect(200)
@@ -24,19 +24,19 @@ describe('ClientPaymentDesignation API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       clientPaymentDesignations.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/clientPaymentDesignations', function() {
-    beforeEach(function(done) {
+  describe('POST /api/clientPaymentDesignations', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/clientPaymentDesignations')
         .send({
           name: 'New ClientPaymentDesignation',
-          info: 'This is the brand new clientPaymentDesignation!!!'
+          info: 'This is the brand new clientPaymentDesignation!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('ClientPaymentDesignation API:', function() {
         });
     });
 
-    it('should respond with the newly created clientPaymentDesignation', function() {
+    it('should respond with the newly created clientPaymentDesignation', function () {
       newClientPaymentDesignation.name.should.equal('New ClientPaymentDesignation');
       newClientPaymentDesignation.info.should.equal('This is the brand new clientPaymentDesignation!!!');
     });
 
   });
 
-  describe('GET /api/clientPaymentDesignations/:id', function() {
+  describe('GET /api/clientPaymentDesignations/:id', function () {
     var clientPaymentDesignation;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/clientPaymentDesignations/' + newClientPaymentDesignation._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('ClientPaymentDesignation API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       clientPaymentDesignation = {};
     });
 
-    it('should respond with the requested clientPaymentDesignation', function() {
+    it('should respond with the requested clientPaymentDesignation', function () {
       clientPaymentDesignation.name.should.equal('New ClientPaymentDesignation');
       clientPaymentDesignation.info.should.equal('This is the brand new clientPaymentDesignation!!!');
     });
 
   });
 
-  describe('PUT /api/clientPaymentDesignations/:id', function() {
+  describe('PUT /api/clientPaymentDesignations/:id', function () {
     var updatedClientPaymentDesignation;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/clientPaymentDesignations/' + newClientPaymentDesignation._id)
         .send({
           name: 'Updated ClientPaymentDesignation',
-          info: 'This is the updated clientPaymentDesignation!!!'
+          info: 'This is the updated clientPaymentDesignation!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('ClientPaymentDesignation API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedClientPaymentDesignation = {};
     });
 
-    it('should respond with the updated clientPaymentDesignation', function() {
+    it('should respond with the updated clientPaymentDesignation', function () {
       updatedClientPaymentDesignation.name.should.equal('Updated ClientPaymentDesignation');
       updatedClientPaymentDesignation.info.should.equal('This is the updated clientPaymentDesignation!!!');
     });
 
   });
 
-  describe('DELETE /api/clientPaymentDesignations/:id', function() {
+  describe('DELETE /api/clientPaymentDesignations/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/clientPaymentDesignations/' + newClientPaymentDesignation._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('ClientPaymentDesignation API:', function() {
         });
     });
 
-    it('should respond with 404 when clientPaymentDesignation does not exist', function(done) {
+    it('should respond with 404 when clientPaymentDesignation does not exist', function (done) {
       request(app)
         .delete('/api/clientPaymentDesignations/' + newClientPaymentDesignation._id)
         .expect(404)

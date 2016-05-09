@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newEmployer;
 
-describe('Employer API:', function() {
+describe('Employer API:', function () {
 
-  describe('GET /api/employers', function() {
+  describe('GET /api/employers', function () {
     var employers;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/employers')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Employer API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       employers.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/employers', function() {
-    beforeEach(function(done) {
+  describe('POST /api/employers', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/employers')
         .send({
           name: 'New Employer',
-          info: 'This is the brand new employer!!!'
+          info: 'This is the brand new employer!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Employer API:', function() {
         });
     });
 
-    it('should respond with the newly created employer', function() {
+    it('should respond with the newly created employer', function () {
       newEmployer.name.should.equal('New Employer');
       newEmployer.info.should.equal('This is the brand new employer!!!');
     });
 
   });
 
-  describe('GET /api/employers/:id', function() {
+  describe('GET /api/employers/:id', function () {
     var employer;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/employers/' + newEmployer._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Employer API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       employer = {};
     });
 
-    it('should respond with the requested employer', function() {
+    it('should respond with the requested employer', function () {
       employer.name.should.equal('New Employer');
       employer.info.should.equal('This is the brand new employer!!!');
     });
 
   });
 
-  describe('PUT /api/employers/:id', function() {
+  describe('PUT /api/employers/:id', function () {
     var updatedEmployer;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/employers/' + newEmployer._id)
         .send({
           name: 'Updated Employer',
-          info: 'This is the updated employer!!!'
+          info: 'This is the updated employer!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Employer API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedEmployer = {};
     });
 
-    it('should respond with the updated employer', function() {
+    it('should respond with the updated employer', function () {
       updatedEmployer.name.should.equal('Updated Employer');
       updatedEmployer.info.should.equal('This is the updated employer!!!');
     });
 
   });
 
-  describe('DELETE /api/employers/:id', function() {
+  describe('DELETE /api/employers/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/employers/' + newEmployer._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Employer API:', function() {
         });
     });
 
-    it('should respond with 404 when employer does not exist', function(done) {
+    it('should respond with 404 when employer does not exist', function (done) {
       request(app)
         .delete('/api/employers/' + newEmployer._id)
         .expect(404)

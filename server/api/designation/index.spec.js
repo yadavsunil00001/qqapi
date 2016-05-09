@@ -7,7 +7,7 @@ var designationCtrlStub = {
   show: 'designationCtrl.show',
   create: 'designationCtrl.create',
   update: 'designationCtrl.update',
-  destroy: 'designationCtrl.destroy'
+  destroy: 'designationCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var designationIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './designation.controller': designationCtrlStub
+  './designation.controller': designationCtrlStub,
 });
 
-describe('Designation API Router:', function() {
+describe('Designation API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     designationIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/designations', function() {
+  describe('GET /api/designations', function () {
 
-    it('should route to designation.controller.index', function() {
+    it('should route to designation.controller.index', function () {
       routerStub.get
         .withArgs('/', 'designationCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Designation API Router:', function() {
 
   });
 
-  describe('GET /api/designations/:id', function() {
+  describe('GET /api/designations/:id', function () {
 
-    it('should route to designation.controller.show', function() {
+    it('should route to designation.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'designationCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Designation API Router:', function() {
 
   });
 
-  describe('POST /api/designations', function() {
+  describe('POST /api/designations', function () {
 
-    it('should route to designation.controller.create', function() {
+    it('should route to designation.controller.create', function () {
       routerStub.post
         .withArgs('/', 'designationCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Designation API Router:', function() {
 
   });
 
-  describe('PUT /api/designations/:id', function() {
+  describe('PUT /api/designations/:id', function () {
 
-    it('should route to designation.controller.update', function() {
+    it('should route to designation.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'designationCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Designation API Router:', function() {
 
   });
 
-  describe('PATCH /api/designations/:id', function() {
+  describe('PATCH /api/designations/:id', function () {
 
-    it('should route to designation.controller.update', function() {
+    it('should route to designation.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'designationCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Designation API Router:', function() {
 
   });
 
-  describe('DELETE /api/designations/:id', function() {
+  describe('DELETE /api/designations/:id', function () {
 
-    it('should route to designation.controller.destroy', function() {
+    it('should route to designation.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'designationCtrl.destroy')
         .should.have.been.calledOnce;

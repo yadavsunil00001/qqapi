@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const Response = sequelize.define('Response', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -10,7 +10,7 @@ export default function(sequelize, DataTypes) {
       unique: true,
     },
     name: DataTypes.STRING,
-  },{
+  }, {
     tableName: 'responses',
     timestamps: false,
     underscored: true,

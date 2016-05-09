@@ -7,7 +7,7 @@ var followerTypeCtrlStub = {
   show: 'followerTypeCtrl.show',
   create: 'followerTypeCtrl.create',
   update: 'followerTypeCtrl.update',
-  destroy: 'followerTypeCtrl.destroy'
+  destroy: 'followerTypeCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var followerTypeIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './followerType.controller': followerTypeCtrlStub
+  './followerType.controller': followerTypeCtrlStub,
 });
 
-describe('FollowerType API Router:', function() {
+describe('FollowerType API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     followerTypeIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/followerTypes', function() {
+  describe('GET /api/followerTypes', function () {
 
-    it('should route to followerType.controller.index', function() {
+    it('should route to followerType.controller.index', function () {
       routerStub.get
         .withArgs('/', 'followerTypeCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('FollowerType API Router:', function() {
 
   });
 
-  describe('GET /api/followerTypes/:id', function() {
+  describe('GET /api/followerTypes/:id', function () {
 
-    it('should route to followerType.controller.show', function() {
+    it('should route to followerType.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'followerTypeCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('FollowerType API Router:', function() {
 
   });
 
-  describe('POST /api/followerTypes', function() {
+  describe('POST /api/followerTypes', function () {
 
-    it('should route to followerType.controller.create', function() {
+    it('should route to followerType.controller.create', function () {
       routerStub.post
         .withArgs('/', 'followerTypeCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('FollowerType API Router:', function() {
 
   });
 
-  describe('PUT /api/followerTypes/:id', function() {
+  describe('PUT /api/followerTypes/:id', function () {
 
-    it('should route to followerType.controller.update', function() {
+    it('should route to followerType.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'followerTypeCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('FollowerType API Router:', function() {
 
   });
 
-  describe('PATCH /api/followerTypes/:id', function() {
+  describe('PATCH /api/followerTypes/:id', function () {
 
-    it('should route to followerType.controller.update', function() {
+    it('should route to followerType.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'followerTypeCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('FollowerType API Router:', function() {
 
   });
 
-  describe('DELETE /api/followerTypes/:id', function() {
+  describe('DELETE /api/followerTypes/:id', function () {
 
-    it('should route to followerType.controller.destroy', function() {
+    it('should route to followerType.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'followerTypeCtrl.destroy')
         .should.have.been.calledOnce;

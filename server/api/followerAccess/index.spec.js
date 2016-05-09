@@ -7,7 +7,7 @@ var followerAccessCtrlStub = {
   show: 'followerAccessCtrl.show',
   create: 'followerAccessCtrl.create',
   update: 'followerAccessCtrl.update',
-  destroy: 'followerAccessCtrl.destroy'
+  destroy: 'followerAccessCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var followerAccessIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './followerAccess.controller': followerAccessCtrlStub
+  './followerAccess.controller': followerAccessCtrlStub,
 });
 
-describe('FollowerAccess API Router:', function() {
+describe('FollowerAccess API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     followerAccessIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/followerAccess', function() {
+  describe('GET /api/followerAccess', function () {
 
-    it('should route to followerAccess.controller.index', function() {
+    it('should route to followerAccess.controller.index', function () {
       routerStub.get
         .withArgs('/', 'followerAccessCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('FollowerAccess API Router:', function() {
 
   });
 
-  describe('GET /api/followerAccess/:id', function() {
+  describe('GET /api/followerAccess/:id', function () {
 
-    it('should route to followerAccess.controller.show', function() {
+    it('should route to followerAccess.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'followerAccessCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('FollowerAccess API Router:', function() {
 
   });
 
-  describe('POST /api/followerAccess', function() {
+  describe('POST /api/followerAccess', function () {
 
-    it('should route to followerAccess.controller.create', function() {
+    it('should route to followerAccess.controller.create', function () {
       routerStub.post
         .withArgs('/', 'followerAccessCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('FollowerAccess API Router:', function() {
 
   });
 
-  describe('PUT /api/followerAccess/:id', function() {
+  describe('PUT /api/followerAccess/:id', function () {
 
-    it('should route to followerAccess.controller.update', function() {
+    it('should route to followerAccess.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'followerAccessCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('FollowerAccess API Router:', function() {
 
   });
 
-  describe('PATCH /api/followerAccess/:id', function() {
+  describe('PATCH /api/followerAccess/:id', function () {
 
-    it('should route to followerAccess.controller.update', function() {
+    it('should route to followerAccess.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'followerAccessCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('FollowerAccess API Router:', function() {
 
   });
 
-  describe('DELETE /api/followerAccess/:id', function() {
+  describe('DELETE /api/followerAccess/:id', function () {
 
-    it('should route to followerAccess.controller.destroy', function() {
+    it('should route to followerAccess.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'followerAccessCtrl.destroy')
         .should.have.been.calledOnce;

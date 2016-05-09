@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const JobAllocation = sequelize.define('JobAllocation', {
     id: {
       type: DataTypes.INTEGER(14),
@@ -100,4 +100,4 @@ export default function(sequelize, DataTypes) {
   });
 
   return JobAllocation;
-};
+}

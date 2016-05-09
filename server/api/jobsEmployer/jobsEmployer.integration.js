@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newJobsEmployer;
 
-describe('JobsEmployer API:', function() {
+describe('JobsEmployer API:', function () {
 
-  describe('GET /api/jobsEmployers', function() {
+  describe('GET /api/jobsEmployers', function () {
     var jobsEmployers;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobsEmployers')
         .expect(200)
@@ -24,19 +24,19 @@ describe('JobsEmployer API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       jobsEmployers.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/jobsEmployers', function() {
-    beforeEach(function(done) {
+  describe('POST /api/jobsEmployers', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/jobsEmployers')
         .send({
           name: 'New JobsEmployer',
-          info: 'This is the brand new jobsEmployer!!!'
+          info: 'This is the brand new jobsEmployer!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('JobsEmployer API:', function() {
         });
     });
 
-    it('should respond with the newly created jobsEmployer', function() {
+    it('should respond with the newly created jobsEmployer', function () {
       newJobsEmployer.name.should.equal('New JobsEmployer');
       newJobsEmployer.info.should.equal('This is the brand new jobsEmployer!!!');
     });
 
   });
 
-  describe('GET /api/jobsEmployers/:id', function() {
+  describe('GET /api/jobsEmployers/:id', function () {
     var jobsEmployer;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobsEmployers/' + newJobsEmployer._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('JobsEmployer API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       jobsEmployer = {};
     });
 
-    it('should respond with the requested jobsEmployer', function() {
+    it('should respond with the requested jobsEmployer', function () {
       jobsEmployer.name.should.equal('New JobsEmployer');
       jobsEmployer.info.should.equal('This is the brand new jobsEmployer!!!');
     });
 
   });
 
-  describe('PUT /api/jobsEmployers/:id', function() {
+  describe('PUT /api/jobsEmployers/:id', function () {
     var updatedJobsEmployer;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/jobsEmployers/' + newJobsEmployer._id)
         .send({
           name: 'Updated JobsEmployer',
-          info: 'This is the updated jobsEmployer!!!'
+          info: 'This is the updated jobsEmployer!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('JobsEmployer API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedJobsEmployer = {};
     });
 
-    it('should respond with the updated jobsEmployer', function() {
+    it('should respond with the updated jobsEmployer', function () {
       updatedJobsEmployer.name.should.equal('Updated JobsEmployer');
       updatedJobsEmployer.info.should.equal('This is the updated jobsEmployer!!!');
     });
 
   });
 
-  describe('DELETE /api/jobsEmployers/:id', function() {
+  describe('DELETE /api/jobsEmployers/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/jobsEmployers/' + newJobsEmployer._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('JobsEmployer API:', function() {
         });
     });
 
-    it('should respond with 404 when jobsEmployer does not exist', function(done) {
+    it('should respond with 404 when jobsEmployer does not exist', function (done) {
       request(app)
         .delete('/api/jobsEmployers/' + newJobsEmployer._id)
         .expect(404)

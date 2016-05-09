@@ -20,13 +20,13 @@ module.exports = function ClientPreferredIndustryModel(sequelize, DataTypes) {
     underscored: true,
 
     classMethods: {
-      getClientPreferredIndustryList : function getClientPreferredIndustryList(db, client_id){
+      getClientPreferredIndustryList : function getClientPreferredIndustryList(db, client_id) {
         return db.ClientPreferredIndustry.findAll({
           where: {
-            client_id: client_id
+            client_id: client_id,
           },
-          attributes: ['id','industry_id'],
-        })
+          attributes: ['id', 'industry_id'],
+        });
       },
       associate: function associate(models) {
         ClientPreferredIndustry.belongsTo(models.Industry, {

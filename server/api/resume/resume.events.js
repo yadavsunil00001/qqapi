@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var Resume = require('../../sqldb').Resume;
 var ResumeEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ ResumeEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     ResumeEvents.emit(event + ':' + doc._id, doc);
     ResumeEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default ResumeEvents;

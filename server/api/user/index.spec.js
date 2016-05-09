@@ -7,7 +7,7 @@ var userCtrlStub = {
   show: 'userCtrl.show',
   create: 'userCtrl.create',
   update: 'userCtrl.update',
-  destroy: 'userCtrl.destroy'
+  destroy: 'userCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var userIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './user.controller': userCtrlStub
+  './user.controller': userCtrlStub,
 });
 
-describe('User API Router:', function() {
+describe('User API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     userIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/users', function() {
+  describe('GET /api/users', function () {
 
-    it('should route to user.controller.index', function() {
+    it('should route to user.controller.index', function () {
       routerStub.get
         .withArgs('/', 'userCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('User API Router:', function() {
 
   });
 
-  describe('GET /api/users/:id', function() {
+  describe('GET /api/users/:id', function () {
 
-    it('should route to user.controller.show', function() {
+    it('should route to user.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'userCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('User API Router:', function() {
 
   });
 
-  describe('POST /api/users', function() {
+  describe('POST /api/users', function () {
 
-    it('should route to user.controller.create', function() {
+    it('should route to user.controller.create', function () {
       routerStub.post
         .withArgs('/', 'userCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('User API Router:', function() {
 
   });
 
-  describe('PUT /api/users/:id', function() {
+  describe('PUT /api/users/:id', function () {
 
-    it('should route to user.controller.update', function() {
+    it('should route to user.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'userCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('User API Router:', function() {
 
   });
 
-  describe('PATCH /api/users/:id', function() {
+  describe('PATCH /api/users/:id', function () {
 
-    it('should route to user.controller.update', function() {
+    it('should route to user.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'userCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('User API Router:', function() {
 
   });
 
-  describe('DELETE /api/users/:id', function() {
+  describe('DELETE /api/users/:id', function () {
 
-    it('should route to user.controller.destroy', function() {
+    it('should route to user.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'userCtrl.destroy')
         .should.have.been.calledOnce;

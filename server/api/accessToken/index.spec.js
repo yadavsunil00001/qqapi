@@ -7,7 +7,7 @@ var accessTokenCtrlStub = {
   show: 'accessTokenCtrl.show',
   create: 'accessTokenCtrl.create',
   update: 'accessTokenCtrl.update',
-  destroy: 'accessTokenCtrl.destroy'
+  destroy: 'accessTokenCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var accessTokenIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './accessToken.controller': accessTokenCtrlStub
+  './accessToken.controller': accessTokenCtrlStub,
 });
 
-describe('AccessToken API Router:', function() {
+describe('AccessToken API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     accessTokenIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/accessTokens', function() {
+  describe('GET /api/accessTokens', function () {
 
-    it('should route to accessToken.controller.index', function() {
+    it('should route to accessToken.controller.index', function () {
       routerStub.get
         .withArgs('/', 'accessTokenCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('AccessToken API Router:', function() {
 
   });
 
-  describe('GET /api/accessTokens/:id', function() {
+  describe('GET /api/accessTokens/:id', function () {
 
-    it('should route to accessToken.controller.show', function() {
+    it('should route to accessToken.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'accessTokenCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('AccessToken API Router:', function() {
 
   });
 
-  describe('POST /api/accessTokens', function() {
+  describe('POST /api/accessTokens', function () {
 
-    it('should route to accessToken.controller.create', function() {
+    it('should route to accessToken.controller.create', function () {
       routerStub.post
         .withArgs('/', 'accessTokenCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('AccessToken API Router:', function() {
 
   });
 
-  describe('PUT /api/accessTokens/:id', function() {
+  describe('PUT /api/accessTokens/:id', function () {
 
-    it('should route to accessToken.controller.update', function() {
+    it('should route to accessToken.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'accessTokenCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('AccessToken API Router:', function() {
 
   });
 
-  describe('PATCH /api/accessTokens/:id', function() {
+  describe('PATCH /api/accessTokens/:id', function () {
 
-    it('should route to accessToken.controller.update', function() {
+    it('should route to accessToken.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'accessTokenCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('AccessToken API Router:', function() {
 
   });
 
-  describe('DELETE /api/accessTokens/:id', function() {
+  describe('DELETE /api/accessTokens/:id', function () {
 
-    it('should route to accessToken.controller.destroy', function() {
+    it('should route to accessToken.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'accessTokenCtrl.destroy')
         .should.have.been.calledOnce;

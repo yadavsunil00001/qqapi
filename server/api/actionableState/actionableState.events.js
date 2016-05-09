@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var ActionableState = require('../../sqldb').ActionableState;
 var ActionableStateEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ ActionableStateEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     ActionableStateEvents.emit(event + ':' + doc._id, doc);
     ActionableStateEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default ActionableStateEvents;

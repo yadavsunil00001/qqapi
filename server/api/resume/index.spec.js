@@ -7,7 +7,7 @@ var resumeCtrlStub = {
   show: 'resumeCtrl.show',
   create: 'resumeCtrl.create',
   update: 'resumeCtrl.update',
-  destroy: 'resumeCtrl.destroy'
+  destroy: 'resumeCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var resumeIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './resume.controller': resumeCtrlStub
+  './resume.controller': resumeCtrlStub,
 });
 
-describe('Resume API Router:', function() {
+describe('Resume API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     resumeIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/resumes', function() {
+  describe('GET /api/resumes', function () {
 
-    it('should route to resume.controller.index', function() {
+    it('should route to resume.controller.index', function () {
       routerStub.get
         .withArgs('/', 'resumeCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Resume API Router:', function() {
 
   });
 
-  describe('GET /api/resumes/:id', function() {
+  describe('GET /api/resumes/:id', function () {
 
-    it('should route to resume.controller.show', function() {
+    it('should route to resume.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'resumeCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Resume API Router:', function() {
 
   });
 
-  describe('POST /api/resumes', function() {
+  describe('POST /api/resumes', function () {
 
-    it('should route to resume.controller.create', function() {
+    it('should route to resume.controller.create', function () {
       routerStub.post
         .withArgs('/', 'resumeCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Resume API Router:', function() {
 
   });
 
-  describe('PUT /api/resumes/:id', function() {
+  describe('PUT /api/resumes/:id', function () {
 
-    it('should route to resume.controller.update', function() {
+    it('should route to resume.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'resumeCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Resume API Router:', function() {
 
   });
 
-  describe('PATCH /api/resumes/:id', function() {
+  describe('PATCH /api/resumes/:id', function () {
 
-    it('should route to resume.controller.update', function() {
+    it('should route to resume.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'resumeCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Resume API Router:', function() {
 
   });
 
-  describe('DELETE /api/resumes/:id', function() {
+  describe('DELETE /api/resumes/:id', function () {
 
-    it('should route to resume.controller.destroy', function() {
+    it('should route to resume.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'resumeCtrl.destroy')
         .should.have.been.calledOnce;

@@ -10,11 +10,11 @@
 'use strict';
 
 import _ from 'lodash';
-import {Reference} from '../../sqldb';
+import { Reference } from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -22,7 +22,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -31,7 +31,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -42,7 +42,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -51,7 +51,7 @@ function handleEntityNotFound(res) {
   };
 }
 
-function handleError(res, statusCode,err) {
+function handleError(res, statusCode, err) {
   statusCode = statusCode || 500;
   res.status(statusCode).send(err);
 }
@@ -60,7 +60,7 @@ function handleError(res, statusCode,err) {
 export function index(req, res) {
   // Approval Status
   // 0 -> Action Required 1 -> Approved 2 -> Reject 3 -> Duplicate
-  Reference.findAll({where: {con_id: req.user.id}})
+  Reference.findAll({ where: { con_id: req.user.id } })
     .then(handleEntityNotFound(res))
     .then(refereneces => res.json(refereneces))
     .catch(err => handleError(res, 500, err));
@@ -70,8 +70,8 @@ export function index(req, res) {
 export function show(req, res) {
   Reference.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
@@ -92,8 +92,8 @@ export function update(req, res) {
   }
   Reference.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
@@ -105,8 +105,8 @@ export function update(req, res) {
 export function destroy(req, res) {
   Reference.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))

@@ -3,7 +3,7 @@
 const crypto = require('crypto');
 const salt = 'DYhG93b0fIxfs2guVoUubasdfajfkljasdjfaklsdjflakrfWwvniR2G0FgaC9mi';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const User = sequelize.define('User', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -149,24 +149,24 @@ export default function(sequelize, DataTypes) {
         });
 
         User.hasMany(models.UserTawktoToken);
-        //User.belongsTo(models.Group, {
+        // User.belongsTo(models.Group, {
         //  foreignKey: 'group_id',
-        //});
+        // });
         //
-        //User.hasMany(models.App);
-        //User.hasMany(models.AccessToken);
-        //User.hasMany(models.RefreshToken);
-        //User.hasMany(models.ApplicantDownload);
-        //User.hasMany(models.ApplicantState);
-        //User.hasMany(models.ApplicantView);
-        //User.hasMany(models.Comment);
-        //User.hasMany(models.JobAllocation);
-        //User.hasMany(models.JobDownload);
-        //User.hasMany(models.JobView);
-        //User.hasMany(models.Job);
-        //User.hasMany(models.Notification);
-        //User.hasMany(models.UsageLog);
-        //User.hasMany(models.JobComment);
+        // User.hasMany(models.App);
+        // User.hasMany(models.AccessToken);
+        // User.hasMany(models.RefreshToken);
+        // User.hasMany(models.ApplicantDownload);
+        // User.hasMany(models.ApplicantState);
+        // User.hasMany(models.ApplicantView);
+        // User.hasMany(models.Comment);
+        // User.hasMany(models.JobAllocation);
+        // User.hasMany(models.JobDownload);
+        // User.hasMany(models.JobView);
+        // User.hasMany(models.Job);
+        // User.hasMany(models.Notification);
+        // User.hasMany(models.UsageLog);
+        // User.hasMany(models.JobComment);
       },
     },
 

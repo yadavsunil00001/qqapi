@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newPhoneNumber;
 
-describe('PhoneNumber API:', function() {
+describe('PhoneNumber API:', function () {
 
-  describe('GET /api/phoneNumbers', function() {
+  describe('GET /api/phoneNumbers', function () {
     var phoneNumbers;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/phoneNumbers')
         .expect(200)
@@ -24,19 +24,19 @@ describe('PhoneNumber API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       phoneNumbers.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/phoneNumbers', function() {
-    beforeEach(function(done) {
+  describe('POST /api/phoneNumbers', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/phoneNumbers')
         .send({
           name: 'New PhoneNumber',
-          info: 'This is the brand new phoneNumber!!!'
+          info: 'This is the brand new phoneNumber!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('PhoneNumber API:', function() {
         });
     });
 
-    it('should respond with the newly created phoneNumber', function() {
+    it('should respond with the newly created phoneNumber', function () {
       newPhoneNumber.name.should.equal('New PhoneNumber');
       newPhoneNumber.info.should.equal('This is the brand new phoneNumber!!!');
     });
 
   });
 
-  describe('GET /api/phoneNumbers/:id', function() {
+  describe('GET /api/phoneNumbers/:id', function () {
     var phoneNumber;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/phoneNumbers/' + newPhoneNumber._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('PhoneNumber API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       phoneNumber = {};
     });
 
-    it('should respond with the requested phoneNumber', function() {
+    it('should respond with the requested phoneNumber', function () {
       phoneNumber.name.should.equal('New PhoneNumber');
       phoneNumber.info.should.equal('This is the brand new phoneNumber!!!');
     });
 
   });
 
-  describe('PUT /api/phoneNumbers/:id', function() {
+  describe('PUT /api/phoneNumbers/:id', function () {
     var updatedPhoneNumber;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/phoneNumbers/' + newPhoneNumber._id)
         .send({
           name: 'Updated PhoneNumber',
-          info: 'This is the updated phoneNumber!!!'
+          info: 'This is the updated phoneNumber!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('PhoneNumber API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedPhoneNumber = {};
     });
 
-    it('should respond with the updated phoneNumber', function() {
+    it('should respond with the updated phoneNumber', function () {
       updatedPhoneNumber.name.should.equal('Updated PhoneNumber');
       updatedPhoneNumber.info.should.equal('This is the updated phoneNumber!!!');
     });
 
   });
 
-  describe('DELETE /api/phoneNumbers/:id', function() {
+  describe('DELETE /api/phoneNumbers/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/phoneNumbers/' + newPhoneNumber._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('PhoneNumber API:', function() {
         });
     });
 
-    it('should respond with 404 when phoneNumber does not exist', function(done) {
+    it('should respond with 404 when phoneNumber does not exist', function (done) {
       request(app)
         .delete('/api/phoneNumbers/' + newPhoneNumber._id)
         .expect(404)

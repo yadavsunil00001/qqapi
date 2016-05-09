@@ -271,7 +271,7 @@ export default function (sequelize, DataTypes) {
       },
       defaultValue: 0,
     },
-    client_payment_designation_id: DataTypes.INTEGER
+    client_payment_designation_id: DataTypes.INTEGER,
   }, {
     tableName: 'jobs',
     timestamps: false,
@@ -324,57 +324,57 @@ export default function (sequelize, DataTypes) {
 
         Job.hasMany(models.JobAllocation, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobDownload, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobSkill, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobView, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobsDegree, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobsEmployer, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobsInstitute, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
 
         Job.hasMany(models.JobsIndustry, {
           defaultScope: {
-            where: {status: 1},
+            where: { status: 1 },
           },
         });
       },
-      viewJobData(models,id){
-        if(!models) return Promise.reject({code: 500, desc: "viewJobData: arguement models undefined"})
-        if(!id) return Promise.reject({code: 500, desc: "viewJobData: arguement id undefined"})
+      viewJobData(models, id) {
+        if (!models) return Promise.reject({ code: 500, desc: 'viewJobData: arguement models undefined' });
+        if (!id) return Promise.reject({ code: 500, desc: 'viewJobData: arguement id undefined' });
         return models.Job.find({
-          where: {id:id},
+          where: { id:id },
           include: [
             {
               model: models.JobSkill,
@@ -401,7 +401,7 @@ export default function (sequelize, DataTypes) {
               attributes: ['id', 'employer_id'],
             },
           ],
-        }).then(function(_this){
+        }).then(function (_this) {
           const quantumData = [
 
             // Handle undefined _this.JobSkills etc.
@@ -417,7 +417,7 @@ export default function (sequelize, DataTypes) {
             .forEach(function getData(model, index) {
               return promises.push(models[model].findAll({
                 where: {
-                  id: {$in: quantumData[index]},
+                  id: { $in: quantumData[index] },
                   system_defined: 1,
                 },
               }));
@@ -444,7 +444,7 @@ export default function (sequelize, DataTypes) {
             _this.employers = result[4].map(s => s.name);
             _this.employers = result[4].map(s => s.name);
             _this.owner_id = result[5].id;
-            _this.User = result[5]
+            _this.User = result[5];
             _this.client_name = result[5].Client.name;
             _this.total_applicants = 0;
             _this.recruiter_username = result[5].username;
@@ -455,8 +455,8 @@ export default function (sequelize, DataTypes) {
 
             return _this;
           });
-        })
-      }
+        });
+      },
     },
 
     instanceMethods: {
@@ -477,7 +477,7 @@ export default function (sequelize, DataTypes) {
           .forEach(function getData(model, index) {
             promises.push(models[model].findAll({
               where: {
-                id: {$in: quantumData[index]},
+                id: { $in: quantumData[index] },
                 system_defined: 1,
               },
             }));
@@ -528,4 +528,4 @@ export default function (sequelize, DataTypes) {
   });
 
   return Job;
-};
+}

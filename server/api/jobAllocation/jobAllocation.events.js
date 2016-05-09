@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var JobAllocation = require('../../sqldb').JobAllocation;
 var JobAllocationEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ JobAllocationEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     JobAllocationEvents.emit(event + ':' + doc._id, doc);
     JobAllocationEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default JobAllocationEvents;

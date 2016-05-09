@@ -10,13 +10,13 @@
 'use strict';
 
 import _ from 'lodash';
-import {Employer} from '../../sqldb';
+import { Employer } from '../../sqldb';
 import sequelize from 'sequelize';
-import {handleUniqueValidationError} from '../../components/sequelize-errors';
+import { handleUniqueValidationError } from '../../components/sequelize-errors';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -24,7 +24,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -33,7 +33,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -44,7 +44,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -62,28 +62,28 @@ function handleError(res, statusCode, err) {
 export function index(req, res) {
   Employer.findAll()
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Gets a single Employer from the DB
 export function show(req, res) {
   Employer.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Creates a new Employer in the DB
 export function create(req, res) {
-  if(req.body.name) {
+  if (req.body.name) {
     // Todo: DB Not handle Unique
-    Employer.find({where:{name:req.body.name}})
+    Employer.find({ where:{ name:req.body.name } })
       .then(employer => {
-        if(!employer){
+        if (!employer) {
           return Employer.build(req.body)
             .set('is_customer', 0)
             .set('employer_type_id', 0)
@@ -91,19 +91,19 @@ export function create(req, res) {
             .set('timestamp', Date.now())
             .set('system_defined', 1)
             .save()
-            .then(employer =>  res.status(201).json(_.pick(employer, ['id', 'name'])))
-            .catch(sequelize.ValidationError, handleUniqueValidationError(Employer,{name: req.body.name}))
+            .then(employer => res.status(201).json(_.pick(employer, ['id', 'name'])))
+            .catch(sequelize.ValidationError, handleUniqueValidationError(Employer, { name: req.body.name }))
             .catch(function (err) {
-              return err.data ? res.status(409).json(_.pick(err.data, ['id', 'name'])) : handleError(res,400,err)
+              return err.data ? res.status(409).json(_.pick(err.data, ['id', 'name'])) : handleError(res, 400, err);
             });
         } else {
-          return res.status(409).json(_.pick(employer, ['id', 'name']))
+          return res.status(409).json(_.pick(employer, ['id', 'name']));
         }
       }).catch(err => {
-        handleError(res, 400, err)
-      })
+        handleError(res, 400, err);
+      });
   } else {
-    handleError(res,400,{message:'param "name" missing in request body'})
+    handleError(res, 400, { message:'param "name" missing in request body' });
   }
 }
 
@@ -114,23 +114,23 @@ export function update(req, res) {
   }
   Employer.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Deletes a Employer from the DB
 export function destroy(req, res) {
   Employer.find({
     where: {
-      id: req.params.cid
-    }
+      id: req.params.cid,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }

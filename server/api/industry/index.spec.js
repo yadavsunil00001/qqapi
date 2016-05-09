@@ -7,7 +7,7 @@ var industryCtrlStub = {
   show: 'industryCtrl.show',
   create: 'industryCtrl.create',
   update: 'industryCtrl.update',
-  destroy: 'industryCtrl.destroy'
+  destroy: 'industryCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var industryIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './industry.controller': industryCtrlStub
+  './industry.controller': industryCtrlStub,
 });
 
-describe('Industry API Router:', function() {
+describe('Industry API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     industryIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/industries', function() {
+  describe('GET /api/industries', function () {
 
-    it('should route to industry.controller.index', function() {
+    it('should route to industry.controller.index', function () {
       routerStub.get
         .withArgs('/', 'industryCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Industry API Router:', function() {
 
   });
 
-  describe('GET /api/industries/:id', function() {
+  describe('GET /api/industries/:id', function () {
 
-    it('should route to industry.controller.show', function() {
+    it('should route to industry.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'industryCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Industry API Router:', function() {
 
   });
 
-  describe('POST /api/industries', function() {
+  describe('POST /api/industries', function () {
 
-    it('should route to industry.controller.create', function() {
+    it('should route to industry.controller.create', function () {
       routerStub.post
         .withArgs('/', 'industryCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Industry API Router:', function() {
 
   });
 
-  describe('PUT /api/industries/:id', function() {
+  describe('PUT /api/industries/:id', function () {
 
-    it('should route to industry.controller.update', function() {
+    it('should route to industry.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'industryCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Industry API Router:', function() {
 
   });
 
-  describe('PATCH /api/industries/:id', function() {
+  describe('PATCH /api/industries/:id', function () {
 
-    it('should route to industry.controller.update', function() {
+    it('should route to industry.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'industryCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Industry API Router:', function() {
 
   });
 
-  describe('DELETE /api/industries/:id', function() {
+  describe('DELETE /api/industries/:id', function () {
 
-    it('should route to industry.controller.destroy', function() {
+    it('should route to industry.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'industryCtrl.destroy')
         .should.have.been.calledOnce;

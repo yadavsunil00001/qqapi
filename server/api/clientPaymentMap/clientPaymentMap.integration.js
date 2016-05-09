@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newClientPaymentMap;
 
-describe('ClientPaymentMap API:', function() {
+describe('ClientPaymentMap API:', function () {
 
-  describe('GET /api/clientPaymentMaps', function() {
+  describe('GET /api/clientPaymentMaps', function () {
     var clientPaymentMaps;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/clientPaymentMaps')
         .expect(200)
@@ -24,19 +24,19 @@ describe('ClientPaymentMap API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       clientPaymentMaps.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/clientPaymentMaps', function() {
-    beforeEach(function(done) {
+  describe('POST /api/clientPaymentMaps', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/clientPaymentMaps')
         .send({
           name: 'New ClientPaymentMap',
-          info: 'This is the brand new clientPaymentMap!!!'
+          info: 'This is the brand new clientPaymentMap!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('ClientPaymentMap API:', function() {
         });
     });
 
-    it('should respond with the newly created clientPaymentMap', function() {
+    it('should respond with the newly created clientPaymentMap', function () {
       newClientPaymentMap.name.should.equal('New ClientPaymentMap');
       newClientPaymentMap.info.should.equal('This is the brand new clientPaymentMap!!!');
     });
 
   });
 
-  describe('GET /api/clientPaymentMaps/:id', function() {
+  describe('GET /api/clientPaymentMaps/:id', function () {
     var clientPaymentMap;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/clientPaymentMaps/' + newClientPaymentMap._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('ClientPaymentMap API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       clientPaymentMap = {};
     });
 
-    it('should respond with the requested clientPaymentMap', function() {
+    it('should respond with the requested clientPaymentMap', function () {
       clientPaymentMap.name.should.equal('New ClientPaymentMap');
       clientPaymentMap.info.should.equal('This is the brand new clientPaymentMap!!!');
     });
 
   });
 
-  describe('PUT /api/clientPaymentMaps/:id', function() {
+  describe('PUT /api/clientPaymentMaps/:id', function () {
     var updatedClientPaymentMap;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/clientPaymentMaps/' + newClientPaymentMap._id)
         .send({
           name: 'Updated ClientPaymentMap',
-          info: 'This is the updated clientPaymentMap!!!'
+          info: 'This is the updated clientPaymentMap!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('ClientPaymentMap API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedClientPaymentMap = {};
     });
 
-    it('should respond with the updated clientPaymentMap', function() {
+    it('should respond with the updated clientPaymentMap', function () {
       updatedClientPaymentMap.name.should.equal('Updated ClientPaymentMap');
       updatedClientPaymentMap.info.should.equal('This is the updated clientPaymentMap!!!');
     });
 
   });
 
-  describe('DELETE /api/clientPaymentMaps/:id', function() {
+  describe('DELETE /api/clientPaymentMaps/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/clientPaymentMaps/' + newClientPaymentMap._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('ClientPaymentMap API:', function() {
         });
     });
 
-    it('should respond with 404 when clientPaymentMap does not exist', function(done) {
+    it('should respond with 404 when clientPaymentMap does not exist', function (done) {
       request(app)
         .delete('/api/clientPaymentMaps/' + newClientPaymentMap._id)
         .expect(404)

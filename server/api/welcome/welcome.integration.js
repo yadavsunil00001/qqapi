@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newWelcome;
 
-describe('Welcome API:', function() {
+describe('Welcome API:', function () {
 
-  describe('GET /api/welcomes', function() {
+  describe('GET /api/welcomes', function () {
     var welcomes;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/welcomes')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Welcome API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       welcomes.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/welcomes', function() {
-    beforeEach(function(done) {
+  describe('POST /api/welcomes', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/welcomes')
         .send({
           name: 'New Welcome',
-          info: 'This is the brand new welcome!!!'
+          info: 'This is the brand new welcome!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Welcome API:', function() {
         });
     });
 
-    it('should respond with the newly created welcome', function() {
+    it('should respond with the newly created welcome', function () {
       newWelcome.name.should.equal('New Welcome');
       newWelcome.info.should.equal('This is the brand new welcome!!!');
     });
 
   });
 
-  describe('GET /api/welcomes/:id', function() {
+  describe('GET /api/welcomes/:id', function () {
     var welcome;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/welcomes/' + newWelcome._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Welcome API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       welcome = {};
     });
 
-    it('should respond with the requested welcome', function() {
+    it('should respond with the requested welcome', function () {
       welcome.name.should.equal('New Welcome');
       welcome.info.should.equal('This is the brand new welcome!!!');
     });
 
   });
 
-  describe('PUT /api/welcomes/:id', function() {
+  describe('PUT /api/welcomes/:id', function () {
     var updatedWelcome;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/welcomes/' + newWelcome._id)
         .send({
           name: 'Updated Welcome',
-          info: 'This is the updated welcome!!!'
+          info: 'This is the updated welcome!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Welcome API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedWelcome = {};
     });
 
-    it('should respond with the updated welcome', function() {
+    it('should respond with the updated welcome', function () {
       updatedWelcome.name.should.equal('Updated Welcome');
       updatedWelcome.info.should.equal('This is the updated welcome!!!');
     });
 
   });
 
-  describe('DELETE /api/welcomes/:id', function() {
+  describe('DELETE /api/welcomes/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/welcomes/' + newWelcome._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Welcome API:', function() {
         });
     });
 
-    it('should respond with 404 when welcome does not exist', function(done) {
+    it('should respond with 404 when welcome does not exist', function (done) {
       request(app)
         .delete('/api/welcomes/' + newWelcome._id)
         .expect(404)

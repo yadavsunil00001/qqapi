@@ -7,7 +7,7 @@ var educationCtrlStub = {
   show: 'educationCtrl.show',
   create: 'educationCtrl.create',
   update: 'educationCtrl.update',
-  destroy: 'educationCtrl.destroy'
+  destroy: 'educationCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var educationIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './education.controller': educationCtrlStub
+  './education.controller': educationCtrlStub,
 });
 
-describe('Education API Router:', function() {
+describe('Education API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     educationIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/educations', function() {
+  describe('GET /api/educations', function () {
 
-    it('should route to education.controller.index', function() {
+    it('should route to education.controller.index', function () {
       routerStub.get
         .withArgs('/', 'educationCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Education API Router:', function() {
 
   });
 
-  describe('GET /api/educations/:id', function() {
+  describe('GET /api/educations/:id', function () {
 
-    it('should route to education.controller.show', function() {
+    it('should route to education.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'educationCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Education API Router:', function() {
 
   });
 
-  describe('POST /api/educations', function() {
+  describe('POST /api/educations', function () {
 
-    it('should route to education.controller.create', function() {
+    it('should route to education.controller.create', function () {
       routerStub.post
         .withArgs('/', 'educationCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Education API Router:', function() {
 
   });
 
-  describe('PUT /api/educations/:id', function() {
+  describe('PUT /api/educations/:id', function () {
 
-    it('should route to education.controller.update', function() {
+    it('should route to education.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'educationCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Education API Router:', function() {
 
   });
 
-  describe('PATCH /api/educations/:id', function() {
+  describe('PATCH /api/educations/:id', function () {
 
-    it('should route to education.controller.update', function() {
+    it('should route to education.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'educationCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Education API Router:', function() {
 
   });
 
-  describe('DELETE /api/educations/:id', function() {
+  describe('DELETE /api/educations/:id', function () {
 
-    it('should route to education.controller.destroy', function() {
+    it('should route to education.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'educationCtrl.destroy')
         .should.have.been.calledOnce;

@@ -7,7 +7,7 @@ var logCtrlStub = {
   show: 'logCtrl.show',
   create: 'logCtrl.create',
   update: 'logCtrl.update',
-  destroy: 'logCtrl.destroy'
+  destroy: 'logCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var logIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './log.controller': logCtrlStub
+  './log.controller': logCtrlStub,
 });
 
-describe('Log API Router:', function() {
+describe('Log API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     logIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/logs', function() {
+  describe('GET /api/logs', function () {
 
-    it('should route to log.controller.index', function() {
+    it('should route to log.controller.index', function () {
       routerStub.get
         .withArgs('/', 'logCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Log API Router:', function() {
 
   });
 
-  describe('GET /api/logs/:id', function() {
+  describe('GET /api/logs/:id', function () {
 
-    it('should route to log.controller.show', function() {
+    it('should route to log.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'logCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Log API Router:', function() {
 
   });
 
-  describe('POST /api/logs', function() {
+  describe('POST /api/logs', function () {
 
-    it('should route to log.controller.create', function() {
+    it('should route to log.controller.create', function () {
       routerStub.post
         .withArgs('/', 'logCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Log API Router:', function() {
 
   });
 
-  describe('PUT /api/logs/:id', function() {
+  describe('PUT /api/logs/:id', function () {
 
-    it('should route to log.controller.update', function() {
+    it('should route to log.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'logCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Log API Router:', function() {
 
   });
 
-  describe('PATCH /api/logs/:id', function() {
+  describe('PATCH /api/logs/:id', function () {
 
-    it('should route to log.controller.update', function() {
+    it('should route to log.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'logCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Log API Router:', function() {
 
   });
 
-  describe('DELETE /api/logs/:id', function() {
+  describe('DELETE /api/logs/:id', function () {
 
-    it('should route to log.controller.destroy', function() {
+    it('should route to log.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'logCtrl.destroy')
         .should.have.been.calledOnce;

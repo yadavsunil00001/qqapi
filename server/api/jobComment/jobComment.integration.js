@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newJobComment;
 
-describe('JobComment API:', function() {
+describe('JobComment API:', function () {
 
-  describe('GET /api/jobComments', function() {
+  describe('GET /api/jobComments', function () {
     var jobComments;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobComments')
         .expect(200)
@@ -24,19 +24,19 @@ describe('JobComment API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       jobComments.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/jobComments', function() {
-    beforeEach(function(done) {
+  describe('POST /api/jobComments', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/jobComments')
         .send({
           name: 'New JobComment',
-          info: 'This is the brand new jobComment!!!'
+          info: 'This is the brand new jobComment!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('JobComment API:', function() {
         });
     });
 
-    it('should respond with the newly created jobComment', function() {
+    it('should respond with the newly created jobComment', function () {
       newJobComment.name.should.equal('New JobComment');
       newJobComment.info.should.equal('This is the brand new jobComment!!!');
     });
 
   });
 
-  describe('GET /api/jobComments/:id', function() {
+  describe('GET /api/jobComments/:id', function () {
     var jobComment;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobComments/' + newJobComment._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('JobComment API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       jobComment = {};
     });
 
-    it('should respond with the requested jobComment', function() {
+    it('should respond with the requested jobComment', function () {
       jobComment.name.should.equal('New JobComment');
       jobComment.info.should.equal('This is the brand new jobComment!!!');
     });
 
   });
 
-  describe('PUT /api/jobComments/:id', function() {
+  describe('PUT /api/jobComments/:id', function () {
     var updatedJobComment;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/jobComments/' + newJobComment._id)
         .send({
           name: 'Updated JobComment',
-          info: 'This is the updated jobComment!!!'
+          info: 'This is the updated jobComment!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('JobComment API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedJobComment = {};
     });
 
-    it('should respond with the updated jobComment', function() {
+    it('should respond with the updated jobComment', function () {
       updatedJobComment.name.should.equal('Updated JobComment');
       updatedJobComment.info.should.equal('This is the updated jobComment!!!');
     });
 
   });
 
-  describe('DELETE /api/jobComments/:id', function() {
+  describe('DELETE /api/jobComments/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/jobComments/' + newJobComment._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('JobComment API:', function() {
         });
     });
 
-    it('should respond with 404 when jobComment does not exist', function(done) {
+    it('should respond with 404 when jobComment does not exist', function (done) {
       request(app)
         .delete('/api/jobComments/' + newJobComment._id)
         .expect(404)

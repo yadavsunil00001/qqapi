@@ -7,7 +7,7 @@ var authCodeCtrlStub = {
   show: 'authCodeCtrl.show',
   create: 'authCodeCtrl.create',
   update: 'authCodeCtrl.update',
-  destroy: 'authCodeCtrl.destroy'
+  destroy: 'authCodeCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var authCodeIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './authCode.controller': authCodeCtrlStub
+  './authCode.controller': authCodeCtrlStub,
 });
 
-describe('AuthCode API Router:', function() {
+describe('AuthCode API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     authCodeIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/authCodes', function() {
+  describe('GET /api/authCodes', function () {
 
-    it('should route to authCode.controller.index', function() {
+    it('should route to authCode.controller.index', function () {
       routerStub.get
         .withArgs('/', 'authCodeCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('AuthCode API Router:', function() {
 
   });
 
-  describe('GET /api/authCodes/:id', function() {
+  describe('GET /api/authCodes/:id', function () {
 
-    it('should route to authCode.controller.show', function() {
+    it('should route to authCode.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'authCodeCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('AuthCode API Router:', function() {
 
   });
 
-  describe('POST /api/authCodes', function() {
+  describe('POST /api/authCodes', function () {
 
-    it('should route to authCode.controller.create', function() {
+    it('should route to authCode.controller.create', function () {
       routerStub.post
         .withArgs('/', 'authCodeCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('AuthCode API Router:', function() {
 
   });
 
-  describe('PUT /api/authCodes/:id', function() {
+  describe('PUT /api/authCodes/:id', function () {
 
-    it('should route to authCode.controller.update', function() {
+    it('should route to authCode.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'authCodeCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('AuthCode API Router:', function() {
 
   });
 
-  describe('PATCH /api/authCodes/:id', function() {
+  describe('PATCH /api/authCodes/:id', function () {
 
-    it('should route to authCode.controller.update', function() {
+    it('should route to authCode.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'authCodeCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('AuthCode API Router:', function() {
 
   });
 
-  describe('DELETE /api/authCodes/:id', function() {
+  describe('DELETE /api/authCodes/:id', function () {
 
-    it('should route to authCode.controller.destroy', function() {
+    it('should route to authCode.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'authCodeCtrl.destroy')
         .should.have.been.calledOnce;

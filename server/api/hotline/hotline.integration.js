@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newHotline;
 
-describe('Hotline API:', function() {
+describe('Hotline API:', function () {
 
-  describe('GET /api/hotlines', function() {
+  describe('GET /api/hotlines', function () {
     var hotlines;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/hotlines')
         .expect(200)
@@ -24,19 +24,19 @@ describe('Hotline API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       hotlines.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/hotlines', function() {
-    beforeEach(function(done) {
+  describe('POST /api/hotlines', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/hotlines')
         .send({
           name: 'New Hotline',
-          info: 'This is the brand new hotline!!!'
+          info: 'This is the brand new hotline!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('Hotline API:', function() {
         });
     });
 
-    it('should respond with the newly created hotline', function() {
+    it('should respond with the newly created hotline', function () {
       newHotline.name.should.equal('New Hotline');
       newHotline.info.should.equal('This is the brand new hotline!!!');
     });
 
   });
 
-  describe('GET /api/hotlines/:id', function() {
+  describe('GET /api/hotlines/:id', function () {
     var hotline;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/hotlines/' + newHotline._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('Hotline API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       hotline = {};
     });
 
-    it('should respond with the requested hotline', function() {
+    it('should respond with the requested hotline', function () {
       hotline.name.should.equal('New Hotline');
       hotline.info.should.equal('This is the brand new hotline!!!');
     });
 
   });
 
-  describe('PUT /api/hotlines/:id', function() {
+  describe('PUT /api/hotlines/:id', function () {
     var updatedHotline;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/hotlines/' + newHotline._id)
         .send({
           name: 'Updated Hotline',
-          info: 'This is the updated hotline!!!'
+          info: 'This is the updated hotline!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('Hotline API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedHotline = {};
     });
 
-    it('should respond with the updated hotline', function() {
+    it('should respond with the updated hotline', function () {
       updatedHotline.name.should.equal('Updated Hotline');
       updatedHotline.info.should.equal('This is the updated hotline!!!');
     });
 
   });
 
-  describe('DELETE /api/hotlines/:id', function() {
+  describe('DELETE /api/hotlines/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/hotlines/' + newHotline._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('Hotline API:', function() {
         });
     });
 
-    it('should respond with 404 when hotline does not exist', function(done) {
+    it('should respond with 404 when hotline does not exist', function (done) {
       request(app)
         .delete('/api/hotlines/' + newHotline._id)
         .expect(404)

@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newJobStatusLog;
 
-describe('JobStatusLog API:', function() {
+describe('JobStatusLog API:', function () {
 
-  describe('GET /api/jobStatusLogs', function() {
+  describe('GET /api/jobStatusLogs', function () {
     var jobStatusLogs;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobStatusLogs')
         .expect(200)
@@ -24,19 +24,19 @@ describe('JobStatusLog API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       jobStatusLogs.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/jobStatusLogs', function() {
-    beforeEach(function(done) {
+  describe('POST /api/jobStatusLogs', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/jobStatusLogs')
         .send({
           name: 'New JobStatusLog',
-          info: 'This is the brand new jobStatusLog!!!'
+          info: 'This is the brand new jobStatusLog!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('JobStatusLog API:', function() {
         });
     });
 
-    it('should respond with the newly created jobStatusLog', function() {
+    it('should respond with the newly created jobStatusLog', function () {
       newJobStatusLog.name.should.equal('New JobStatusLog');
       newJobStatusLog.info.should.equal('This is the brand new jobStatusLog!!!');
     });
 
   });
 
-  describe('GET /api/jobStatusLogs/:id', function() {
+  describe('GET /api/jobStatusLogs/:id', function () {
     var jobStatusLog;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/jobStatusLogs/' + newJobStatusLog._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('JobStatusLog API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       jobStatusLog = {};
     });
 
-    it('should respond with the requested jobStatusLog', function() {
+    it('should respond with the requested jobStatusLog', function () {
       jobStatusLog.name.should.equal('New JobStatusLog');
       jobStatusLog.info.should.equal('This is the brand new jobStatusLog!!!');
     });
 
   });
 
-  describe('PUT /api/jobStatusLogs/:id', function() {
+  describe('PUT /api/jobStatusLogs/:id', function () {
     var updatedJobStatusLog;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/jobStatusLogs/' + newJobStatusLog._id)
         .send({
           name: 'Updated JobStatusLog',
-          info: 'This is the updated jobStatusLog!!!'
+          info: 'This is the updated jobStatusLog!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('JobStatusLog API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedJobStatusLog = {};
     });
 
-    it('should respond with the updated jobStatusLog', function() {
+    it('should respond with the updated jobStatusLog', function () {
       updatedJobStatusLog.name.should.equal('Updated JobStatusLog');
       updatedJobStatusLog.info.should.equal('This is the updated jobStatusLog!!!');
     });
 
   });
 
-  describe('DELETE /api/jobStatusLogs/:id', function() {
+  describe('DELETE /api/jobStatusLogs/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/jobStatusLogs/' + newJobStatusLog._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('JobStatusLog API:', function() {
         });
     });
 
-    it('should respond with 404 when jobStatusLog does not exist', function(done) {
+    it('should respond with 404 when jobStatusLog does not exist', function (done) {
       request(app)
         .delete('/api/jobStatusLogs/' + newJobStatusLog._id)
         .expect(404)

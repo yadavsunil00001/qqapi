@@ -7,7 +7,7 @@ var jobAllocationCtrlStub = {
   show: 'jobAllocationCtrl.show',
   create: 'jobAllocationCtrl.create',
   update: 'jobAllocationCtrl.update',
-  destroy: 'jobAllocationCtrl.destroy'
+  destroy: 'jobAllocationCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var jobAllocationIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './jobAllocation.controller': jobAllocationCtrlStub
+  './jobAllocation.controller': jobAllocationCtrlStub,
 });
 
-describe('JobAllocation API Router:', function() {
+describe('JobAllocation API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     jobAllocationIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/jobAllocations', function() {
+  describe('GET /api/jobAllocations', function () {
 
-    it('should route to jobAllocation.controller.index', function() {
+    it('should route to jobAllocation.controller.index', function () {
       routerStub.get
         .withArgs('/', 'jobAllocationCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('JobAllocation API Router:', function() {
 
   });
 
-  describe('GET /api/jobAllocations/:id', function() {
+  describe('GET /api/jobAllocations/:id', function () {
 
-    it('should route to jobAllocation.controller.show', function() {
+    it('should route to jobAllocation.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'jobAllocationCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('JobAllocation API Router:', function() {
 
   });
 
-  describe('POST /api/jobAllocations', function() {
+  describe('POST /api/jobAllocations', function () {
 
-    it('should route to jobAllocation.controller.create', function() {
+    it('should route to jobAllocation.controller.create', function () {
       routerStub.post
         .withArgs('/', 'jobAllocationCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('JobAllocation API Router:', function() {
 
   });
 
-  describe('PUT /api/jobAllocations/:id', function() {
+  describe('PUT /api/jobAllocations/:id', function () {
 
-    it('should route to jobAllocation.controller.update', function() {
+    it('should route to jobAllocation.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'jobAllocationCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('JobAllocation API Router:', function() {
 
   });
 
-  describe('PATCH /api/jobAllocations/:id', function() {
+  describe('PATCH /api/jobAllocations/:id', function () {
 
-    it('should route to jobAllocation.controller.update', function() {
+    it('should route to jobAllocation.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'jobAllocationCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('JobAllocation API Router:', function() {
 
   });
 
-  describe('DELETE /api/jobAllocations/:id', function() {
+  describe('DELETE /api/jobAllocations/:id', function () {
 
-    it('should route to jobAllocation.controller.destroy', function() {
+    it('should route to jobAllocation.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'jobAllocationCtrl.destroy')
         .should.have.been.calledOnce;

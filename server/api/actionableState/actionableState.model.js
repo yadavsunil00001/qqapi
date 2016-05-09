@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const ActionableState = sequelize.define('ActionableState', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -44,25 +44,25 @@ export default function(sequelize, DataTypes) {
           foreignKey: 'state_id',
         });
       },
-      getChild(models,authUser){
+      getChild(models, authUser) {
         const groupId = authUser.group_id;
         return models.ActionableState.findAll({
           attributes:['state_id', 'child_id'],
           where:{
-            group_id: groupId
+            group_id: groupId,
           },
-          raw:true
+          raw:true,
         }).then(states => {
           var ret = {};
-          states.forEach(function(asx){
+          states.forEach(function (asx) {
             var parent = asx.state_id;
             var child = asx.child_id;
-            (!ret[parent])? (ret[parent] = []):'';
+            (!ret[parent]) ? (ret[parent] = []) : '';
             ret[parent].push(child);
-          })
+          });
           return ret;
-        })
-      }
+        });
+      },
     },
   });
 

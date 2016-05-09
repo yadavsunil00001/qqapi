@@ -7,7 +7,7 @@ var agreementCtrlStub = {
   show: 'agreementCtrl.show',
   create: 'agreementCtrl.create',
   update: 'agreementCtrl.update',
-  destroy: 'agreementCtrl.destroy'
+  destroy: 'agreementCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var agreementIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './agreement.controller': agreementCtrlStub
+  './agreement.controller': agreementCtrlStub,
 });
 
-describe('Agreement API Router:', function() {
+describe('Agreement API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     agreementIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/agreements', function() {
+  describe('GET /api/agreements', function () {
 
-    it('should route to agreement.controller.index', function() {
+    it('should route to agreement.controller.index', function () {
       routerStub.get
         .withArgs('/', 'agreementCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Agreement API Router:', function() {
 
   });
 
-  describe('GET /api/agreements/:id', function() {
+  describe('GET /api/agreements/:id', function () {
 
-    it('should route to agreement.controller.show', function() {
+    it('should route to agreement.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'agreementCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Agreement API Router:', function() {
 
   });
 
-  describe('POST /api/agreements', function() {
+  describe('POST /api/agreements', function () {
 
-    it('should route to agreement.controller.create', function() {
+    it('should route to agreement.controller.create', function () {
       routerStub.post
         .withArgs('/', 'agreementCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Agreement API Router:', function() {
 
   });
 
-  describe('PUT /api/agreements/:id', function() {
+  describe('PUT /api/agreements/:id', function () {
 
-    it('should route to agreement.controller.update', function() {
+    it('should route to agreement.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'agreementCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Agreement API Router:', function() {
 
   });
 
-  describe('PATCH /api/agreements/:id', function() {
+  describe('PATCH /api/agreements/:id', function () {
 
-    it('should route to agreement.controller.update', function() {
+    it('should route to agreement.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'agreementCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Agreement API Router:', function() {
 
   });
 
-  describe('DELETE /api/agreements/:id', function() {
+  describe('DELETE /api/agreements/:id', function () {
 
-    it('should route to agreement.controller.destroy', function() {
+    it('should route to agreement.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'agreementCtrl.destroy')
         .should.have.been.calledOnce;

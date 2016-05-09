@@ -7,7 +7,7 @@ var emailCtrlStub = {
   show: 'emailCtrl.show',
   create: 'emailCtrl.create',
   update: 'emailCtrl.update',
-  destroy: 'emailCtrl.destroy'
+  destroy: 'emailCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var emailIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './email.controller': emailCtrlStub
+  './email.controller': emailCtrlStub,
 });
 
-describe('Email API Router:', function() {
+describe('Email API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     emailIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/emails', function() {
+  describe('GET /api/emails', function () {
 
-    it('should route to email.controller.index', function() {
+    it('should route to email.controller.index', function () {
       routerStub.get
         .withArgs('/', 'emailCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('Email API Router:', function() {
 
   });
 
-  describe('GET /api/emails/:id', function() {
+  describe('GET /api/emails/:id', function () {
 
-    it('should route to email.controller.show', function() {
+    it('should route to email.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'emailCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('Email API Router:', function() {
 
   });
 
-  describe('POST /api/emails', function() {
+  describe('POST /api/emails', function () {
 
-    it('should route to email.controller.create', function() {
+    it('should route to email.controller.create', function () {
       routerStub.post
         .withArgs('/', 'emailCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('Email API Router:', function() {
 
   });
 
-  describe('PUT /api/emails/:id', function() {
+  describe('PUT /api/emails/:id', function () {
 
-    it('should route to email.controller.update', function() {
+    it('should route to email.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'emailCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('Email API Router:', function() {
 
   });
 
-  describe('PATCH /api/emails/:id', function() {
+  describe('PATCH /api/emails/:id', function () {
 
-    it('should route to email.controller.update', function() {
+    it('should route to email.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'emailCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('Email API Router:', function() {
 
   });
 
-  describe('DELETE /api/emails/:id', function() {
+  describe('DELETE /api/emails/:id', function () {
 
-    it('should route to email.controller.destroy', function() {
+    it('should route to email.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'emailCtrl.destroy')
         .should.have.been.calledOnce;

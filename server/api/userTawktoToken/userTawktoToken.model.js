@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const UserTawktoToken = sequelize.define('UserTawktoToken', {
     id: {
       type: DataTypes.INTEGER(11),
@@ -29,5 +29,5 @@ export default function(sequelize, DataTypes) {
     },
   });
 
-  return UserTawktoToken
+  return UserTawktoToken;
 }

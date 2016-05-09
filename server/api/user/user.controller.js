@@ -10,11 +10,11 @@
 'use strict';
 
 import _ from 'lodash';
-import db,{User, Group, Client, State, ActionableState} from '../../sqldb';
+import db, { User, Group, Client, State, ActionableState } from '../../sqldb';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -22,7 +22,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -31,7 +31,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -42,7 +42,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -53,7 +53,7 @@ function handleEntityNotFound(res) {
 
 function handleError(res, statusCode) {
   statusCode = statusCode || 500;
-  return function(err) {
+  return function (err) {
     res.status(statusCode).send(err);
   };
 }
@@ -71,17 +71,17 @@ export function index(req, res) {
 export function me(req, res, next) {
   var userId = req.user.id;
   Promise.all([
-      Group.findById(req.user.group_id, {
-        attributes: ['id', 'name']
-      }),
+    Group.findById(req.user.group_id, {
+      attributes: ['id', 'name'],
+    }),
 
-      Client.findById(req.user.client_id, {
-        attributes: ['id', 'name','perc_revenue_share','termination_flag', 'consultant_survey', 'consultant_survey_time','eng_mgr_id' ]
-      }),
-      User.findById(req.user.id, {
-        attributes: ['id', 'name','email_id', 'is_active'],
-      }),
-    ])
+    Client.findById(req.user.client_id, {
+      attributes: ['id', 'name', 'perc_revenue_share', 'termination_flag', 'consultant_survey', 'consultant_survey_time', 'eng_mgr_id'],
+    }),
+    User.findById(req.user.id, {
+      attributes: ['id', 'name', 'email_id', 'is_active'],
+    }),
+  ])
     .then(promiseReturns => {
       const group = promiseReturns[0];
       const client = promiseReturns[1];
@@ -90,29 +90,29 @@ export function me(req, res, next) {
       var whatBlocked = [];
       var is_blocked = false;
 
-      if(user.is_active === 0 ){
-        whatBlocked.push({ priority: 0,url:'terms-and-conditions'});
+      if (user.is_active === 0) {
+        whatBlocked.push({ priority: 0, url:'terms-and-conditions' });
         is_blocked = true;
       }
 
-      if(client.consultant_survey === 0 ){
-        whatBlocked.push({ priority: 1 ,url:'preferences'});
+      if (client.consultant_survey === 0) {
+        whatBlocked.push({ priority: 1, url:'preferences' });
         is_blocked = true;
       }
 
-      if(client.toJSON().termination_flag === 1 ){
-        whatBlocked.push({ priority: 2,url:'terminated-message'})
+      if (client.toJSON().termination_flag === 1) {
+        whatBlocked.push({ priority: 2, url:'terminated-message' });
         is_blocked = true;
       }
       return db.UserTawktoToken.find({
-        attributes: ['id','access_token'],
+        attributes: ['id', 'access_token'],
         where:{
-          user_id:client.eng_mgr_id
-        }
-      }).then(function(tawkToken){
+          user_id:client.eng_mgr_id,
+        },
+      }).then(function (tawkToken) {
         const userme = _.assign(req.user, {
           name: user.name,
-          tawk_token: _.get(tawkToken,'access_token'),
+          tawk_token: _.get(tawkToken, 'access_token'),
           email_id: user.email_id,
           user_type: group.name,
           company_name: client.name,
@@ -121,11 +121,11 @@ export function me(req, res, next) {
           consultantSurvey: client.dataValues.consultant_survey,
           consultantSurveyTime: client.dataValues.consultant_survey_time,
           isBlocked : is_blocked,
-          whatBlocked : whatBlocked
+          whatBlocked : whatBlocked,
         });
 
         res.json(userme);
-      })
+      });
 
 
     })
@@ -173,8 +173,8 @@ export function states(req, res, next) {
 export function show(req, res) {
   User.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
@@ -195,8 +195,8 @@ export function update(req, res) {
   }
   User.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
@@ -208,8 +208,8 @@ export function update(req, res) {
 export function destroy(req, res) {
   User.find({
     where: {
-      _id: req.params.id
-    }
+      _id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))

@@ -1,96 +1,96 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const Reference = sequelize.define('Reference', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     job_id: {
       type: DataTypes.STRING(16),
-      allowNull: false
+      allowNull: false,
     },
     name: {
       type: DataTypes.STRING(200),
-      allowNull: false
+      allowNull: false,
     },
     designation: {
       type: DataTypes.STRING(200),
-      allowNull: false
+      allowNull: false,
     },
     employer: {
       type: DataTypes.STRING(5000),
-      allowNull: false
+      allowNull: false,
     },
     current_salary: DataTypes.DECIMAL(15, 2),
     expected_salary: DataTypes.DECIMAL(15, 2),
     total_exp: {
       type : DataTypes.INTEGER(60),
-      allowNull: false
+      allowNull: false,
     },
     higest_qualification: {
       type: DataTypes.STRING(5000),
-      allowNull: false
+      allowNull: false,
     },
     notice_period: {
       type : DataTypes.INTEGER(65),
-      allowNull: false
+      allowNull: false,
     },
     email: {
       type: DataTypes.STRING(65),
-      allowNull: false
+      allowNull: false,
     },
     phone: {
       type: DataTypes.STRING(5000),
-      allowNull: false
+      allowNull: false,
     },
     path: {
       type: DataTypes.STRING(5000),
-      allowNull: false
+      allowNull: false,
     },
     location: {
       type: DataTypes.STRING(5000),
-      allowNull: false
+      allowNull: false,
     },
     elite: {
       type: DataTypes.INTEGER(4),
-      allowNull: true
+      allowNull: true,
     },
     source: {
       type: DataTypes.STRING(10),
-      allowNull: false
+      allowNull: false,
     },
     timestamp: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW
+      defaultValue: DataTypes.NOW,
     },
     con_id: {
       type: DataTypes.INTEGER(11),
-      allowNull: true
+      allowNull: true,
     },
     approval_status: {
       type: DataTypes.INTEGER(11),
       allowNull: true,
       defaultValue: 1,
-      get: function(index){
+      get: function (index) {
         // Approval Status
         // 0 -> Action Required
         // 1 -> Approved
         // 2 -> Reject
         // 3 -> Duplicate
         // Todo: Need to move to sql Insert
-        var tempApprovalStatus  = this.getDataValue('approval_status');
-        tempApprovalStatus = (tempApprovalStatus === 0 ) ? 'Action Required' : tempApprovalStatus;
-        tempApprovalStatus = (tempApprovalStatus === 1 ) ? 'Approved' : tempApprovalStatus;
-        tempApprovalStatus = (tempApprovalStatus === 2 ) ? 'Reject' : tempApprovalStatus;
-        tempApprovalStatus = (tempApprovalStatus === 3 ) ? 'Duplicate' : tempApprovalStatus;
+        var tempApprovalStatus = this.getDataValue('approval_status');
+        tempApprovalStatus = (tempApprovalStatus === 0) ? 'Action Required' : tempApprovalStatus;
+        tempApprovalStatus = (tempApprovalStatus === 1) ? 'Approved' : tempApprovalStatus;
+        tempApprovalStatus = (tempApprovalStatus === 2) ? 'Reject' : tempApprovalStatus;
+        tempApprovalStatus = (tempApprovalStatus === 3) ? 'Duplicate' : tempApprovalStatus;
 
-        return tempApprovalStatus
-      }
-    }
+        return tempApprovalStatus;
+      },
+    },
   }, {
     tableName: 'welcomes',
     timestamps: false,
@@ -124,7 +124,7 @@ export default function(sequelize, DataTypes) {
         return this.getDataValue('email');
       },
 
-    }
+    },
   });
   return Reference;
 }

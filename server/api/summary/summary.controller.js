@@ -10,12 +10,12 @@
 'use strict';
 
 import _ from 'lodash';
-import {User, Solr} from '../../sqldb';
+import { User, Solr } from '../../sqldb';
 const buckets = require('../../config/buckets');
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -23,7 +23,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -32,7 +32,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -43,7 +43,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -85,7 +85,7 @@ export function dashboard(req, res) {
 
     res.json(response);
   });
-};
+}
 
 // Get Applicant State distribution for applicant states
 export function pipeline(req, res, next) {
@@ -125,4 +125,4 @@ export function pipeline(req, res, next) {
       res.json(response);
     });
   });
-};
+}

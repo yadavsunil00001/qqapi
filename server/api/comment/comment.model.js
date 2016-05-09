@@ -1,6 +1,6 @@
 'use strict';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const Comment = sequelize.define('Comment', {
     id: {
       type: DataTypes.INTEGER(11),

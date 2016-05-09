@@ -7,7 +7,7 @@ var applicantPreferenceTimeCtrlStub = {
   show: 'applicantPreferenceTimeCtrl.show',
   create: 'applicantPreferenceTimeCtrl.create',
   update: 'applicantPreferenceTimeCtrl.update',
-  destroy: 'applicantPreferenceTimeCtrl.destroy'
+  destroy: 'applicantPreferenceTimeCtrl.destroy',
 };
 
 var routerStub = {
@@ -15,28 +15,28 @@ var routerStub = {
   put: sinon.spy(),
   patch: sinon.spy(),
   post: sinon.spy(),
-  delete: sinon.spy()
+  delete: sinon.spy(),
 };
 
 // require the index with our stubbed out modules
 var applicantPreferenceTimeIndex = proxyquire('./index.js', {
   'express': {
-    Router: function() {
+    Router: function () {
       return routerStub;
-    }
+    },
   },
-  './applicantPreferenceTime.controller': applicantPreferenceTimeCtrlStub
+  './applicantPreferenceTime.controller': applicantPreferenceTimeCtrlStub,
 });
 
-describe('ApplicantPreferenceTime API Router:', function() {
+describe('ApplicantPreferenceTime API Router:', function () {
 
-  it('should return an express router instance', function() {
+  it('should return an express router instance', function () {
     applicantPreferenceTimeIndex.should.equal(routerStub);
   });
 
-  describe('GET /api/applicantPreferenceTimes', function() {
+  describe('GET /api/applicantPreferenceTimes', function () {
 
-    it('should route to applicantPreferenceTime.controller.index', function() {
+    it('should route to applicantPreferenceTime.controller.index', function () {
       routerStub.get
         .withArgs('/', 'applicantPreferenceTimeCtrl.index')
         .should.have.been.calledOnce;
@@ -44,9 +44,9 @@ describe('ApplicantPreferenceTime API Router:', function() {
 
   });
 
-  describe('GET /api/applicantPreferenceTimes/:id', function() {
+  describe('GET /api/applicantPreferenceTimes/:id', function () {
 
-    it('should route to applicantPreferenceTime.controller.show', function() {
+    it('should route to applicantPreferenceTime.controller.show', function () {
       routerStub.get
         .withArgs('/:id', 'applicantPreferenceTimeCtrl.show')
         .should.have.been.calledOnce;
@@ -54,9 +54,9 @@ describe('ApplicantPreferenceTime API Router:', function() {
 
   });
 
-  describe('POST /api/applicantPreferenceTimes', function() {
+  describe('POST /api/applicantPreferenceTimes', function () {
 
-    it('should route to applicantPreferenceTime.controller.create', function() {
+    it('should route to applicantPreferenceTime.controller.create', function () {
       routerStub.post
         .withArgs('/', 'applicantPreferenceTimeCtrl.create')
         .should.have.been.calledOnce;
@@ -64,9 +64,9 @@ describe('ApplicantPreferenceTime API Router:', function() {
 
   });
 
-  describe('PUT /api/applicantPreferenceTimes/:id', function() {
+  describe('PUT /api/applicantPreferenceTimes/:id', function () {
 
-    it('should route to applicantPreferenceTime.controller.update', function() {
+    it('should route to applicantPreferenceTime.controller.update', function () {
       routerStub.put
         .withArgs('/:id', 'applicantPreferenceTimeCtrl.update')
         .should.have.been.calledOnce;
@@ -74,9 +74,9 @@ describe('ApplicantPreferenceTime API Router:', function() {
 
   });
 
-  describe('PATCH /api/applicantPreferenceTimes/:id', function() {
+  describe('PATCH /api/applicantPreferenceTimes/:id', function () {
 
-    it('should route to applicantPreferenceTime.controller.update', function() {
+    it('should route to applicantPreferenceTime.controller.update', function () {
       routerStub.patch
         .withArgs('/:id', 'applicantPreferenceTimeCtrl.update')
         .should.have.been.calledOnce;
@@ -84,9 +84,9 @@ describe('ApplicantPreferenceTime API Router:', function() {
 
   });
 
-  describe('DELETE /api/applicantPreferenceTimes/:id', function() {
+  describe('DELETE /api/applicantPreferenceTimes/:id', function () {
 
-    it('should route to applicantPreferenceTime.controller.destroy', function() {
+    it('should route to applicantPreferenceTime.controller.destroy', function () {
       routerStub.delete
         .withArgs('/:id', 'applicantPreferenceTimeCtrl.destroy')
         .should.have.been.calledOnce;

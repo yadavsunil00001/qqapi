@@ -5,12 +5,12 @@ import request from 'supertest';
 
 var newUser;
 
-describe('User API:', function() {
+describe('User API:', function () {
 
-  describe('GET /api/users', function() {
+  describe('GET /api/users', function () {
     var users;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/users')
         .expect(200)
@@ -24,19 +24,19 @@ describe('User API:', function() {
         });
     });
 
-    it('should respond with JSON array', function() {
+    it('should respond with JSON array', function () {
       users.should.be.instanceOf(Array);
     });
 
   });
 
-  describe('POST /api/users', function() {
-    beforeEach(function(done) {
+  describe('POST /api/users', function () {
+    beforeEach(function (done) {
       request(app)
         .post('/api/users')
         .send({
           name: 'New User',
-          info: 'This is the brand new user!!!'
+          info: 'This is the brand new user!!!',
         })
         .expect(201)
         .expect('Content-Type', /json/)
@@ -49,17 +49,17 @@ describe('User API:', function() {
         });
     });
 
-    it('should respond with the newly created user', function() {
+    it('should respond with the newly created user', function () {
       newUser.name.should.equal('New User');
       newUser.info.should.equal('This is the brand new user!!!');
     });
 
   });
 
-  describe('GET /api/users/:id', function() {
+  describe('GET /api/users/:id', function () {
     var user;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .get('/api/users/' + newUser._id)
         .expect(200)
@@ -73,30 +73,30 @@ describe('User API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       user = {};
     });
 
-    it('should respond with the requested user', function() {
+    it('should respond with the requested user', function () {
       user.name.should.equal('New User');
       user.info.should.equal('This is the brand new user!!!');
     });
 
   });
 
-  describe('PUT /api/users/:id', function() {
+  describe('PUT /api/users/:id', function () {
     var updatedUser;
 
-    beforeEach(function(done) {
+    beforeEach(function (done) {
       request(app)
         .put('/api/users/' + newUser._id)
         .send({
           name: 'Updated User',
-          info: 'This is the updated user!!!'
+          info: 'This is the updated user!!!',
         })
         .expect(200)
         .expect('Content-Type', /json/)
-        .end(function(err, res) {
+        .end(function (err, res) {
           if (err) {
             return done(err);
           }
@@ -105,20 +105,20 @@ describe('User API:', function() {
         });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       updatedUser = {};
     });
 
-    it('should respond with the updated user', function() {
+    it('should respond with the updated user', function () {
       updatedUser.name.should.equal('Updated User');
       updatedUser.info.should.equal('This is the updated user!!!');
     });
 
   });
 
-  describe('DELETE /api/users/:id', function() {
+  describe('DELETE /api/users/:id', function () {
 
-    it('should respond with 204 on successful removal', function(done) {
+    it('should respond with 204 on successful removal', function (done) {
       request(app)
         .delete('/api/users/' + newUser._id)
         .expect(204)
@@ -130,7 +130,7 @@ describe('User API:', function() {
         });
     });
 
-    it('should respond with 404 when user does not exist', function(done) {
+    it('should respond with 404 when user does not exist', function (done) {
       request(app)
         .delete('/api/users/' + newUser._id)
         .expect(404)

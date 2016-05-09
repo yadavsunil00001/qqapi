@@ -10,13 +10,13 @@
 'use strict';
 
 import _ from 'lodash';
-import {Designation} from '../../sqldb';
+import { Designation } from '../../sqldb';
 import sequelize from 'sequelize';
-import {handleUniqueValidationError} from '../../components/sequelize-errors';
+import { handleUniqueValidationError } from '../../components/sequelize-errors';
 
 function respondWithResult(res, statusCode) {
   statusCode = statusCode || 200;
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       res.status(statusCode).json(entity);
     }
@@ -24,7 +24,7 @@ function respondWithResult(res, statusCode) {
 }
 
 function saveUpdates(updates) {
-  return function(entity) {
+  return function (entity) {
     return entity.updateAttributes(updates)
       .then(updated => {
         return updated;
@@ -33,7 +33,7 @@ function saveUpdates(updates) {
 }
 
 function removeEntity(res) {
-  return function(entity) {
+  return function (entity) {
     if (entity) {
       return entity.destroy()
         .then(() => {
@@ -44,7 +44,7 @@ function removeEntity(res) {
 }
 
 function handleEntityNotFound(res) {
-  return function(entity) {
+  return function (entity) {
     if (!entity) {
       res.status(404).end();
       return null;
@@ -62,35 +62,35 @@ function handleError(res, statusCode, err) {
 export function index(req, res) {
   Designation.findAll()
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Gets a single Designation from the DB
 export function show(req, res) {
   Designation.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Creates a new Designation in the DB
 export function create(req, res) {
-  if(req.body.name) {
+  if (req.body.name) {
     Designation.build(req.body)
       .set('verified', 0)
       .set('timestamp', Date.now())
       .save()
       .then(designation => res.status(201).json(_.pick(designation, ['id', 'name'])))
-      .catch(sequelize.ValidationError, handleUniqueValidationError(Designation,{name: req.body.name}))
+      .catch(sequelize.ValidationError, handleUniqueValidationError(Designation, { name: req.body.name }))
       .catch(function (err) {
-        return err.data ? res.status(409).json(_.pick(err.data, ['id', 'name'])) : handleError(res,400,err)
+        return err.data ? res.status(409).json(_.pick(err.data, ['id', 'name'])) : handleError(res, 400, err);
       });
   } else {
-    handleError(res,400,{message:'param "name" missing in request body'})
+    handleError(res, 400, { message:'param "name" missing in request body' });
   }
 }
 
@@ -101,23 +101,23 @@ export function update(req, res) {
   }
   Designation.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(saveUpdates(req.body))
     .then(respondWithResult(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }
 
 // Deletes a Designation from the DB
 export function destroy(req, res) {
   Designation.find({
     where: {
-      id: req.params.id
-    }
+      id: req.params.id,
+    },
   })
     .then(handleEntityNotFound(res))
     .then(removeEntity(res))
-    .catch(err => handleError(res,500,err));
+    .catch(err => handleError(res, 500, err));
 }

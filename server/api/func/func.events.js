@@ -4,7 +4,7 @@
 
 'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 var Func = require('../../sqldb').Func;
 var FuncEvents = new EventEmitter();
 
@@ -15,7 +15,7 @@ FuncEvents.setMaxListeners(0);
 var events = {
   'afterCreate': 'save',
   'afterUpdate': 'save',
-  'afterDestroy': 'remove'
+  'afterDestroy': 'remove',
 };
 
 // Register the event emitter to the model events
@@ -25,11 +25,11 @@ for (var e in events) {
 }
 
 function emitEvent(event) {
-  return function(doc, options, done) {
+  return function (doc, options, done) {
     FuncEvents.emit(event + ':' + doc._id, doc);
     FuncEvents.emit(event, doc);
     done(null);
-  }
+  };
 }
 
 export default FuncEvents;

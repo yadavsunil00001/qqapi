@@ -2,7 +2,7 @@
 import phpSerialize from './../../components/php-serialize';
 import config from './../../config/environment';
 
-export default function(sequelize, DataTypes) {
+export default function (sequelize, DataTypes) {
   const ApplicantState = sequelize.define('ApplicantState', {
     id: {
       type: DataTypes.INTEGER(14),
@@ -148,7 +148,7 @@ export default function(sequelize, DataTypes) {
 
     classMethods: {
       associate: function associate(models) {
-        ApplicantState.belongsTo(models.Applicant,{
+        ApplicantState.belongsTo(models.Applicant, {
           foreignKey: 'applicant_id',
         });
 
@@ -162,40 +162,40 @@ export default function(sequelize, DataTypes) {
 
         ApplicantState.belongsTo(models.JobScore);
       },
-      updateState(models,applicantState,LoggedInUserId) {
-        applicantState.user_id = !applicantState.user_id ? LoggedInUserId: applicantState.user_id;
+      updateState(models, applicantState, LoggedInUserId) {
+        applicantState.user_id = !applicantState.user_id ? LoggedInUserId : applicantState.user_id;
         return models.ApplicantState.create(applicantState).then(aplState => {
           var applicant = {
             applicant_state_id:aplState.id,
             state_id: applicantState.state_id,
-            id: applicantState.applicant_id
+            id: applicantState.applicant_id,
           };
           return models.Applicant.findById(applicant.id).then(applicant => {
-            return applicant.update(applicant)
-          })
+            return applicant.update(applicant);
+          });
         });
-      }
+      },
     },
     hooks:{
-      afterCreate(instance){
+      afterCreate(instance) {
         var models = require('./../../sqldb');
 
-        return models.JobApplication.find({attributes:['id','job_id'],where: {applicant_id:instance.applicant_id}}).then(aplState => {
+        return models.JobApplication.find({ attributes:['id', 'job_id'], where: { applicant_id:instance.applicant_id } }).then(aplState => {
           const jobScoreUpdateOptions = phpSerialize.serialize({
             command: `${config.QUARC_PATH}app/Console/cake`,
             params: [
               'update_job_score',
               '-j', aplState.job_id,
-              '-a', aplState.id
+              '-a', aplState.id,
             ],
           });
-          return models.QueuedTask.create({jobType: 'Execute', group: 'jobScoreUpdate', data:jobScoreUpdateOptions})
+          return models.QueuedTask.create({ jobType: 'Execute', group: 'jobScoreUpdate', data:jobScoreUpdateOptions });
         }).catch(err => {
-          return console.log('Error: applicantStateModel -> afterCreate -> JobApplication.find ->QueuedTask',err)
-        })
+          return console.log('Error: applicantStateModel -> afterCreate -> JobApplication.find ->QueuedTask', err);
+        });
 
-      }
-    }
+      },
+    },
   });
 
   ApplicantState.beforeValidate(function beforeValidate(as) {
