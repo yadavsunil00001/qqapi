@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./scope.controller');
+// var controller = require('./scope.controller');
 
 var router = express.Router();
 

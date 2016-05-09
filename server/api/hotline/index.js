@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./hotline.controller');
+// var controller = require('./hotline.controller');
 
 var router = express.Router();
 

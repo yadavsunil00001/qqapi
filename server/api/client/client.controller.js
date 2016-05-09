@@ -18,105 +18,13 @@ import db, { Client, Applicant, Job, JobApplication, ApplicantState, State, Func
   QueuedTask } from '../../sqldb';
 import config from './../../config/environment';
 import phpSerialize from './../../components/php-serialize';
+import logger from './../../components/logger';
 import mkdirp from 'mkdirp-then';
 
-function respondWithResult(res, statusCode) {
-  const status = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(status).json(entity);
-    }
-  };
-}
 
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(updated => {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return (entity) => {
-    if (entity) {
-      return entity.destroy()
-        .then(() => {
-          res.status(204).end();
-        });
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function handleError(res, statusCode,err) {
-  console.log("handleError",err)
-  statusCode = statusCode || 500;
+function handleError(res, argStatusCode, err) {
+  const statusCode = argStatusCode || 500;
   res.status(statusCode).send(err);
-}
-
-// Gets a list of Clients
-export function index(req, res) {
-  Client.findAll()
-    .then(respondWithResult(res))
-    .catch(handleError(res));
-}
-
-// Gets a single Client from the DB
-export function show(req, res) {
-  Client.find({
-    where: {
-      id: req.params.id,
-    },
-  })
-  .then(handleEntityNotFound(res))
-  .then(respondWithResult(res))
-  .catch(handleError(res));
-}
-
-// Creates a new Client in the DB
-export function create(req, res) {
-  Client.create(req.body)
-    .then(respondWithResult(res, 201))
-    .catch(err => handleError(res, 500, err));
-}
-
-// Updates an existing Client in the DB
-export function update(req, res) {
-  if (req.body.id) {
-    delete req.body.id;
-  }
-  Client.find({
-    where: {
-      id: req.params.id,
-    },
-  })
-  .then(handleEntityNotFound(res))
-  .then(saveUpdates(req.body))
-  .then(respondWithResult(res))
-  .catch(err => handleError(res, 500, err));
-}
-
-// Deletes a Client from the DB
-export function destroy(req, res) {
-  Client.find({
-    where: {
-      id: req.params.id,
-    },
-  })
-  .then(handleEntityNotFound(res))
-  .then(removeEntity(res))
-  .catch(err => handleError(res, 500, err));
 }
 
 export function makeUserActive(req, res) {
@@ -132,8 +40,8 @@ export function makeUserActive(req, res) {
     },
   })
   .then(user => {
-    let clientData = {
-      current_date:moment().format('Do MMMM YYYY'),
+    const clientData = {
+      current_date: moment().format('Do MMMM YYYY'),
       company_name: user.Client.get('name'),
       perc_revenue_share: user.Client.get('perc_revenue_share'),
       company_address: user.Client.get('reg_address'),
@@ -158,11 +66,11 @@ export function makeUserActive(req, res) {
         // compile the template
         const template = handlebars.compile(data.replace(/\n|\r/g, ''));
         // call template as a function, passing in your data as the context
-        let outputString = template(clientData);
+        const outputString = template(clientData);
         // TODO GENERATE HTML FOR FRONTEND
         return mkdirp(`${config.QDMS_PATH}SignUps`).then(() => {
           wkhtmltopdf(outputString, options)
-            .pipe(fs.createWriteStream(config.QDMS_PATH+'SignUps/'+req.user.id+'.pdf'));
+            .pipe(fs.createWriteStream(`${config.QDMS_PATH}SignUps/${req.user.id}.pdf`));
           // Sending mail to user with attachement of file using queue
           const queueData = phpSerialize.serialize({
             settings: {
@@ -190,18 +98,18 @@ export function makeUserActive(req, res) {
           };
           // Creating entry in queued task Ends here
           QueuedTask.create(task)
-            .catch(qErr => console.log(`error queue email: user signup: ${req.user.id}`,
+            .catch(qErr => logger.error(`error queue email: user signup: ${req.user.id}`,
               qErr, queueData));
           // Updating user is_active flag and setting it to 1
           return User.find({
             where: {
               id: req.user.id,
             },
-          }).then(user => user.update({
+          }).then(quser => quser.update({
             is_active: 1,
           }));
         });
-    });
+      });
     return res.json(user);
   })
     .catch(err => handleError(res, 500, err));
@@ -210,45 +118,45 @@ export function makeUserActive(req, res) {
 export function agreement(req, res) {
   // get your data into a variable
   User.find({
-      where: {
-        id: req.user.id,
-      },
-      attributes: ['id', 'name', 'email_id', 'timestamp'],
-      include: {
-        model: Client,
-        attributes: ['name', 'perc_revenue_share', 'reg_address'],
-      },
-    })
-    .then(user => {
-      let clientData = {
-        current_date: moment().format('Do MMMM YYYY'),
-        company_name: user.dataValues.Client.name,
-        perc_revenue_share: user.dataValues.Client.perc_revenue_share,
-        company_address: user.dataValues.Client.reg_address,
-      };
-      // set up your handlebars template
+    where: {
+      id: req.user.id,
+    },
+    attributes: ['id', 'name', 'email_id', 'timestamp'],
+    include: {
+      model: Client,
+      attributes: ['name', 'perc_revenue_share', 'reg_address'],
+    },
+  })
+  .then(user => {
+    const clientData = {
+      current_date: moment().format('Do MMMM YYYY'),
+      company_name: user.dataValues.Client.name,
+      perc_revenue_share: user.dataValues.Client.perc_revenue_share,
+      company_address: user.dataValues.Client.reg_address,
+    };
+    // set up your handlebars template
 
-      fs.readFile(path.join(config.root, 'server', 'views', 'terms-and-conditions.html'), 'utf8',
-        (err, data) => {
-          if (err) {
-            return res.json(err);
-          }
-          // compile the template
-          const template = handlebars.compile(data.replace(/\n|\r/g, ''));
-          // call template as a function, passing in your data as the context
-          const outputString = template(clientData);
-          return res.end(outputString);
-        });
-    })
-    .catch(err => handleError(res, 500, err));
+    fs.readFile(path.join(config.root, 'server', 'views', 'terms-and-conditions.html'), 'utf8',
+      (err, data) => {
+        if (err) {
+          return res.json(err);
+        }
+        // compile the template
+        const template = handlebars.compile(data.replace(/\n|\r/g, ''));
+        // call template as a function, passing in your data as the context
+        const outputString = template(clientData);
+        return res.end(outputString);
+      });
+  })
+  .catch(err => handleError(res, 500, err));
 }
 
 // To get preferences of the consultant
 export function checkTerminationStatus(req, res) {
   const clientId = req.user.client_id;
   Client.getTerminatedStatus(db, clientId)
-    .then(response => res.json({response}))
-    .catch(err => res.json({err}));
+    .then(response => res.json({ response }))
+    .catch(err => res.json({ err }));
 }
 // TODO To be moved to config file
 const ENUM = {
@@ -286,7 +194,7 @@ export function preferences(req, res) {
 
       const preferredFunctionListIds = _.map(preferredFunctionList, 'func_id');
       allApplicants.functionList.map((item) => {
-        const itemTemp = item.toJSON();
+        const itemTemp = item;
         // Performance issue: to be improved : matching with all data
         const status = preferredFunctionListIds.indexOf(item.id);
         // Todo: @manjesh sequelizeInstance.dataValues need to simplified
@@ -296,18 +204,18 @@ export function preferences(req, res) {
 
       const preferredIndustryListIds = _.map(preferredIndustryList, 'industry_id');
       allApplicants.industryList.map((item) => {
-        const itemTemp = item.toJSON();
+        const itemTemp = item;
         // Performance issue: to be improved : matching with all data
         const status = preferredIndustryListIds.indexOf(item.id);
         // Todo: @manjesh sequelizeInstance.dataValues need to simplified
-        itemTemp.selected = (status !== -1)
+        itemTemp.selected = (status !== -1);
         return itemTemp;
       });
 
       const ctcRange = [clientData.min_ctc, clientData.max_ctc];
       allApplicants.ctcRange = ENUM.CTC_RANGES.map(item => {
         const itemTemp = item;
-        itemTemp.selected = (itemTemp.min >= ctcRange[0] && itemTemp.max <= ctcRange[1])
+        itemTemp.selected = (itemTemp.min >= ctcRange[0] && itemTemp.max <= ctcRange[1]);
         return itemTemp;
       });
       return res.json(allApplicants);
@@ -315,7 +223,7 @@ export function preferences(req, res) {
 }
 
 
-export function updatePreferences(req, res){
+export function updatePreferences(req, res) {
   let ctcRange = _.filter(req.body.ctcRange, { selected: true }); // req.body.ctcRange
   ctcRange = _.sortBy(_.filter(ctcRange, { selected: true }), 'min'); // req.body.ctcRange
   const minCTC = ctcRange[0].min;
@@ -327,41 +235,39 @@ export function updatePreferences(req, res){
     where: {
       id: req.user.client_id,
     },
-  }).then(client => {
-    return client.update({
-      min_ctc: minCTC,
-      max_ctc: maxCTC,
-      consultant_survey_time: consultantSurveyTime,
-      consultant_survey: consultantSurvey,
-    }).then(() => {
-      const functionListToSave = _.filter(req.body.functionList, { selected: true });
-      const clientPreferredFunctionData = functionListToSave
-        .map(item => {
-          const temp = { client_id: req.user.client_id, func_id: item.id };
-          return temp;
-        });
+  }).then(client => client.update({
+    min_ctc: minCTC,
+    max_ctc: maxCTC,
+    consultant_survey_time: consultantSurveyTime,
+    consultant_survey: consultantSurvey,
+  }).then(() => {
+    const functionListToSave = _.filter(req.body.functionList, { selected: true });
+    const clientPreferredFunctionData = functionListToSave
+      .map(item => {
+        const temp = { client_id: req.user.client_id, func_id: item.id };
+        return temp;
+      });
 
-      const industryListToSave = _.filter(req.body.industryList, { selected: true });
-      const clientPreferredIndustryData = industryListToSave
-        .map(item => {
-          const temp = { client_id: req.user.client_id, industry_id: item.id };
-          return temp;
-        });
+    const industryListToSave = _.filter(req.body.industryList, { selected: true });
+    const clientPreferredIndustryData = industryListToSave
+      .map(item => {
+        const temp = { client_id: req.user.client_id, industry_id: item.id };
+        return temp;
+      });
 
-      return Promise.all([
-          (req.user.client_id ? ClientPreferredFunction
-            .destroy({ where: { client_id: req.user.client_id } }) : []),
-          (req.user.client_id ? ClientPreferredIndustry
-            .destroy({ where: { client_id: req.user.client_id } }) : []),
-      ])
-      .then(() => Promise.all([
-        // Inserting Client Preferred Function
-        ClientPreferredFunction.bulkCreate(clientPreferredFunctionData),
-        // Inserting Client Preferred Industry
-        ClientPreferredIndustry.bulkCreate(clientPreferredIndustryData),
-      ]).then(() => res.json({ message: 'record updated' })));
-    });
-  })
+    return Promise.all([
+        (req.user.client_id ? ClientPreferredFunction
+          .destroy({ where: { client_id: req.user.client_id } }) : []),
+        (req.user.client_id ? ClientPreferredIndustry
+          .destroy({ where: { client_id: req.user.client_id } }) : []),
+    ])
+    .then(() => Promise.all([
+      // Inserting Client Preferred Function
+      ClientPreferredFunction.bulkCreate(clientPreferredFunctionData),
+      // Inserting Client Preferred Industry
+      ClientPreferredIndustry.bulkCreate(clientPreferredIndustryData),
+    ]).then(() => res.json({ message: 'record updated' })));
+  }))
   .catch(err => handleError(res, 500, err));
 }
 
@@ -404,7 +310,7 @@ export function dashboard(req, res) {
           { 'ApplicantState.State.id': parseInt(id, 10) })[0], 'ApplicantState.State.name');
         widgetItem.count = _count[id];
         countData.push(widgetItem);
-      })
+      });
 
       // Fetching data from applicant using solr
       const solrQuery = Solr.createQuery()
@@ -414,7 +320,7 @@ export function dashboard(req, res) {
       Solr.get('select', solrQuery, (err, result) => {
         if (err) return handleError(res, 500, err);
         const applicantData = result.response.docs;
-        if(!allApplicantsTemp.length) return res.json(applicantData)
+        if (!allApplicantsTemp.length) return res.json(applicantData);
 
         const solrInnerQuery = db.Solr
           .createQuery()
@@ -442,7 +348,7 @@ export function dashboard(req, res) {
                 attributes: [],
                 where: {
                   state_id: [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22,
-                    23,  24, 25, 28, 29, 30, 31, 33, 34, 35, 36, 38]
+                    23, 24, 25, 28, 29, 30, 31, 33, 34, 35, 36, 38],
                 },
                 include: {
                   model: State,
@@ -463,7 +369,7 @@ export function dashboard(req, res) {
                 model: ApplicantState,
                 attributes: [],
                 where: {
-                  state_id : [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                  state_id: [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
                     21, 22, 23, 24, 25, 28, 29, 30, 31, 33, 34, 35, 36, 38],
                 },
                 include: {
@@ -525,7 +431,7 @@ export function dashboard(req, res) {
             where: {
               user_id: req.user.id,
             },
-            attributes: ['id','name'],
+            attributes: ['id', 'name'],
             include: [
               {
                 model: ApplicantState,
@@ -552,7 +458,7 @@ export function dashboard(req, res) {
             ],
             raw: true,
           }).then(upcomingOfferApplicants => {
-            const _userIds = _.uniq(_.map(upcomingOfferApplicants,'JobApplications.Job.user_id'));
+            const _userIds = _.uniq(_.map(upcomingOfferApplicants, 'JobApplications.Job.user_id'));
             return User.findAll({
               where: {
                 id: _userIds,
@@ -564,14 +470,14 @@ export function dashboard(req, res) {
               },
             }).then(_userData => {
               const upcomingOfferData = upcomingOfferApplicants.map((applicant) => {
-                const userId =_.get(applicant, 'JobApplications.Job.user_id');
+                const userId = _.get(applicant, 'JobApplications.Job.user_id');
                 return {
-                  id:_.get(applicant, 'id'),
-                  name:_.get(applicant, 'name'),
+                  id: _.get(applicant, 'id'),
+                  name: _.get(applicant, 'name'),
                   stateId: _.get(applicant, 'ApplicantState.State.id'),
-                  stateName:_.get(applicant, 'ApplicantState.State.name'),
-                  jobId:_.get(applicant, 'JobApplications.Job.id'),
-                  jobRole:_.get(applicant, 'JobApplications.Job.role'),
+                  stateName: _.get(applicant, 'ApplicantState.State.name'),
+                  jobId: _.get(applicant, 'JobApplications.Job.id'),
+                  jobRole: _.get(applicant, 'JobApplications.Job.role'),
                   jobClientId: userId,
                   jobClientName: _.get(_.filter(
                     _userData, user => user.id === userId)[0], 'Client.name'),
@@ -627,8 +533,8 @@ export function dashboard(req, res) {
               },
             ],
             raw: true,
-          }).then(upcomingInterviewApplicants => {
-            let _userIds = _.uniq(_.map(upcomingInterviewApplicants, 'JobApplications.Job.user_id'));
+          }).then(upcomingIntApplicants => {
+            const _userIds = _.uniq(_.map(upcomingIntApplicants, 'JobApplications.Job.user_id'));
             return User.findAll({
               where: {
                 id: _userIds,
@@ -639,7 +545,7 @@ export function dashboard(req, res) {
                 attributes: ['id', 'name'],
               },
             }).then(_userData => {
-              let upcomingInterviewData = upcomingInterviewApplicants.map((applicant) => {
+              const upcomingInterviewData = upcomingIntApplicants.map((applicant) => {
                 const userId = _.get(applicant, 'JobApplications.Job.user_id');
                 const day = moment().utcOffset('+05:30').calendar('2016-04-01', {
                   sameDay: '[Today]',
@@ -647,7 +553,7 @@ export function dashboard(req, res) {
                   sameElse: 'DD/MM/YYYY',
                 });
 
-                const time = moment(_.get(applicant, 'ApplicantState.updated_on')).format('h a')
+                const time = moment(_.get(applicant, 'ApplicantState.updated_on')).format('h a');
 
                 return {
                   id: _.get(applicant, 'id'),
@@ -678,9 +584,10 @@ export function dashboard(req, res) {
               const upcomingOfferData = promiseReturns[4];
               const newProfiles = promiseReturns[5];
               const upcomingInterviewData = promiseReturns[6];
+              let promise;
               // Checking if any job is allocated today or not
               if (newProfiles.length === 0) {
-                return res.json({
+                promise = Promise.resolve({
                   countData,
                   rating,
                   applicantData,
@@ -694,12 +601,11 @@ export function dashboard(req, res) {
                   .q('type_s:job')
                   .fl('id,role,min_sal,max_sal,job_location,client_name')
                   .matchFilter('id', `(${_.map(newProfiles, 'job_id').join(' ')})`);
-                return Solr.get('select', solrQuery2, (err2, allApplicantsJobs) => {
-                  if (err) return handleError(res, 500, err2);
+                promise = Solr.getAsync('select', solrQuery2).then((err2, allApplicantsJobs) => {
                   let newProfileData = allApplicantsJobs.response.docs;
                   newProfileData = newProfileData.map(data => {
                     const profile = { id: data.id, jobLocation: data.job_location,
-                      role: data.role, client_name: data.client_name }
+                      role: data.role, client_name: data.client_name };
                     if (typeof data.max_sal !== undefined && typeof data.min_sal !== undefined) {
                       if (data.max_sal) {
                         profile.salaryRange = `${data.min_sal}-${data.max_sal} Lakhs`;
@@ -708,7 +614,7 @@ export function dashboard(req, res) {
                     return profile;
                   });
 
-                  return res.json({
+                  return {
                     countData,
                     rating,
                     applicantData,
@@ -717,9 +623,10 @@ export function dashboard(req, res) {
                     upcomingOfferData,
                     upcomingInterviewData,
                     newProfileData,
-                  });
+                  };
                 });
               }
+              return Promise.all([promise]).then(prRe => res.json(prRe[0]));
             });
         });
       });

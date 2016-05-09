@@ -7,53 +7,12 @@
  * DELETE  /api/summary/:id          ->  destroy
  */
 
-
-
 import _ from 'lodash';
-import { User, Solr } from '../../sqldb';
+import { Solr } from '../../sqldb';
 const buckets = require('../../config/buckets');
 
-function respondWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(updated => {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(() => {
-          res.status(204).end();
-        });
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function handleError(res, statusCode, err) {
-  statusCode = statusCode || 500;
+function handleError(res, argStatusCode, err) {
+  const statusCode = argStatusCode || 500;
   res.status(statusCode).send(err);
 }
 
@@ -72,7 +31,7 @@ export function dashboard(req, res) {
     .fl('')
     .rows(0);
 
-  Solr.get('select', solrQuery, function solrCallback(err, applicants) {
+  Solr.get('select', solrQuery, (err, applicants) => {
     if (err) return handleError(res, err);
     if (applicants.facet_counts.length === 0) return res.status(204).end();
 
@@ -83,12 +42,12 @@ export function dashboard(req, res) {
       response[facets[i]] = Number(facets[i + 1]);
     }
 
-    res.json(response);
+    return res.json(response);
   });
 }
 
 // Get Applicant State distribution for applicant states
-export function pipeline(req, res, next) {
+export function pipeline(req, res) {
   const limit = req.query.rows ? req.query.rows : 10;
   const offset = req.query.start ? req.query.start : 0;
   let states = buckets.CLIENTS.PENDING_FEEDBACK;
@@ -106,8 +65,8 @@ export function pipeline(req, res, next) {
     .fl('')
     .rows(0);
 
-  Solr.get('select', solrQuery, function solrCallback(err, applicants) {
-    if (err) return next(err);
+  Solr.get('select', solrQuery, (err, applicants) => {
+    if (err) return handleError(res, 500, err);
     if (applicants.facet_counts.length === 0) return res.status(204).end();
 
     const facets = applicants.facet_counts.facet_fields._root_;
@@ -117,12 +76,12 @@ export function pipeline(req, res, next) {
       .fl(['id', 'name']);
 
     // Get Jobs detail to attach with counts
-    Solr.get('select', solrJobQuery, (errJob, jobs) => {
-      if (errJob) return next(errJob);
+    return Solr.get('select', solrJobQuery, (errJob, jobs) => {
+      if (errJob) return handleError(errJob);
       const response = jobs.response.docs
         .map(j => _.assign(j, { count: Number(facets(facets.indexOf(j.id) + 1)) }));
 
-      res.json(response);
+      return res.json(response);
     });
   });
 }

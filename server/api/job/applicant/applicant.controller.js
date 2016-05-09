@@ -7,18 +7,15 @@
  * DELETE  /api/jobs//:id          ->  destroy
  */
 
-import _ from
-  'lodash';
+import _ from 'lodash';
+import path from 'path';
+import formidable from 'formidable';
 import db, { Applicant, Solr, STAKEHOLDERS, BUCKETS } from '../../../sqldb';
 import config from './../../../config/environment';
-import formidable from 'formidable';
-import path from 'path';
-import slack from './../../../components/slack';
+import logger from './../../../components/logger';
 
-function handleError(res, statusCode, err) {
-  console.log('handleError', err);
-  slack('QUARCAPI: Error in applicant controller' + (err.message ? err.message : ''))
-  const status = statusCode || 500;
+function handleError(res, argStatusCode, err) {
+  const status = argStatusCode || 500;
   res.status(status).json(err);
 }
 
@@ -42,7 +39,7 @@ export function index(req, res) {
   }
 
   const states = [];
-  rawStates.forEach(function normalize(state) {
+  rawStates.forEach(state => {
     if (isNaN(state)) if (bucket[state]) bucket[state].map(s => states.push(s));
 
     if (_.isInteger(state) || ~bucket.ALL.indexOf(Number(state))) states.push(Number(state));
@@ -66,7 +63,7 @@ export function index(req, res) {
     ]);
   }
 
-  Solr.get('select', solrQuery, function solrCallback(err, result) {
+  Solr.get('select', solrQuery, (err, result) => {
     if (err) return handleError(res, 500, err);
     return res.json(result.response.docs);
   });
@@ -74,10 +71,10 @@ export function index(req, res) {
 
 // Check Already Applied
 export function alreadyApplied(req, res) {
-  return db.Applicant.alreadyApplied(db,req.params.jobId,req.query.email,req.query.number)
-  .then(status => {
-    return res.json(_.extend({ code: 409, message: 'phone or email conflict' }, status));
-  }).catch(err => handleError(res, 500, err));
+  const jobId = req.params.jobId;
+  return db.Applicant.alreadyApplied(db, jobId, req.query.email, req.query.number)
+  .then(status => res.json(_.extend({ code: 409, message: 'phone or email conflict' }, status)))
+    .catch(err => handleError(res, 500, err));
 }
 
 // Check Already Applied with applicantId
@@ -87,16 +84,15 @@ export function alreadyAppliedWithApplicantId(req, res) {
   const mobile = req.query.number;
   const applicantId = req.params.applicantId;
   Applicant.alreadyAppliedWithApplicantId(db, jobId, email, mobile, applicantId)
-    .then(status => {
-      return res.json(_.extend({ code: 409, message: 'phone or email conflict' }, status));
-    }).catch(err => handleError(res, 500, err));
+    .then(status => res.json(_.extend({ code: 409, message: 'phone or email conflict' }, status)))
+    .catch(err => handleError(res, 500, err));
 }
 
 // Creates a new Applicant in the DB
 export function create(req, res) {
   const form = new formidable.IncomingForm();
-  form.parse(req, function (formErr, fields, files) {
-    if(formErr) return handleError(res, 500, formErr);
+  form.parse(req, (formErr, fields, files) => {
+    if (formErr) return handleError(res, 500, formErr);
     const applicant = JSON.parse(fields.payload);
     return Applicant.alreadyApplied(db, req.params.jobId, applicant.email_id, applicant.number)
       .then(status => {
@@ -125,7 +121,7 @@ export function reapply(req, res) {
 
   Applicant.findById(applicantId, {
     include: [db.Resume, db.Email, db.PhoneNumber, db.Education],
-  }).then(function (applicant) {
+  }).then(applicant => {
     const email = _.get(applicant.Emails[0], 'email');
     const mobile = _.get(applicant.PhoneNumbers[0], 'number');
     return db.Applicant.alreadyApplied(db, jobId, email, mobile)
@@ -133,7 +129,7 @@ export function reapply(req, res) {
         if (status.email === true || status.number === true) {
           return res.status(409).json({ message: 'Already applied' });
         }
-        const userId = req.user.id
+        const userId = req.user.id;
         const file = {
           name: applicant.Resumes[0].path.split('/').pop(),
           path: config.QDMS_PATH + applicant.Resumes[0].path,
@@ -146,17 +142,17 @@ export function reapply(req, res) {
           const experiancePromises = [
             db.Region.findById(experience.region_id),
             db.Employer.findById(experience.employer_id),
-            db.Designation.findById(experience.designation_id)
-          ]
+            db.Designation.findById(experience.designation_id),
+          ];
 
           return Promise.all(experiancePromises).then(resolvedPromise => {
             const region = resolvedPromise[0] || {};
             const employer = resolvedPromise[1] || {};
             const designation = resolvedPromise[2] || {};
             const _experience = experience;
-            _experience.region = region.region
-            _experience.employer = employer.name
-            _experience.designation = designation.name
+            _experience.region = region.region;
+            _experience.employer = employer.name;
+            _experience.designation = designation.name;
             return _experience;
           });
         });
@@ -178,23 +174,22 @@ export function reapply(req, res) {
           };
 
           return Applicant.saveApplicant(db, applicantToSave, file, userId, jobId)
-            .then(savedApplicant => {
-              return res.status(201).json({ message: 'Approved', id: savedApplicant.id });
-            });
+            .then(savedApplicant => res.status(201)
+              .json({ message: 'Approved', id: savedApplicant.id }));
         });
       });
   })
   .catch(err => handleError(res, 500, err));
 }
 export function show(req, res) {
-  db.Applicant.getFullDetails(db, req.params.applicantId).then(applicant =>{
+  db.Applicant.getFullDetails(db, req.params.applicantId).then(applicant => {
     function getExperienceMonth(input) {
       let inputValue = input;
-      if(typeof input === 'number') inputValue = inputValue.toString()
-      if(!inputValue) return inputValue
-      const split = (inputValue + '').split('.')
+      if (typeof input === 'number') inputValue = inputValue.toString();
+      if (!inputValue) return inputValue;
+      const split = (`${inputValue}''`).split('.');
       let returnValue;
-      if(split.length === 2) {
+      if (split.length === 2) {
         const m = split[1];
         returnValue = parseInt(m[0] === '0' ? m[1] : m, 10);
       } else {
@@ -229,21 +224,20 @@ export function show(req, res) {
 }
 
 
-export function update(req,res) {
-  db.Applicant.getFullDetails(db,req.params.applicantId).then(exApplicant => {
-
+export function update(req, res) {
+  db.Applicant.getFullDetails(db, req.params.applicantId).then(exApplicant => {
     let reqPr = [];
-    if(req.get('Content-Type').search('json') === -1) {
+    if (req.get('Content-Type').search('json') === -1) {
       // Multipart
       reqPr = new Promise(
-        function (resolve, reject) { // (A)
+        (resolve, reject) => { // (A)
           const form = new formidable.IncomingForm();
           form.parse(req, (err, fields, files) => {
-            if(err) return reject(err);
+            if (err) return reject(err);
             return resolve({ body: JSON.parse(fields.payload), files });
           });
         });
-    } else if(req.get('Content-Type').search('multipart') === -1) {
+    } else if (req.get('Content-Type').search('multipart') === -1) {
       // application/json
       reqPr = Promise.resolve({ body: req.body });
     } else {
@@ -254,7 +248,7 @@ export function update(req,res) {
       const applicantData = bodyPrRe[0];
       const files = applicantData.files;
       const editedApplicant = applicantData.body;
-      if(editedApplicant.id) {
+      if (editedApplicant.id) {
         delete editedApplicant.id;
       }
 
@@ -264,9 +258,9 @@ export function update(req,res) {
       const promises = [];
       promises.push(db.Applicant.findById(exApplicant.id)
         .then(appl => appl.update(_.pick(editedApplicant,
-          'name', 'expected_ctc', 'notice_period', 'total_exp'))))
+          'name', 'expected_ctc', 'notice_period', 'total_exp'))));
 
-      if(files) {
+      if (files) {
         const file = files.fileUpload;
         const fileExt = file.name.split('.').pop().toLowerCase(); // Extension
         const allowedExtType = ['doc', 'docx', 'pdf', 'rtf', 'txt'];
@@ -284,20 +278,20 @@ export function update(req,res) {
             applicant_id: applicantId,
           },
         }).then(resume => {
-          if(!resume) return { message: 'Resume not found' }
+          if (!resume) return { message: 'Resume not found' };
           const existsingFilename = resume.path.split('/').pop();
           const newupdateIdArray = existsingFilename.split('.');
           const newID = parseInt(newupdateIdArray[0], 10) + 1;
           const rangeFolder = (applicantId - (applicantId % 10000)).toString();
 
-          const folder = path.join(config.QDMS_PATH,
-              'Applicants', rangeFolder, applicantId.toString()) + '/';
-          const resumePathToUpdateInDB = folder + newID + '.' + fileExt
+          const folder = `${path.join(config.QDMS_PATH,
+              'Applicants', rangeFolder, applicantId.toString())}/`;
+          const resumePathToUpdateInDB = `$folder}${newID}.${fileExt}`;
           const tempFilePath = files.fileUpload.path;
           return db.Applicant.uploadFile(db, tempFilePath, folder, newID, fileExt, applicantId)
             .then(() => {
               db.Applicant.processApplicantCharactersticks(db, applicantId, jobId)
-                .catch(console.log);
+                .catch(logger.error);
 
               return resume.update({ path: resumePathToUpdateInDB });
             });
@@ -305,19 +299,19 @@ export function update(req,res) {
         promises.push(resumePr);
       }
 
-      if(!!editedApplicant.email_id &&
+      if (!!editedApplicant.email_id &&
         _.get(exApplicant.Emails[0], 'email') !== editedApplicant.email_id) {
         promises.push(db.Email.findById(_.get(exApplicant.Emails[0], 'id'))
           .then(email => email.update({ email: editedApplicant.email_id })));
       }
 
-      if(!!editedApplicant.number &&
+      if (!!editedApplicant.number &&
         _.get(exApplicant.PhoneNumbers[0], 'number') !== editedApplicant.number) {
         promises.push(db.PhoneNumber.findById(_.get(exApplicant.PhoneNumbers[0], 'id'))
           .then(number => number.update({ number: editedApplicant.number })));
       }
 
-      if(!!editedApplicant.degree_id &&
+      if (!!editedApplicant.degree_id &&
         _.get(exApplicant.Education[0], 'id') !== editedApplicant.degree_id) {
         promises.push(db.Education.findById(_.get(exApplicant.Education[0], 'id'))
           .then(education => education.update({ degree_id: editedApplicant.degree_id })));
@@ -345,13 +339,11 @@ export function update(req,res) {
         experienceToSave.designation_id = editedApplicant.designation_id;
       }
 
-      if(Object.keys(experienceToSave).length) {
+      if (Object.keys(experienceToSave).length) {
         promises.push(db.Experience.findById(_.get(exApplicant.Experience, 'id'))
           .then(exp => exp.update(experienceToSave)));
       }
-      return Promise.all(promises).then(() => {
-        return res.json({ id: exApplicant.id });
-      });
+      return Promise.all(promises).then(() => res.json({ id: exApplicant.id }));
     });
   }).catch(err => handleError(res, 500, err));
 }

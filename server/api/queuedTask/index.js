@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./queuedTask.controller');
+// var controller = require('./queuedTask.controller');
 
 var router = express.Router();
 

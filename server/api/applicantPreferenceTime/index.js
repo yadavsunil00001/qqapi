@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./applicantPreferenceTime.controller');
+// var controller = require('./applicantPreferenceTime.controller');
 
 var router = express.Router();
 

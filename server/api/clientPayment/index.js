@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./clientPayment.controller');
+// var controller = require('./clientPayment.controller');
 
 var router = express.Router();
 

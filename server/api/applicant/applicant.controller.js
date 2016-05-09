@@ -8,15 +8,16 @@
  */
 
 import _ from 'lodash';
+import fs from 'fs';
+import moment from 'moment';
 import db, { Applicant, Resume, Solr, Job, JobApplication, User, Client,
   STAKEHOLDERS, BUCKETS } from '../../sqldb';
 import config from './../../config/environment';
-import fs from 'fs';
-import moment from 'moment';
+import logger from './../../components/logger';
 
 
 function handleError(res, statusCode, err) {
-  console.log('Error: handleError >', err);
+  logger('Error: handleError >', err);
   const status = statusCode || 500;
   res.status(status).send(err);
 }
@@ -35,7 +36,7 @@ function wildSearch(collection, keywords) {
             }
           }
           return false;
-        })
+        });
         return false;
       });
     });
@@ -116,7 +117,6 @@ export function index(req, res) {
         applicants[key]._root_ = jobs
           .filter(s => s.id === applicants[key]._root_)[0];
       });
-      // console.log(applicants);
       if (!!req.query.q) {
         applicants.forEach((applicant, key) => {
           applicants[key].client_name = applicants[key]._root_.client_name;
@@ -183,7 +183,7 @@ export function show(req, res) {
     }
 
     if (!~fl.indexOf('_root_')) return res.json(result.response.docs[0]);
-    const applicant = result.response.docs[0]; console.log(result.response.docs);
+    const applicant = result.response.docs[0]; logger(result.response.docs);
     const solrInnerQuery = db.Solr
       .createQuery()
       .q(`id:${applicant._root_} AND type_s:job`)

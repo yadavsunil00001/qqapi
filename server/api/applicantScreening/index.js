@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./applicantScreening.controller');
+// var controller = require('./applicantScreening.controller');
 
 var router = express.Router();
 

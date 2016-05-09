@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./accessToken.controller');
+// var controller = require('./accessToken.controller');
 
 var router = express.Router();
 

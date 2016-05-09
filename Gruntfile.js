@@ -40,7 +40,7 @@ module.exports = function (grunt) {
         configFile: '.eslintrc',
         //rulePaths: ['conf/rules']
       },
-      target: [ 'server/api/**/*.model.js'],
+      target: [ 'server/api/**/*.controller.js', 'server/api/**/*.model.js'],
     },
     express: {
       options: {

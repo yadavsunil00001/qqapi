@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./notification.controller');
+// var controller = require('./notification.controller');
 
 var router = express.Router();
 

@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./logo.controller');
+// var controller = require('./logo.controller');
 
 var router = express.Router();
 

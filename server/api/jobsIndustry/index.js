@@ -1,7 +1,7 @@
 
 
 var express = require('express');
-var controller = require('./jobsIndustry.controller');
+// var controller = require('./jobsIndustry.controller');
 
 var router = express.Router();
 

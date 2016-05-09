@@ -7,14 +7,11 @@
  * DELETE  /api/authorise/:id          ->  destroy
  */
 
-
-
-import _ from 'lodash';
-import { Authorise, App } from '../../sqldb';
+import { App } from '../../sqldb';
 import oAuth from '../../components/oauthjs';
 
-function handleError(res, statusCode, err) {
-  statusCode = statusCode || 500;
+function handleError(res, argStatusCode, err) {
+  const statusCode = argStatusCode || 500;
   return res.status(statusCode).send(err);
 }
 
@@ -35,8 +32,5 @@ export function index(req, res) {
 
 exports.create = oAuth.authCodeGrant((req, callback) => {
   if (req.body.allow !== 'true') return callback(null, false);
-  callback(null, true, req.user);
+  return callback(null, true, req.user);
 });
-
-
-

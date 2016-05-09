@@ -7,76 +7,25 @@
  * DELETE  /api/users/:id          ->  destroy
  */
 
-
-
 import _ from 'lodash';
-import db, { User, Group, Client, State, ActionableState } from '../../sqldb';
+import db, { User, Group, Client } from '../../sqldb';
 
-function respondWithResult(res, statusCode) {
-  statusCode = statusCode || 200;
-  return function (entity) {
-    if (entity) {
-      res.status(statusCode).json(entity);
-    }
-  };
-}
-
-function saveUpdates(updates) {
-  return function (entity) {
-    return entity.updateAttributes(updates)
-      .then(updated => {
-        return updated;
-      });
-  };
-}
-
-function removeEntity(res) {
-  return function (entity) {
-    if (entity) {
-      return entity.destroy()
-        .then(() => {
-          res.status(204).end();
-        });
-    }
-  };
-}
-
-function handleEntityNotFound(res) {
-  return function (entity) {
-    if (!entity) {
-      res.status(404).end();
-      return null;
-    }
-    return entity;
-  };
-}
-
-function handleError(res, statusCode) {
-  statusCode = statusCode || 500;
-  return function (err) {
-    res.status(statusCode).send(err);
-  };
-}
-
-// Gets a list of Users
-export function index(req, res) {
-  User.findAll()
-    .then(respondWithResult(res))
-    .catch(handleError(res));
+function handleError(res, argStatusCode, err) {
+  const statusCode = argStatusCode || 500;
+  return res.status(statusCode).send(err);
 }
 
 /**
  * Get my info
  */
-export function me(req, res, next) {
-  var userId = req.user.id;
+export function me(req, res) {
   Promise.all([
     Group.findById(req.user.group_id, {
       attributes: ['id', 'name'],
     }),
-
     Client.findById(req.user.client_id, {
-      attributes: ['id', 'name', 'perc_revenue_share', 'termination_flag', 'consultant_survey', 'consultant_survey_time', 'eng_mgr_id'],
+      attributes: ['id', 'name', 'perc_revenue_share', 'termination_flag', 'consultant_survey',
+        'consultant_survey_time', 'eng_mgr_id'],
     }),
     User.findById(req.user.id, {
       attributes: ['id', 'name', 'email_id', 'is_active'],
@@ -87,29 +36,29 @@ export function me(req, res, next) {
       const client = promiseReturns[1];
       const user = promiseReturns[2];
 
-      var whatBlocked = [];
-      var is_blocked = false;
+      const whatBlocked = [];
+      let isBlocked = false;
 
       if (user.is_active === 0) {
-        whatBlocked.push({ priority: 0, url:'terms-and-conditions' });
-        is_blocked = true;
+        whatBlocked.push({ priority: 0, url: 'terms-and-conditions' });
+        isBlocked = true;
       }
 
       if (client.consultant_survey === 0) {
-        whatBlocked.push({ priority: 1, url:'preferences' });
-        is_blocked = true;
+        whatBlocked.push({ priority: 1, url: 'preferences' });
+        isBlocked = true;
       }
 
       if (client.toJSON().termination_flag === 1) {
-        whatBlocked.push({ priority: 2, url:'terminated-message' });
-        is_blocked = true;
+        whatBlocked.push({ priority: 2, url: 'terminated-message' });
+        isBlocked = true;
       }
       return db.UserTawktoToken.find({
         attributes: ['id', 'access_token'],
-        where:{
-          user_id:client.eng_mgr_id,
+        where: {
+          user_id: client.eng_mgr_id,
         },
-      }).then(function (tawkToken) {
+      }).then(tawkToken => {
         const userme = _.assign(req.user, {
           name: user.name,
           tawk_token: _.get(tawkToken, 'access_token'),
@@ -120,19 +69,17 @@ export function me(req, res, next) {
           terminationFlag: client.dataValues.termination_flag,
           consultantSurvey: client.dataValues.consultant_survey,
           consultantSurveyTime: client.dataValues.consultant_survey_time,
-          isBlocked : is_blocked,
-          whatBlocked : whatBlocked,
+          isBlocked,
+          whatBlocked,
         });
 
         res.json(userme);
       });
-
-
     })
-    .catch(err => next(err));
+    .catch(err => handleError(res, 500, err));
 }
 
-export function states(req, res, next) {
+export function states(req, res) {
   db.State
     .findAll({
       attributes: ['id', 'name', 'parent_id', 'config'],
@@ -155,9 +102,9 @@ export function states(req, res, next) {
       ],
       order: [['id', 'ASC'], [{ model: db.ActionableState, as: 'Actions' }, 'id', 'ASC']],
     })
-    .then(function buildStateConfig(states) {
+    .then(oStates => {
       const result = [];
-      states.forEach(function formatStates(stateModel) {
+      oStates.forEach((stateModel) => {
         const state = stateModel.toJSON();
         if (state.Childs.length === 0) state.Childs.push({ state_id: state.id });
         state.config = JSON.parse(state.config); // Need to handle Parsing Error
@@ -166,52 +113,5 @@ export function states(req, res, next) {
 
       res.json(result);
     })
-    .catch(next);
-}
-
-// Gets a single User from the DB
-export function show(req, res) {
-  User.find({
-    where: {
-      _id: req.params.id,
-    },
-  })
-    .then(handleEntityNotFound(res))
-    .then(respondWithResult(res))
-    .catch(handleError(res));
-}
-
-// Creates a new User in the DB
-export function create(req, res) {
-  User.create(req.body)
-    .then(respondWithResult(res, 201))
-    .catch(handleError(res));
-}
-
-// Updates an existing User in the DB
-export function update(req, res) {
-  if (req.body._id) {
-    delete req.body._id;
-  }
-  User.find({
-    where: {
-      _id: req.params.id,
-    },
-  })
-    .then(handleEntityNotFound(res))
-    .then(saveUpdates(req.body))
-    .then(respondWithResult(res))
-    .catch(handleError(res));
-}
-
-// Deletes a User from the DB
-export function destroy(req, res) {
-  User.find({
-    where: {
-      _id: req.params.id,
-    },
-  })
-    .then(handleEntityNotFound(res))
-    .then(removeEntity(res))
-    .catch(handleError(res));
+    .catch(err => handleError(res, 500, err));
 }
