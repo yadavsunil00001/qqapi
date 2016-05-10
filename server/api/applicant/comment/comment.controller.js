@@ -50,7 +50,7 @@ export function index(req, res) {
         },
       })
       .then((userModels) => {
-        comments.forEach((comment) => {
+        comments.forEach((comment, iIndex) => {
           const user = userModels
             .filter(u => u.id === comment.user_id)[0];
           switch (req.user.group_id) {
@@ -72,7 +72,7 @@ export function index(req, res) {
               break;
           }
           // Customized commenter naming to be viewed by recruiter
-          comments[index].user = _.pick(user, ['id', 'name']);
+          comments[iIndex].user = _.pick(user, ['id', 'name']);
         });
         res.json(comments);
       });

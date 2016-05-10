@@ -9,3 +9,4 @@ dist
 npm-debug.log
 coverage
 client/app/ng-modules
+logs

@@ -483,7 +483,7 @@ export default function (sequelize, DataTypes) {
             });
             models.QueuedTask
               .create({ jobType: 'Execute', group: 'conversion', data })
-              .catch(logger);
+              .catch(logger.error);
             return 0;
           })));
       },
@@ -542,7 +542,7 @@ export default function (sequelize, DataTypes) {
                   .create(applicantStateToSave)
                   .then(applicantState => {
                     models.ApplicantScreening.legacyMap(models, [applicantStateToSave], userId)
-                      .catch(logger);
+                      .catch(logger.error);
                     models.Job.findById(jobId).then(job => {
                       if (job.direct_line_up === 1) {
                         const awf = {
@@ -565,9 +565,9 @@ export default function (sequelize, DataTypes) {
                       }
                       models
                         .Applicant.processApplicantCharactersticks(models, applicant.id, job.id)
-                        .catch(logger);
+                        .catch(logger.error);
                       return 'Async Return';
-                    }).catch(logger);
+                    }).catch(logger.error);
 
                     const rangeFolder = (applicant.id - (applicant.id % 10000)).toString();
                     const absFolderPathToSave = `${path.join(config.QDMS_PATH, 'Applicants',
@@ -604,7 +604,7 @@ export default function (sequelize, DataTypes) {
                               jobType: 'Execute',
                               group: 'conversion',
                               data,
-                            }).catch(logger);
+                            }).catch(logger.error);
 
                             return resume;
                           }));
@@ -618,10 +618,10 @@ export default function (sequelize, DataTypes) {
                       const updatedApplicant = promiseReturns[0];
                       // Async: Not returned
                       models.Applicant.sendWelcomeEmail(models, updatedApplicant.id)
-                        .catch(logger);
+                        .catch(logger.error);
 
                       applicant.updateSolr(models, userId, jobId)
-                        .catch(logger);
+                        .catch(logger.error);
 
                       return applicant;
                     });

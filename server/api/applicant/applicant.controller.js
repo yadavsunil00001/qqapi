@@ -183,7 +183,7 @@ export function show(req, res) {
     }
 
     if (!~fl.indexOf('_root_')) return res.json(result.response.docs[0]);
-    const applicant = result.response.docs[0]; logger(result.response.docs);
+    const applicant = result.response.docs[0]; logger.error(result.response.docs);
     const solrInnerQuery = db.Solr
       .createQuery()
       .q(`id:${applicant._root_} AND type_s:job`)

@@ -202,7 +202,7 @@ export default function (sequelize, DataTypes) {
             group: 'jobScoreUpdate',
             data: jobScoreUpdateOptions,
           });
-        }).catch(logger);
+        }).catch(logger.error);
       },
     },
   });
