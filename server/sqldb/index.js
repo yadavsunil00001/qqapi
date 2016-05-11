@@ -2,10 +2,6 @@
  * Sequelize initialization module
  */
 
-'use strict';
-
-import fs from 'fs';
-import path from 'path';
 import config from '../config/environment';
 import Sequelize from 'sequelize';
 import solrClient from 'solr-client';
@@ -13,7 +9,7 @@ import Bluebird from 'bluebird';
 import BUCKETS from './../config/buckets';
 import STAKEHOLDERS from './../config/stakeholders';
 
-var db = {
+const db = {
   Sequelize,
   BUCKETS,
   STAKEHOLDERS,
@@ -21,7 +17,6 @@ var db = {
     config.solr.host, config.solr.port,
     config.solr.core, config.solr.path
   ),
-  //sequelize: new Sequelize(config.sequelize.uri, config.sequelize.options)
   sequelizeQuarc: new Sequelize(
     config.quarc.database, config.quarc.username,
     config.quarc.password, config.quarc
@@ -29,10 +24,10 @@ var db = {
   sequelizeQuantum: new Sequelize(
     config.quantum.database, config.quantum.username,
     config.quantum.password, config.quantum
-  )
+  ),
 };
 
-//// Quarc - Insert models below
+// Quarc - Insert models below
 db.ActionableState = db.sequelizeQuarc.import('../api/actionableState/actionableState.model');
 db.Applicant = db.sequelizeQuarc.import('../api/applicant/applicant.model');
 db.ApplicantDownload = db.sequelizeQuarc.import('../api/applicantDownload/applicantDownload.model');
@@ -110,7 +105,7 @@ db.UserTawktoToken = db.sequelizeQuantum.import('../api/userTawktoToken/userTawk
 // Dashboard App
 db.bdQuery = db.sequelizeQuarc.import('../applications/dashboard/api/bdQuery/bdQuery.model');
 
-Object.keys(db).forEach(function model(modelName) {
+Object.keys(db).forEach(modelName => {
   if ('associate' in db[modelName]) {
     db[modelName].associate(db);
   }

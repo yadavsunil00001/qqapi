@@ -9,7 +9,7 @@
 
 import _ from 'lodash';
 import moment from 'moment';
-import path from 'path';
+import path from 'canonical-path';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import wkhtmltopdf from 'wkhtmltopdf';
@@ -174,52 +174,44 @@ export function preferences(req, res) {
       'bd_mgr_id', 'eng_mgr_id', 'min_ctc', 'max_ctc'],
   });
 
-  const functionListPromise = Func.getFunctionList(db);
-  const clientPreferredListPromise = ClientPreferredFunction
-    .getClientPreferredFunctionList(db, clientId);
+  return Promise.all([
+    clientDataPromise,
+    Func.getFunctionList(db),
+    ClientPreferredFunction.getClientPreferredFunctionList(db, clientId),
+    Industry.getIndustryList(db),
+    ClientPreferredIndustry.getClientPreferredIndustryList(db, clientId),
+  ]).then(promiseReturns => {
+    const allApplicants = {};
+    const clientData = promiseReturns[0];
+    allApplicants.functionList = promiseReturns[1];
+    const preferredFunctionList = promiseReturns[2];
+    allApplicants.industryList = promiseReturns[3];
+    const preferredIndustryList = promiseReturns[4];
 
-  const industryListPromise = Industry.getIndustryList(db);
-  const clientIndustryListPromise = ClientPreferredIndustry
-    .getClientPreferredIndustryList(db, clientId);
+    const preferredFunctionListIds = _.map(preferredFunctionList, 'func_id');
+    allApplicants.functionList.map((item) => {
+      const itemTemp = item.toJSON();
+      const status = preferredFunctionListIds.indexOf(item.id);
+      itemTemp.selected = (status !== -1);
+      return itemTemp;
+    });
 
-  return Promise.all([clientDataPromise, functionListPromise, clientPreferredListPromise,
-    industryListPromise, clientIndustryListPromise])
-    .then(promiseReturns => {
-      const allApplicants = {};
-      const clientData = promiseReturns[0]; // TODO After UI client data needs to be removed.
-      allApplicants.functionList = promiseReturns[1];
-      const preferredFunctionList = promiseReturns[2];
-      allApplicants.industryList = promiseReturns[3];
-      const preferredIndustryList = promiseReturns[4];
+    const preferredIndustryListIds = _.map(preferredIndustryList, 'industry_id');
+    allApplicants.industryList.map((item) => {
+      const itemTemp = item.toJSON();
+      const status = preferredIndustryListIds.indexOf(item.id);
+      itemTemp.selected = (status !== -1);
+      return itemTemp;
+    });
 
-      const preferredFunctionListIds = _.map(preferredFunctionList, 'func_id');
-      allApplicants.functionList.map((item) => {
-        const itemTemp = item;
-        // Performance issue: to be improved : matching with all data
-        const status = preferredFunctionListIds.indexOf(item.id);
-        // Todo: @manjesh sequelizeInstance.dataValues need to simplified
-        itemTemp.selected = (status !== -1);
-        return itemTemp;
-      });
-
-      const preferredIndustryListIds = _.map(preferredIndustryList, 'industry_id');
-      allApplicants.industryList.map((item) => {
-        const itemTemp = item;
-        // Performance issue: to be improved : matching with all data
-        const status = preferredIndustryListIds.indexOf(item.id);
-        // Todo: @manjesh sequelizeInstance.dataValues need to simplified
-        itemTemp.selected = (status !== -1);
-        return itemTemp;
-      });
-
-      const ctcRange = [clientData.min_ctc, clientData.max_ctc];
-      allApplicants.ctcRange = ENUM.CTC_RANGES.map(item => {
-        const itemTemp = item;
-        itemTemp.selected = (itemTemp.min >= ctcRange[0] && itemTemp.max <= ctcRange[1]);
-        return itemTemp;
-      });
-      return res.json(allApplicants);
-    }).catch(err => res.json(err));
+    const ctcRange = [clientData.min_ctc, clientData.max_ctc];
+    allApplicants.ctcRange = ENUM.CTC_RANGES.map(item => {
+      const itemTemp = item;
+      itemTemp.selected = (itemTemp.min >= ctcRange[0] && itemTemp.max <= ctcRange[1]);
+      return itemTemp;
+    });
+    return res.json(allApplicants);
+  }).catch(err => res.json(err));
 }
 
 

@@ -17,31 +17,28 @@ import logger from './../../components/logger';
 
 
 function handleError(res, statusCode, err) {
-  logger('Error: handleError >', err);
+  logger.error(err);
   const status = statusCode || 500;
   res.status(status).send(err);
 }
 
-function wildSearch(collection, keywords) {
-  let collectionTemp = collection;
-  let keywordsTemp = keywords;
-  if (keywordsTemp) {
-    keywordsTemp = keywordsTemp.toUpperCase().split(' ');
-    _.each(keywordsTemp, (keyword) => {
-      collectionTemp = _.filter(collectionTemp, (item) => {
-        Object.keys(item).forEach((key) => {
-          if (item.hasOwnProperty(key) && !(key.indexOf('$$hashKey') > -1)) {
-            if (typeof item[key] === 'string' && item[key].toUpperCase().indexOf(keyword) > -1) {
-              return true;
-            }
+function wildSearch(argCllection, argKeywords) {
+  let collection = argCllection;
+  let keywords = argKeywords;
+  if (keywords) {
+    keywords = keywords.toUpperCase().split(' ');
+    _.each(keywords, keyWord => {
+      collection = _.filter(collection, item => Object.keys(item).some(key => {
+        if (item.hasOwnProperty(key) && !(key.indexOf('$$hashKey') > -1)) {
+          if (typeof item[key] === 'string' && item[key].toUpperCase().indexOf(keyWord) > -1) {
+            return true;
           }
-          return false;
-        });
+        }
         return false;
-      });
+      }));
     });
   }
-  return collectionTemp;
+  return collection;
 }
 
 // Gets a list of UserJobApplicants
@@ -183,7 +180,7 @@ export function show(req, res) {
     }
 
     if (!~fl.indexOf('_root_')) return res.json(result.response.docs[0]);
-    const applicant = result.response.docs[0]; logger.error(result.response.docs);
+    const applicant = result.response.docs[0];
     const solrInnerQuery = db.Solr
       .createQuery()
       .q(`id:${applicant._root_} AND type_s:job`)
@@ -210,19 +207,21 @@ export function getResume(req, res) {
     })
     .then((resume) => {
       // const resumePath = Applicant.getPreferredPath(resume.path) Feature Concat Removed
-      fs.readFile(`${config.QDMS_PATH}${resume.path}`, (err, resumeFile) => {
-        if (err) {
-          if (err.code === 'ENOENT') {
-            const responseText = '<br><br><h1 style="text-align: center">' +
-              'Please wait the file is under processing...</h1>';
-            return res.send(responseText);
+      if (!!resume.path) {
+        fs.readFile(`${config.QDMS_PATH}${resume.path}`, (err, resumeFile) => {
+          if (err) {
+            if (err.code === 'ENOENT') {
+              const responseText = '<br><br><h1 style="text-align: center">' +
+                'Please wait the file is under processing...</h1>';
+              return res.send(responseText);
+            }
           }
-        }
 
-        if (err) return handleError(res, 500, err);
-        res.contentType('application/pdf');
-        return res.send(resumeFile);
-      });
+          if (err) return handleError(res, 500, err);
+          res.contentType('application/pdf');
+          return res.send(resumeFile);
+        });
+      }
     })
     .catch(err => handleError(res, 500, err));
 }

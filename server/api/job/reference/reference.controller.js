@@ -8,7 +8,7 @@
  */
 
 import fs from 'fs';
-import path from 'path';
+import path from 'canonical-path';
 import db, { Reference, Applicant } from '../../../sqldb';
 import config from '../../../config/environment';
 

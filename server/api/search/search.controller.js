@@ -22,6 +22,7 @@ function sequelizeSearch(model, fieldName) {
   const field = fieldName || 'name';
   return (req, res) => {
     const options = {
+      where: {},
       attributes: ['id', [field, 'name']],
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
@@ -42,6 +43,7 @@ function sequelizeSearchRegion(model, fieldName) {
   const field = fieldName || 'name';
   return (req, res) => {
     const options = {
+      where: {},
       attributes: ['id', 'region', [Sequelize.col('Province.name'), 'province'],
         [Sequelize.fn('CONCAT_WS', ', ', Sequelize.col('region'),
           Sequelize.col('Province.name')), 'alias']],
@@ -107,7 +109,7 @@ function sequelizeConsultantSearch(model, whereOptions) {
   return (req, res) => {
     const options = {
       attributes: ['id', [field, 'name']],
-      where: whereOptions,
+      where: whereOptions || {},
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
     };
@@ -124,12 +126,11 @@ function sequelizeConsultantSearch(model, whereOptions) {
 }
 
 function sequelizeClientSearch(model) {
-  const where = {};
   const field = 'name';
   return (req, res) => {
     const options = {
       attributes: ['id', 'name'],
-      where,
+      where: {},
       limit: Number(req.query.limit) || 10,
       offset: Number(req.query.offset) || 0,
     };
@@ -278,8 +279,6 @@ function applicantStatusSolr() {
       if (req.body.params.fq !== '' && typeof req.body.params.fq !== 'undefined') {
         solrQuery.parameters.push(encodeURI(`fq=${req.body.params.fq}`));
         if (req.body.params.fq.state_id) {
-          // return res.json(req.body.params.fq.state_id)
-          // console.log(req.body.params.fq.state_id)
           solrQuery.matchFilter('state_id', req.body.params.fq.state_id);
         }
       }
@@ -320,8 +319,6 @@ function applicantStatusSolr() {
 function currentConsultantAllocJobClients() {
   return (req, res) => {
     const options = {
-      limit: Number(req.query.limit) || 10,
-      offset: Number(req.query.offset) || 0,
       attributes: ['id'],
       where: {
         user_id: req.user.id, // consultant_id
@@ -349,6 +346,8 @@ function currentConsultantAllocJobClients() {
       const owners = jobOwners.map(jobOwner => jobOwner.Job.user_id);
 
       return db.Client.findAll({
+        limit: Number(req.query.limit) || 10,
+        offset: Number(req.query.offset) || 0,
         attributes: ['id', 'name'],
         where: {
           name: { $like: `${req.query.q}%` },

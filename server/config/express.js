@@ -11,7 +11,7 @@ import bodyParser from 'body-parser';
 import methodOverride from 'method-override';
 import cookieParser from 'cookie-parser';
 import errorHandler from 'errorhandler';
-import path from 'path';
+import path from 'canonical-path';
 import cors from 'cors';
 import oAuthComponent from './../components/oauthjs';
 import config from './environment';

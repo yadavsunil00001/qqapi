@@ -5,7 +5,7 @@
 'use strict';
 
 import errors from './components/errors';
-import path from 'path';
+import path from 'canonical-path';
 
 export default function(app) {
 

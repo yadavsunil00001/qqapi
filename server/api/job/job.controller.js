@@ -12,8 +12,10 @@
 import _ from 'lodash';
 import db, { User, JobAllocation, Solr, sequelizeQuarc, Sequelize, Region, JobScore,
   JobStatus, ClientPayment, ConsultantResponse } from '../../sqldb';
+import logger from '../../components/logger';
 
 function handleError(res, argStatusCode, err) {
+  logger.error('job.controller.js : ', err);
   const statusCode = argStatusCode || 500;
   res.status(statusCode).json(err);
 }
@@ -51,8 +53,7 @@ export function index(req, res) {
     }
   });
 
-
-  const countQueryPr = !req.query.meta || req.query.offset !== 0 ? [] : sequelizeQuarc.query(`
+  const countQueryPr = (!req.query.meta && req.query.offset !== 0) ? [] : sequelizeQuarc.query(`
     SELECT
       COUNT(JobStatus.id) as jobStatusCount,
       JobStatus.name AS jobStatusName
@@ -108,7 +109,13 @@ export function index(req, res) {
       { type: Sequelize.QueryTypes.SELECT });
   return Promise.all([countQueryPr, queryPr])
       .then(prRe => {
-        const jobsCount = cakeList(prRe[0], 'jobStatusName', 'jobStatusCount');
+        let jobsCount = cakeList(prRe[0], 'jobStatusName', 'jobStatusCount');
+        jobsCount = {
+          Open: jobsCount.Open || 0,
+          'High Priority': jobsCount['High Priority'] || 0,
+          Hold: jobsCount.Hold || 0,
+          Closed: jobsCount.Closed || 0,
+        };
         const jobs = prRe[1];
         return res.json({ jobs, meta: { jobsCount } });
       }).catch(err => handleError(res, 500, err));
@@ -238,7 +245,7 @@ export function allocationStatusNew(req, res) {
     .then(argJobs => {
       let jobs = argJobs;
       let jobCountPromise = [];
-      if (req.query.offset === 0) {
+      if (parseInt(req.query.offset, 0) === 0) {
         const countQuery = `
             SELECT response_id ,count(response_id) AS count FROM (SELECT
                   Job.id ,
@@ -323,7 +330,7 @@ export function allocationStatusNew(req, res) {
             const jobScores = cakeList(promiseReturnArray[2], 'id', 'consultant');
             const priority = cakeList(promiseReturnArray[3], 'id', 'name');
             const deepClientPayments = promiseReturnArray[4];
-            const jobCount = promiseReturnArray[5];
+            const jobsCount = promiseReturnArray[5];
 
             // DEEP Query Job ClientPayments
             const argClientPayments = {};
@@ -363,10 +370,10 @@ export function allocationStatusNew(req, res) {
               }
               return job;
             });
-            return { jobs, meta: { jobCount } };
+            return { jobs, meta: { jobsCount } };
           });
       } else {
-        return jobCountPromise.then(jobsCount => {
+        promise = jobCountPromise.then(jobsCount => {
           const temp = { jobs: [], meta: { jobsCount } };
           return temp;
         });

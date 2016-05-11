@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import fsp from 'fs-promise';
 import mkdirp from 'mkdirp-then';
-import path from 'path';
+import path from 'canonical-path';
 import config from './../../config/environment';
 import phpSerialize from './../../components/php-serialize';
 import logger from './../../components/logger';
@@ -552,7 +552,7 @@ export default function (sequelize, DataTypes) {
                           comments: 'Automated',
                         };
 
-                        models.ApplicantState.updateState(models, awf, userId);
+                        const pr = models.ApplicantState.updateState(models, awf, userId);
                         models.ApplicantScreening.legacyMap(models, [awf], userId);
 
                         const cvs = {
@@ -561,7 +561,7 @@ export default function (sequelize, DataTypes) {
                           applicant_id: applicant.id,
                           comments: 'Direct-Line-Up auto-shortlist',
                         };
-                        models.ApplicantState.updateState(models, cvs, userId);
+                        pr.then(() => models.ApplicantState.updateState(models, cvs, userId));
                       }
                       models
                         .Applicant.processApplicantCharactersticks(models, applicant.id, job.id)
@@ -926,11 +926,9 @@ export default function (sequelize, DataTypes) {
             const employer = resolvedPromise[1] || {};
             const designation = resolvedPromise[2] || {};
             const temp = experience;
-            _.assign({
-              region: region.region,
-              employer: employer.name,
-              designation: designation.name,
-            }, temp);
+            temp.region = region.region;
+            temp.employer = employer.name;
+            temp.designation = designation.name;
             return temp;
           }));
 

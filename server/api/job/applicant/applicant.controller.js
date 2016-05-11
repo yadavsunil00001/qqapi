@@ -8,13 +8,14 @@
  */
 
 import _ from 'lodash';
-import path from 'path';
+import path from 'canonical-path';
 import formidable from 'formidable';
 import db, { Applicant, Solr, STAKEHOLDERS, BUCKETS } from '../../../sqldb';
 import config from './../../../config/environment';
 import logger from './../../../components/logger';
 
 function handleError(res, argStatusCode, err) {
+  logger.error(err);
   const status = argStatusCode || 500;
   res.status(status).json(err);
 }
@@ -131,8 +132,8 @@ export function reapply(req, res) {
         }
         const userId = req.user.id;
         const file = {
-          name: applicant.Resumes[0].path.split('/').pop(),
-          path: config.QDMS_PATH + applicant.Resumes[0].path,
+          name: applicant.Resumes[0] ? applicant.Resumes[0].path.split('/').pop() : '',
+          path: config.QDMS_PATH + _.get(applicant.Resumes[0], 'path'),
         };
 
         const experiancePromise = db.Experience.find({
